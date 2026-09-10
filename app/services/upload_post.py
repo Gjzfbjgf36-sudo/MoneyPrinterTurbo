@@ -13,6 +13,9 @@ from app.config import config
 
 class UploadPostService:
     API_BASE = "https://api.upload-post.com"
+    # Upload-Post 只接受这三个 YouTube 隐私状态；其它取值会被平台忽略并回退
+    # 到公开发布，因此在上传前就必须拒绝。
+    YOUTUBE_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
     @property
     def api_key(self) -> str:
@@ -36,6 +39,7 @@ class UploadPostService:
 
     @property
     def youtube_privacy_status(self) -> str:
+        # 未配置时保持平台默认的公开发布；上传前会再次校验取值是否合法。
         return config.app.get("upload_post_youtube_privacy_status", "public")
 
     @property
@@ -78,6 +82,27 @@ class UploadPostService:
                 logger.error(error)
                 return {"success": False, "error": error}
 
+            # 隐私状态同样不能依赖 LLM 元数据是否存在：缺少排队快照时回落到
+            # 用户配置，而不是硬编码 public，否则配置的 private/unlisted 会被
+            # 静默忽略，视频被公开发布。
+            privacy_status = (youtube_extra or {}).get(
+                "privacyStatus", self.youtube_privacy_status
+            )
+            normalized_privacy_status = (
+                privacy_status.strip().lower()
+                if isinstance(privacy_status, str)
+                else None
+            )
+            if normalized_privacy_status not in self.YOUTUBE_PRIVACY_STATUSES:
+                # 非法取值一律拒绝上传，避免把视频以比用户预期更公开的方式发布。
+                error = (
+                    "YouTube privacy status must be one of: "
+                    f"{', '.join(self.YOUTUBE_PRIVACY_STATUSES)}"
+                )
+                logger.error(error)
+                return {"success": False, "error": error}
+            privacy_status = normalized_privacy_status
+
         logger.info(f"Cross-posting video to {', '.join(platforms)} via Upload-Post...")
 
         try:
@@ -95,9 +120,16 @@ class UploadPostService:
 
                 if has_youtube:
                     # multipart 表单使用小写布尔字符串，且不能依赖 LLM 元数据
-                    # 是否存在；只要发布到 YouTube，就显式传递用户的受众声明。
+                    # 是否存在；只要发布到 YouTube，就显式传递用户的受众声明、
+                    # 隐私状态和 AI 合成声明。标题、描述和标签仍然只在有元数据
+                    # 时补充。
                     data.append(('selfDeclaredMadeForKids', str(made_for_kids).lower()))
-                    logger.info(f"YouTube audience declaration: made_for_kids={made_for_kids}")
+                    data.append(('privacyStatus', privacy_status))
+                    data.append(('containsSyntheticMedia', "true"))
+                    logger.info(
+                        "YouTube publish settings: "
+                        f"made_for_kids={made_for_kids}, privacy_status={privacy_status}"
+                    )
 
                 if youtube_extra and has_youtube:
                     if "youtube_title" in youtube_extra:
@@ -106,8 +138,6 @@ class UploadPostService:
                         data.append(('youtube_description', youtube_extra["youtube_description"]))
                     for tag in youtube_extra.get("tags", []):
                         data.append(('tags[]', tag))
-                    data.append(('privacyStatus', youtube_extra.get("privacyStatus", "public")))
-                    data.append(('containsSyntheticMedia', "true"))
 
                 headers = {'Authorization': f'Apikey {self.api_key}'}
 

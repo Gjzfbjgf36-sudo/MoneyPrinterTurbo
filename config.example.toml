@@ -449,7 +449,11 @@ upload_post_username = ""
 upload_post_platforms = ["tiktok", "instagram"]
 # Automatically publish successful video outputs after generation.
 upload_post_auto_upload = false
-# YouTube privacy: "public", "unlisted", or "private".
+# YouTube privacy: "public", "unlisted", or "private". The setting applies to
+# every YouTube upload, also when no AI metadata was generated for the video.
+# Any other value aborts the upload instead of publishing publicly.
+# YouTube 隐私状态：仅接受 "public"、"unlisted"、"private"，每次 YouTube 发布
+# 都会提交该设置；取值非法时直接中止上传，而不是回退到公开发布。
 upload_post_youtube_privacy_status = "public"
 # Declare whether the video is made for children. Choose based on its audience.
 # If unset, future YouTube uploads explicitly declare "not made for kids".
