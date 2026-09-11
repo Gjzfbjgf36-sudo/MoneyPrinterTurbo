@@ -1,0 +1,270 @@
+#!/usr/bin/env python3
+"""Lädt fertige MoneyPrinterTurbo-Videos direkt zu YouTube hoch.
+
+Nutzt die YouTube Data API v3 mit OAuth (kostenlos, kein Drittanbieter).
+Titel, Beschreibung und Tags entstehen aus der script.json des Tasks.
+
+Einrichtung einmalig:
+  1. Google-Cloud-Projekt anlegen, "YouTube Data API v3" aktivieren
+  2. OAuth-Client vom Typ "Desktopanwendung" erstellen
+  3. Die JSON-Datei als client_secret.json ins Projektverzeichnis legen
+  4. uv pip install google-api-python-client google-auth-oauthlib
+
+Aufrufe:
+  python scripts/youtube_upload.py --scan --dry-run     # nur anzeigen
+  python scripts/youtube_upload.py --scan               # alle neuen hochladen
+  python scripts/youtube_upload.py pfad/zu/final-1.mp4  # einzelne Datei
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+TASKS_DIR = ROOT / "storage" / "tasks"
+STATE_FILE = ROOT / "storage" / "youtube-uploads.json"
+TOKEN_FILE = ROOT / "storage" / "youtube-token.json"
+CLIENT_SECRET_FILE = ROOT / "client_secret.json"
+
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+# 27 = Education. Andere gängige Werte: 22 Menschen & Blogs, 24 Unterhaltung.
+CATEGORY_ID = "27"
+TITLE_LIMIT = 100
+DESCRIPTION_LIMIT = 4900
+# Die Pexels-API-Bedingungen verlangen eine sichtbare Namensnennung, sobald
+# damit erzeugte Inhalte veröffentlicht werden.
+PEXELS_CREDIT = "Videomaterial: Pexels (https://www.pexels.com)"
+
+
+def load_state() -> dict:
+    """Bereits hochgeladene Dateien, damit --scan nichts doppelt hochlädt."""
+    if not STATE_FILE.exists():
+        return {}
+    try:
+        return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Warnung: Upload-Verlauf nicht lesbar, starte leer ({exc})")
+        return {}
+
+
+def save_state(state: dict) -> None:
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    STATE_FILE.write_text(
+        json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def read_task_metadata(video_path: Path) -> dict:
+    """Liest script.json aus dem Task-Ordner des Videos."""
+    script_file = video_path.parent / "script.json"
+    if not script_file.exists():
+        return {}
+    try:
+        return json.loads(script_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Warnung: {script_file} nicht lesbar ({exc})")
+        return {}
+
+
+def build_title(metadata: dict, fallback: str) -> str:
+    """Titel aus dem Videothema, gekürzt auf das YouTube-Limit inkl. #Shorts."""
+    params = metadata.get("params") or {}
+    subject = str(params.get("video_subject") or "").strip() or fallback
+    suffix = " #Shorts"
+    if len(subject) + len(suffix) > TITLE_LIMIT:
+        subject = subject[: TITLE_LIMIT - len(suffix) - 1].rstrip() + "…"
+    return subject + suffix
+
+
+def build_description(metadata: dict) -> str:
+    """Beschreibung aus Skript, Hashtags und der Pexels-Namensnennung."""
+    blocks = []
+    script = str(metadata.get("script") or "").strip()
+    if script:
+        blocks.append(script)
+
+    terms = metadata.get("search_terms") or []
+    if isinstance(terms, str):
+        terms = [term.strip() for term in terms.split(",") if term.strip()]
+    hashtags = [
+        "#" + "".join(word.capitalize() for word in str(term).split())
+        for term in terms
+        if str(term).strip()
+    ]
+    if hashtags:
+        blocks.append(" ".join(["#shorts"] + hashtags[:5]))
+
+    blocks.append(PEXELS_CREDIT)
+    description = "\n\n".join(blocks)
+    return description[:DESCRIPTION_LIMIT]
+
+
+def build_tags(metadata: dict) -> list[str]:
+    terms = metadata.get("search_terms") or []
+    if isinstance(terms, str):
+        terms = [term.strip() for term in terms.split(",") if term.strip()]
+    return [str(term)[:30] for term in terms][:10]
+
+
+def find_new_videos(state: dict) -> list[Path]:
+    """Alle final-*.mp4 unter storage/tasks, die noch nicht hochgeladen sind."""
+    if not TASKS_DIR.exists():
+        return []
+    videos = sorted(
+        TASKS_DIR.glob("*/final-*.mp4"), key=lambda path: path.stat().st_mtime
+    )
+    return [video for video in videos if str(video.relative_to(ROOT)) not in state]
+
+
+def get_youtube_client():
+    """OAuth-Flow; der Token wird gespeichert, der Browser öffnet sich nur einmal."""
+    try:
+        from google.auth.transport.requests import Request
+        from google.oauth2.credentials import Credentials
+        from google_auth_oauthlib.flow import InstalledAppFlow
+        from googleapiclient.discovery import build
+    except ImportError:
+        sys.exit(
+            "Fehlende Pakete. Bitte ausführen:\n"
+            "  uv pip install google-api-python-client google-auth-oauthlib"
+        )
+
+    credentials = None
+    if TOKEN_FILE.exists():
+        credentials = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
+
+    if credentials and credentials.expired and credentials.refresh_token:
+        credentials.refresh(Request())
+    elif not credentials or not credentials.valid:
+        if not CLIENT_SECRET_FILE.exists():
+            sys.exit(
+                f"{CLIENT_SECRET_FILE.name} fehlt. OAuth-Client vom Typ "
+                "'Desktopanwendung' in der Google Cloud Console erstellen und "
+                f"die JSON-Datei nach {CLIENT_SECRET_FILE} legen."
+            )
+        flow = InstalledAppFlow.from_client_secrets_file(
+            str(CLIENT_SECRET_FILE), SCOPES
+        )
+        credentials = flow.run_local_server(port=0)
+
+    TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+    TOKEN_FILE.write_text(credentials.to_json(), encoding="utf-8")
+    os.chmod(TOKEN_FILE, 0o600)
+    return build("youtube", "v3", credentials=credentials)
+
+
+def upload(youtube, video_path: Path, title: str, description: str,
+           tags: list[str], privacy: str) -> str:
+    from googleapiclient.errors import HttpError
+    from googleapiclient.http import MediaFileUpload
+
+    body = {
+        "snippet": {
+            "title": title,
+            "description": description,
+            "tags": tags,
+            "categoryId": CATEGORY_ID,
+        },
+        "status": {
+            "privacyStatus": privacy,
+            # YouTube verlangt eine Angabe zur Zielgruppe.
+            "selfDeclaredMadeForKids": False,
+        },
+    }
+    media = MediaFileUpload(str(video_path), chunksize=4 * 1024 * 1024, resumable=True)
+    request = youtube.videos().insert(
+        part="snippet,status", body=body, media_body=media
+    )
+
+    response = None
+    try:
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                print(f"  {int(status.progress() * 100)} % übertragen")
+    except HttpError as exc:
+        if exc.resp.status == 403 and "quota" in str(exc).lower():
+            sys.exit(
+                "YouTube-Tageskontingent erschöpft (ein Upload kostet ~1.600 von "
+                "10.000 Einheiten, also etwa 6 Uploads pro Tag). Morgen erneut "
+                "versuchen — bereits hochgeladene Videos werden übersprungen."
+            )
+        raise
+    return response["id"]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Lädt fertige MoneyPrinterTurbo-Videos zu YouTube hoch."
+    )
+    parser.add_argument("videos", nargs="*", help="Pfade zu final-*.mp4")
+    parser.add_argument(
+        "--scan", action="store_true",
+        help="alle noch nicht hochgeladenen Videos unter storage/tasks verwenden",
+    )
+    parser.add_argument(
+        "--privacy", choices=["private", "unlisted", "public"], default="private",
+        help="Sichtbarkeit auf YouTube (Standard: private)",
+    )
+    parser.add_argument(
+        "--limit", type=int, default=5,
+        help="maximale Uploads pro Aufruf; schützt vor dem Tageskontingent",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="nur Titel und Beschreibung anzeigen, nichts hochladen",
+    )
+    args = parser.parse_args()
+
+    state = load_state()
+    if args.scan:
+        targets = find_new_videos(state)
+    else:
+        targets = [Path(video).resolve() for video in args.videos]
+
+    if not targets:
+        print("Keine neuen Videos gefunden.")
+        return
+
+    targets = targets[: args.limit]
+    youtube = None if args.dry_run else get_youtube_client()
+
+    for video_path in targets:
+        if not video_path.exists():
+            print(f"übersprungen, Datei fehlt: {video_path}")
+            continue
+
+        metadata = read_task_metadata(video_path)
+        title = build_title(metadata, fallback=video_path.parent.name)
+        description = build_description(metadata)
+        tags = build_tags(metadata)
+        size_mb = video_path.stat().st_size / 1024 / 1024
+
+        print(f"\n{video_path}  ({size_mb:.1f} MB)")
+        print(f"  Titel:       {title}")
+        print(f"  Tags:        {', '.join(tags) or '—'}")
+        print(f"  Sichtbarkeit: {args.privacy}")
+        print("  Beschreibung:")
+        for line in description.splitlines():
+            print(f"    {line}")
+
+        if args.dry_run:
+            continue
+
+        video_id = upload(youtube, video_path, title, description, tags, args.privacy)
+        url = f"https://youtu.be/{video_id}"
+        print(f"  hochgeladen: {url}")
+        try:
+            key = str(video_path.relative_to(ROOT))
+        except ValueError:
+            key = str(video_path)
+        state[key] = {"video_id": video_id, "url": url, "privacy": args.privacy}
+        save_state(state)
+
+
+if __name__ == "__main__":
+    main()
