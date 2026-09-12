@@ -102,7 +102,10 @@ class TestVoiceService(unittest.TestCase):
         视频合成链路的预期。
         """
 
-        def fake_run(command, capture_output, text, check):
+        def fake_run(command, capture_output, text, check, **kwargs):
+            # 生产代码显式固定 UTF-8；locale 解码会在非 UTF-8 的
+            # Windows 控制台破坏 ffmpeg 输出里的非 ASCII 路径。
+            self.assertEqual(kwargs.get("encoding"), "utf-8")
             self.assertEqual(command[0], "/tmp/fake-ffmpeg")
             self.assertIn("anullsrc=r=44100:cl=mono", command)
             Path(command[-1]).write_bytes(b"fake-silent-mp3")

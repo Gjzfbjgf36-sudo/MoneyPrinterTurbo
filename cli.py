@@ -27,6 +27,12 @@ UI_VOICE_MODE_NONE = "none"
 # 保证“非法保存值回退到默认值”对命令行始终成立。
 DEFAULT_SUBTITLE_POSITION = "bottom"
 DEFAULT_CUSTOM_POSITION = 70.0
+# 取值必须与 app.models.schema.SUBTITLE_POSITIONS 一致。schema 只在
+# TYPE_CHECKING 下导入（模块级导入会连带加载 config），因此这里保留一份
+# 字面值，由 test_cli 断言两者不再各自漂移——此前 CLI 少了
+# two_thirds_bottom，WebUI 能选、渲染器能画的位置在命令行被拒绝。
+_SUBTITLE_POSITIONS = ("top", "center", "bottom", "custom", "two_thirds_bottom")
+_SUBTITLE_POSITIONS_TEXT = ", ".join(_SUBTITLE_POSITIONS)
 UI_VOICE_MODE_UPLOAD = "upload"
 # 这两种保存的配音方式都表示不要自动配音。
 UI_VOICE_MODES_WITHOUT_TTS = frozenset({UI_VOICE_MODE_NONE, UI_VOICE_MODE_UPLOAD})
@@ -116,9 +122,9 @@ def _hex_color(value: str) -> str:
 
 def _subtitle_position(value: str) -> str:
     """校验保存的字幕位置，取值范围与命令行参数保持一致。"""
-    if value not in ("top", "center", "bottom", "custom"):
+    if value not in _SUBTITLE_POSITIONS:
         raise argparse.ArgumentTypeError(
-            f"subtitle-position must be one of: top, center, bottom, custom, got {value!r}"
+            f"subtitle-position must be one of: {_SUBTITLE_POSITIONS_TEXT}, got {value!r}"
         )
     return value
 
@@ -477,7 +483,7 @@ Batch manifests:
     )
     subtitle_group.add_argument(
         "--subtitle-position",
-        choices=["top", "center", "bottom", "custom"],
+        choices=list(_SUBTITLE_POSITIONS),
         default=None,
         help=(
             "subtitle vertical position (default: [ui].subtitle_position from "
@@ -1071,9 +1077,9 @@ def _validate_batch_task_params(
 
     if stop_at == "subtitle" and not params.subtitle_enabled:
         raise ValueError("stop_at=subtitle cannot be combined with disabled subtitles")
-    if params.subtitle_position not in {"top", "center", "bottom", "custom"}:
+    if params.subtitle_position not in _SUBTITLE_POSITIONS:
         raise ValueError(
-            "subtitle_position must be one of: top, center, bottom, custom"
+            f"subtitle_position must be one of: {_SUBTITLE_POSITIONS_TEXT}"
         )
     if custom_position_is_explicit and params.subtitle_position != "custom":
         raise ValueError("custom_position requires subtitle_position=custom")

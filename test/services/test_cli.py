@@ -1881,6 +1881,35 @@ class TestCliUiDefaults(unittest.TestCase):
         self.assertEqual(params.subtitle_position, "bottom")
         self.assertEqual(params.custom_position, 70.0)
 
+    def test_cli_subtitle_positions_match_schema(self):
+        """
+        CLI 校验和 schema 必须描述同一组位置。两处曾各自维护列表，导致
+        WebUI 能选、渲染器能画的 two_thirds_bottom 在命令行被拒绝。
+        """
+        from app.models.schema import SUBTITLE_POSITIONS
+
+        self.assertEqual(cli._SUBTITLE_POSITIONS, SUBTITLE_POSITIONS)
+
+    def test_two_thirds_bottom_subtitle_position_is_accepted(self):
+        """渲染器实现且 WebUI 提供的位置，命令行同样要接受。"""
+        args = cli.parse_args(
+            ["--video-subject", "test", "--subtitle-position", "two_thirds_bottom"]
+        )
+
+        with patch.dict(app_config.ui, {}, clear=True):
+            params = cli.build_video_params(args)
+
+        self.assertEqual(params.subtitle_position, "two_thirds_bottom")
+        # 批量清单走自己的校验分支，正是它此前拒绝了这个位置。
+        cli._validate_batch_task_params(
+            params,
+            stop_at="script",
+            custom_position_is_explicit=False,
+            seedance_charge_confirmed=False,
+            ofox_charge_confirmed=False,
+            metaso_minimax_charge_confirmed=False,
+        )
+
     def test_invalid_saved_background_color_with_saved_enable_flag(self):
         """
         保存的背景颜色同样要按 #RRGGBB 校验。非法值若留在 VideoParams 中，

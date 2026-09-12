@@ -45,10 +45,9 @@ SHORTS_PRESET: dict = {
     "bgm_type": "random",
     "bgm_volume": 0.12,
     "subtitle_enabled": True,
-    # cli.py akzeptiert nur top/center/bottom/custom. custom_position 33.33
-    # trifft exakt die Position, die die WebUI "2/3 from Bottom" nennt.
-    "subtitle_position": "custom",
-    "custom_position": 33.33,
+    # Sitzt ueber der UI-Leiste von TikTok und YouTube Shorts, die den unteren
+    # Rand verdeckt.
+    "subtitle_position": "two_thirds_bottom",
     "subtitle_display_mode": "word_by_word",
     "subtitle_animation": "pop_spring",
     "font_name": "BeVietnamPro-Bold.ttf",

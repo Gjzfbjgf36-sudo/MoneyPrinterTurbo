@@ -57,6 +57,9 @@ SubtitleDisplayMode = Literal["sentence", "word_by_word"]
 SubtitleAnimation = Literal["none", "pop_spring"]
 _SUBTITLE_DISPLAY_MODES = ("sentence", "word_by_word")
 _SUBTITLE_ANIMATIONS = ("none", "pop_spring")
+# 字幕位置的唯一来源。WebUI、CLI 校验和渲染分支曾各自维护一份列表，
+# 结果 WebUI 能选、渲染器能画的 two_thirds_bottom 被 CLI 拒绝。
+SUBTITLE_POSITIONS = ("top", "center", "bottom", "custom", "two_thirds_bottom")
 
 
 def _get_valid_ui_choice(key: str, allowed_values: tuple[str, ...], default: str) -> str:

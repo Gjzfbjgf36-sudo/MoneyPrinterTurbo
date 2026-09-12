@@ -282,6 +282,8 @@ def _ffmpeg_encoder_exists(ffmpeg_binary: str, codec: str) -> bool:
             [ffmpeg_binary, "-hide_banner", "-encoders"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
             timeout=10,
         )
@@ -453,6 +455,8 @@ def concat_video_clips_with_ffmpeg(
             command,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
         if result.returncode != 0:

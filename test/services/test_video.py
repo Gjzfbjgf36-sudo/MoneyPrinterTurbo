@@ -633,7 +633,10 @@ class TestVideoService(unittest.TestCase):
         """
         config.app["video_codec"] = "h264_nvenc"
 
-        def fake_run(command, capture_output, text, check):
+        def fake_run(command, capture_output, text, check, **kwargs):
+            # 生产代码显式固定 UTF-8；locale 解码会在非 UTF-8 的
+            # Windows 控制台破坏 ffmpeg 输出里的非 ASCII 路径。
+            self.assertEqual(kwargs.get("encoding"), "utf-8")
             codec_index = command.index("-c:v") + 1
             codec = command[codec_index]
             if codec == "h264_nvenc":
@@ -672,7 +675,10 @@ class TestVideoService(unittest.TestCase):
         """
         config.app["video_codec"] = "h264_nvenc"
 
-        def fake_run(command, capture_output, text, check):
+        def fake_run(command, capture_output, text, check, **kwargs):
+            # 生产代码显式固定 UTF-8；locale 解码会在非 UTF-8 的
+            # Windows 控制台破坏 ffmpeg 输出里的非 ASCII 路径。
+            self.assertEqual(kwargs.get("encoding"), "utf-8")
             codec_index = command.index("-c:v") + 1
             codec = command[codec_index]
             return types.SimpleNamespace(
@@ -963,7 +969,10 @@ class TestVideoService(unittest.TestCase):
     def test_concat_video_clips_limits_output_to_audio_duration(self):
         """最终拼接时应裁到音频时长，避免安全余量带来明显静音尾巴。"""
 
-        def fake_run(command, capture_output, text, check):
+        def fake_run(command, capture_output, text, check, **kwargs):
+            # 生产代码显式固定 UTF-8；locale 解码会在非 UTF-8 的
+            # Windows 控制台破坏 ffmpeg 输出里的非 ASCII 路径。
+            self.assertEqual(kwargs.get("encoding"), "utf-8")
             return types.SimpleNamespace(returncode=0, stdout="", stderr="")
 
         with tempfile.TemporaryDirectory() as temp_dir:
