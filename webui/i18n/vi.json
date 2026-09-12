@@ -472,6 +472,16 @@
     "Channel Upload Done": "Đã tải lên {count} video.",
     "Channel Upload Failed": "Tải lên thất bại với mã {code}.",
     "Channel Upload Scheduled": "Hẹn giờ theo giờ đăng của kênh",
-    "Channel Upload Scheduled Help": "Tải lên ở chế độ riêng tư và để YouTube công khai theo giờ của kênh. Không chọn thì video giữ chế độ hiển thị bên dưới."
+    "Channel Upload Scheduled Help": "Tải lên ở chế độ riêng tư và để YouTube công khai theo giờ của kênh. Không chọn thì video giữ chế độ hiển thị bên dưới.",
+    "Channel Look": "Giao diện và giọng đọc",
+    "Channel Look Help": "Giọng đọc và dựng phim của kênh này. Đặt ở đây thay vì trong mã, để bản cập nhật không bao giờ xung đột với thiết lập của bạn.",
+    "Channel Voice": "Giọng đọc",
+    "Channel Voice Help": "Tạo mẫu nghe thử: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Tốc độ nói",
+    "Channel Clip Duration": "Giây mỗi cảnh",
+    "Channel Clip Duration Help": "Cắt ngắn hơn giữ chân người xem nhưng tốn thời gian kết xuất.",
+    "Channel Transition": "Chuyển động",
+    "Channel Transition None": "Không (nhanh nhất)",
+    "Channel Transition Help": "ZoomIn phóng chậm trên từng cảnh, giúp tư liệu tĩnh không giống trình chiếu. Làm giai đoạn dựng lâu gấp khoảng ba lần."
   }
 }

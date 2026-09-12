@@ -3,5 +3,9 @@
   "topic": "Alltagswissen",
   "topics_per_run": 2,
   "category": "27",
-  "publish_at": "09:00,17:00"
+  "publish_at": "09:00,17:00",
+  "voice_name": "de-DE-FlorianMultilingualNeural-Male",
+  "voice_rate": 1.2,
+  "video_clip_duration": 2,
+  "video_transition_mode": "ZoomIn"
 }

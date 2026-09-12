@@ -101,6 +101,7 @@ foreach ($name in $names) {
         & $uv run --no-sync python news_to_shorts.py `
             --count $count `
             --topic $cfg.topic `
+            --channel $name `
             --out $manifest `
             --sources-out (Join-Path $dir 'sources.json') `
             --model (Get-ConfigValue $cfg 'research_model' 'claude-sonnet-5')
@@ -115,6 +116,21 @@ foreach ($name in $names) {
 
         $take = @($lines | Select-Object -First $count)
         $tasks = @($take | ForEach-Object { $_ | ConvertFrom-Json })
+        # Aussehen und Stimme stehen in der channel.json, damit beide
+        # Themenquellen dasselbe Format ergeben. Ein Recherchekanal holt sie
+        # ueber news_to_shorts.py --channel; hier werden sie auf die Eintraege
+        # der Warteschlange gelegt.
+        foreach ($task in $tasks) {
+            foreach ($field in @('voice_name', 'voice_rate', 'video_clip_duration',
+                                 'video_clip_speed', 'video_transition_mode',
+                                 'subtitle_position', 'font_size', 'stroke_width',
+                                 'bgm_volume')) {
+                if ($cfg.PSObject.Properties[$field]) {
+                    $task | Add-Member -NotePropertyName $field `
+                        -NotePropertyValue $cfg.$field -Force
+                }
+            }
+        }
         # Der Komma-Operator erzwingt ein Array; sonst serialisiert
         # ConvertTo-Json ein einzelnes Thema als Objekt und cli.py lehnt das
         # Manifest ab.

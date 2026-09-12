@@ -472,6 +472,16 @@
     "Channel Upload Done": "{count} Video(s) hochgeladen.",
     "Channel Upload Failed": "Hochladen fehlgeschlagen, Rückgabewert {code}.",
     "Channel Upload Scheduled": "Mit den Veröffentlichungszeiten des Kanals einplanen",
-    "Channel Upload Scheduled Help": "Lädt privat hoch und lässt YouTube zu den Zeiten des Kanals freischalten. Ohne Haken behält das Video die unten gewählte Sichtbarkeit."
+    "Channel Upload Scheduled Help": "Lädt privat hoch und lässt YouTube zu den Zeiten des Kanals freischalten. Ohne Haken behält das Video die unten gewählte Sichtbarkeit.",
+    "Channel Look": "Aussehen und Stimme",
+    "Channel Look Help": "Stimme und Schnitt dieses Kanals. Stehen hier statt im Code, damit ein Update nie mit deinen Einstellungen kollidiert.",
+    "Channel Voice": "Stimme",
+    "Channel Voice Help": "Hörproben erzeugen mit: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Sprechtempo",
+    "Channel Clip Duration": "Sekunden je Clip",
+    "Channel Clip Duration Help": "Kürzere Schnitte halten die Aufmerksamkeit, kosten aber Renderzeit.",
+    "Channel Transition": "Bewegung",
+    "Channel Transition None": "Keine (am schnellsten)",
+    "Channel Transition Help": "ZoomIn zoomt langsam über jeden Clip und nimmt stillem Stockmaterial den Diashow-Eindruck. Verdreifacht ungefähr die Schnittphase."
   }
 }

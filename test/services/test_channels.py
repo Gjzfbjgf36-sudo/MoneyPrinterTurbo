@@ -119,3 +119,60 @@ def test_queue_template_matches_the_shorts_preset(channel: Path):
                 f"{channel.name}, Zeile {index}: {field} weicht vom Preset ab "
                 f"({entry.get(field)!r} statt {SHORTS_PRESET.get(field)!r})"
             )
+
+
+def test_channel_overrides_replace_the_preset(tmp_path, monkeypatch):
+    """Stimme und Schnitt kommen aus der channel.json, nicht aus dem Code.
+
+    Wer sie in news_to_shorts.py aendert, faengt sich beim naechsten Update
+    einen Merge-Konflikt ein — deshalb muss der Umweg ueber den Kanal gehen.
+    """
+    import sys
+
+    sys.path.insert(0, str(ROOT))
+    import news_to_shorts as nts
+
+    monkeypatch.setattr(nts, "ROOT", tmp_path)
+    channel = tmp_path / "channels" / "meiner"
+    channel.mkdir(parents=True)
+    (channel / "channel.json").write_text(
+        json.dumps(
+            {
+                "source": "news",
+                "topic": "KI",
+                "voice_name": "de-DE-ConradNeural-Male",
+                "video_transition_mode": None,
+                "video_clip_duration": 4,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    preset = nts.preset_for_channel("meiner")
+    assert preset["voice_name"] == "de-DE-ConradNeural-Male"
+    assert preset["video_transition_mode"] is None
+    assert preset["video_clip_duration"] == 4
+    # Nicht ueberschriebene Felder bleiben beim eingebauten Kurzformat.
+    assert preset["video_aspect"] == nts.SHORTS_PRESET["video_aspect"]
+    # Und der Kanal darf keine beliebigen Felder unterschieben.
+    assert "topic" not in preset
+
+
+def test_preset_without_a_channel_is_the_builtin_one():
+    import sys
+
+    sys.path.insert(0, str(ROOT))
+    import news_to_shorts as nts
+
+    assert nts.preset_for_channel(None) == nts.SHORTS_PRESET
+
+
+def test_unknown_channel_fails_loudly(tmp_path, monkeypatch):
+    import sys
+
+    sys.path.insert(0, str(ROOT))
+    import news_to_shorts as nts
+
+    monkeypatch.setattr(nts, "ROOT", tmp_path)
+    with pytest.raises(SystemExit):
+        nts.preset_for_channel("gibtsnicht")

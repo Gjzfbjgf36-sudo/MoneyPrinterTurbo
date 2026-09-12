@@ -25,6 +25,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent
+
 # Die Render-Einstellungen sind fuer 9:16-Shorts (YouTube Shorts / TikTok)
 # abgestimmt und gelten fuer jeden Task gleich. Der Recherche-Schritt liefert
 # nur video_subject und video_script dazu.
@@ -44,7 +46,10 @@ SHORTS_PRESET: dict = {
     "video_clip_speed": 1.08,
     "match_materials_to_script": True,
     "video_count": 1,
-    "voice_name": "de-DE-KatjaNeural-Female",
+    # Die "Multilingual"-Stimmen sind Microsofts neuere Generation und klingen
+    # weniger abgelesen. Vergleichen mit scripts/voice_samples.py; je Kanal
+    # ueberschreibbar in channels/<name>/channel.json.
+    "voice_name": "de-DE-FlorianMultilingualNeural-Male",
     "voice_rate": 1.2,
     "voice_volume": 1.0,
     "bgm_type": "random",
@@ -85,6 +90,42 @@ RESEARCH_SCHEMA: dict = {
     "required": ["videos"],
     "additionalProperties": False,
 }
+
+
+# Felder, die ein Kanal in seiner channel.json ueberschreiben darf. Stimme und
+# Schnitt sind Geschmack, kein Programmablauf: wer sie hier im Code aendert,
+# bekommt beim naechsten Update einen Merge-Konflikt.
+CHANNEL_OVERRIDES = (
+    "voice_name",
+    "voice_rate",
+    "video_clip_duration",
+    "video_clip_speed",
+    "video_transition_mode",
+    "subtitle_position",
+    "font_size",
+    "stroke_width",
+    "bgm_volume",
+)
+
+
+def preset_for_channel(channel: str | None) -> dict:
+    """Das Kurzformat, ueberschrieben mit den Einstellungen des Kanals."""
+    preset = dict(SHORTS_PRESET)
+    if not channel:
+        return preset
+
+    config_file = ROOT / "channels" / channel / "channel.json"
+    if not config_file.exists():
+        raise SystemExit(f"Kanal {channel!r} hat keine channel.json.")
+    try:
+        config = json.loads(config_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"channel.json von {channel!r} ist kein gueltiges JSON: {exc}")
+
+    for field in CHANNEL_OVERRIDES:
+        if field in config:
+            preset[field] = config[field]
+    return preset
 
 
 def build_research_prompt(count: int, days: int, topic: str) -> str:
@@ -174,18 +215,21 @@ def run_research(count: int, days: int, topic: str, model: str, timeout: int) ->
     return videos
 
 
-def build_manifest(videos: list[dict]) -> tuple[list[dict], list[dict]]:
+def build_manifest(
+    videos: list[dict], preset: dict | None = None
+) -> tuple[list[dict], list[dict]]:
     """Trennt Render-Manifest und Quellenbeleg.
 
     `quellen` und `datum` sind keine VideoParams-Felder; das Batch-Manifest lehnt
     unbekannte Felder ab. Sie wandern deshalb in eine eigene Datei, damit die
     Behauptungen im Video vor dem Hochladen nachpruefbar bleiben.
     """
+    preset = preset if preset is not None else SHORTS_PRESET
     manifest: list[dict] = []
     sources: list[dict] = []
     for item in videos:
         quellen = item.get("quellen", [])
-        task = dict(SHORTS_PRESET)
+        task = dict(preset)
         task["video_subject"] = item["video_subject"]
         task["video_script"] = item["video_script"]
         if quellen:
@@ -215,6 +259,15 @@ def main() -> int:
         default="Technologie und kuenstliche Intelligenz",
         help="Themenbereich der Recherche",
     )
+    parser.add_argument(
+        "--channel",
+        default=None,
+        metavar="NAME",
+        help=(
+            "Kanal, dessen channel.json Stimme und Schnitt vorgibt. Ohne "
+            "Angabe gilt das eingebaute Kurzformat"
+        ),
+    )
     parser.add_argument("--out", default="shorts.json", help="Zieldatei des Batch-Manifests")
     parser.add_argument(
         "--sources-out",
@@ -241,8 +294,9 @@ def main() -> int:
     if args.count < 1:
         raise SystemExit("--count muss mindestens 1 sein")
 
+    preset = preset_for_channel(args.channel)
     videos = run_research(args.count, args.days, args.topic, args.model, args.timeout)
-    manifest, sources = build_manifest(videos)
+    manifest, sources = build_manifest(videos, preset)
 
     Path(args.out).write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"

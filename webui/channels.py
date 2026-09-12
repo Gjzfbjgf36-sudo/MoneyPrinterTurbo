@@ -28,6 +28,18 @@ CHANNEL_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 SOURCES = ("news", "queue")
 PRIVACY_LEVELS = ("private", "unlisted", "public")
+# Stimme und Schnitt sind Geschmack, kein Programmablauf. Sie stehen deshalb
+# in der channel.json und nicht im Code: wer sie in news_to_shorts.py aendert,
+# faengt sich beim naechsten Update einen Merge-Konflikt ein.
+GERMAN_VOICES = (
+    "de-DE-FlorianMultilingualNeural-Male",
+    "de-DE-ConradNeural-Male",
+    "de-DE-KillianNeural-Male",
+    "de-DE-SeraphinaMultilingualNeural-Female",
+    "de-DE-KatjaNeural-Female",
+    "de-DE-AmalaNeural-Female",
+)
+TRANSITIONS = (None, "ZoomIn", "ZoomOut", "FadeIn", "FadeOut", "Shuffle")
 # Die gängigen YouTube-Kategorien für diese Art Kanal. Andere IDs bleiben
 # erlaubt, die Liste ist nur die Auswahlhilfe in der Oberfläche.
 CATEGORIES = {
@@ -46,6 +58,11 @@ DEFAULT_CONFIG: dict = {
     "publish_at": "08:00,13:00,18:00",
     "privacy": "private",
     "research_model": "claude-sonnet-5",
+    # Diese vier überschreiben das Kurzformat aus news_to_shorts.py.
+    "voice_name": "de-DE-FlorianMultilingualNeural-Male",
+    "voice_rate": 1.2,
+    "video_clip_duration": 2,
+    "video_transition_mode": "ZoomIn",
 }
 
 

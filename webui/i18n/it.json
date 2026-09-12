@@ -472,6 +472,16 @@
     "Channel Upload Done": "{count} video caricato/i.",
     "Channel Upload Failed": "Caricamento fallito con codice {code}.",
     "Channel Upload Scheduled": "Programma con gli orari del canale",
-    "Channel Upload Scheduled Help": "Carica come privato e lascia che YouTube pubblichi agli orari del canale. Senza la spunta il video mantiene la visibilità scelta sotto."
+    "Channel Upload Scheduled Help": "Carica come privato e lascia che YouTube pubblichi agli orari del canale. Senza la spunta il video mantiene la visibilità scelta sotto.",
+    "Channel Look": "Aspetto e voce",
+    "Channel Look Help": "Voce e montaggio di questo canale. Qui e non nel codice, così un aggiornamento non entra mai in conflitto con le tue impostazioni.",
+    "Channel Voice": "Voce",
+    "Channel Voice Help": "Genera provini con: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Velocità di lettura",
+    "Channel Clip Duration": "Secondi per clip",
+    "Channel Clip Duration Help": "Tagli più brevi trattengono di più ma costano tempo di rendering.",
+    "Channel Transition": "Movimento",
+    "Channel Transition None": "Nessuno (più veloce)",
+    "Channel Transition Help": "ZoomIn ingrandisce lentamente ogni clip, così il materiale fermo non sembra una presentazione. Triplica circa la fase di montaggio."
   }
 }

@@ -572,6 +572,16 @@
     "Channel Upload Done": "已上传 {count} 个视频。",
     "Channel Upload Failed": "上传失败，退出码 {code}。",
     "Channel Upload Scheduled": "按频道的发布时间排期",
-    "Channel Upload Scheduled Help": "先以私享方式上传，由 YouTube 在频道设定的时间公开。不勾选则使用下方选择的可见性。"
+    "Channel Upload Scheduled Help": "先以私享方式上传，由 YouTube 在频道设定的时间公开。不勾选则使用下方选择的可见性。",
+    "Channel Look": "外观与配音",
+    "Channel Look Help": "该频道的配音与剪辑设置。放在这里而不是代码中，更新时不会与你的设置冲突。",
+    "Channel Voice": "配音",
+    "Channel Voice Help": "生成试听：uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "语速",
+    "Channel Clip Duration": "每段秒数",
+    "Channel Clip Duration Help": "切换越快越抓人，但更费渲染时间。",
+    "Channel Transition": "画面动态",
+    "Channel Transition None": "无（最快）",
+    "Channel Transition Help": "ZoomIn 在每段素材上缓慢推近，使静止素材不像幻灯片。会让剪辑阶段耗时约三倍。"
   }
 }

@@ -572,6 +572,16 @@
     "Channel Upload Done": "{count} video(s) uploaded.",
     "Channel Upload Failed": "Upload failed with exit code {code}.",
     "Channel Upload Scheduled": "Schedule with the channel's publish times",
-    "Channel Upload Scheduled Help": "Uploads privately and lets YouTube publish at the channel's times. Without it the video keeps the visibility you pick below."
+    "Channel Upload Scheduled Help": "Uploads privately and lets YouTube publish at the channel's times. Without it the video keeps the visibility you pick below.",
+    "Channel Look": "Look and voice",
+    "Channel Look Help": "Voice and cutting for this channel. Kept here rather than in the code, so an update never conflicts with your settings.",
+    "Channel Voice": "Voice",
+    "Channel Voice Help": "Generate samples with: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Speaking rate",
+    "Channel Clip Duration": "Seconds per clip",
+    "Channel Clip Duration Help": "Shorter cuts hold attention but cost render time.",
+    "Channel Transition": "Movement",
+    "Channel Transition None": "None (fastest)",
+    "Channel Transition Help": "ZoomIn slowly zooms across every clip, which keeps still stock footage from looking like a slideshow. It roughly triples the cutting stage."
   }
 }

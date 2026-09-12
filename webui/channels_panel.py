@@ -119,7 +119,64 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
             tr("Channel Research Model"),
             value=str(config.get("research_model", "")),
             disabled=source != "news",
+            key=f"channel_model_{channel.name}",
         )
+
+        st.divider()
+        st.caption(tr("Channel Look Help"))
+
+        voices = list(ch.GERMAN_VOICES)
+        current_voice = str(config.get("voice_name", voices[0]))
+        if current_voice not in voices:
+            voices.insert(0, current_voice)
+        voice_name = st.selectbox(
+            tr("Channel Voice"),
+            options=voices,
+            index=voices.index(current_voice),
+            help=tr("Channel Voice Help"),
+            key=f"channel_voice_{channel.name}",
+        )
+
+        voice_rate = st.slider(
+            tr("Channel Voice Rate"),
+            min_value=0.8,
+            max_value=1.5,
+            value=float(config.get("voice_rate", 1.2)),
+            step=0.05,
+            key=f"channel_rate_{channel.name}",
+        )
+
+        clip_duration = st.slider(
+            tr("Channel Clip Duration"),
+            min_value=1,
+            max_value=6,
+            value=int(config.get("video_clip_duration", 2)),
+            help=tr("Channel Clip Duration Help"),
+            key=f"channel_clip_{channel.name}",
+        )
+
+        # None ist ein gueltiger Wert (keine Bewegung), darf also nicht durch
+        # den leeren String ersetzt werden.
+        transition_labels = [
+            tr("Channel Transition None") if value is None else value
+            for value in ch.TRANSITIONS
+        ]
+        current_transition = config.get("video_transition_mode")
+        current_label = (
+            tr("Channel Transition None")
+            if current_transition is None
+            else str(current_transition)
+        )
+        if current_label not in transition_labels:
+            current_label = transition_labels[0]
+        chosen_transition = st.selectbox(
+            tr("Channel Transition"),
+            options=transition_labels,
+            index=transition_labels.index(current_label),
+            help=tr("Channel Transition Help"),
+            key=f"channel_transition_{channel.name}",
+        )
+        transition = ch.TRANSITIONS[transition_labels.index(chosen_transition)]
 
         if st.form_submit_button(tr("Channel Save"), type="primary"):
             updated = {
@@ -131,6 +188,10 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
                 "publish_at": publish_at.strip(),
                 "privacy": privacy,
                 "research_model": research_model.strip(),
+                "voice_name": voice_name,
+                "voice_rate": round(float(voice_rate), 2),
+                "video_clip_duration": int(clip_duration),
+                "video_transition_mode": transition,
             }
             try:
                 ch.save_channel(channel.name, updated)

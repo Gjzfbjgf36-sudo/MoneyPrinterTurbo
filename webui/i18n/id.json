@@ -472,6 +472,16 @@
     "Channel Upload Done": "{count} video diunggah.",
     "Channel Upload Failed": "Pengunggahan gagal dengan kode {code}.",
     "Channel Upload Scheduled": "Jadwalkan dengan waktu tayang kanal",
-    "Channel Upload Scheduled Help": "Mengunggah sebagai privat dan membiarkan YouTube menayangkan pada waktu kanal. Tanpa centang, video memakai visibilitas di bawah."
+    "Channel Upload Scheduled Help": "Mengunggah sebagai privat dan membiarkan YouTube menayangkan pada waktu kanal. Tanpa centang, video memakai visibilitas di bawah.",
+    "Channel Look": "Tampilan dan suara",
+    "Channel Look Help": "Suara dan potongan kanal ini. Disimpan di sini, bukan di kode, agar pembaruan tidak pernah bentrok dengan pengaturanmu.",
+    "Channel Voice": "Suara",
+    "Channel Voice Help": "Buat contoh dengan: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Kecepatan bicara",
+    "Channel Clip Duration": "Detik per klip",
+    "Channel Clip Duration Help": "Potongan lebih pendek menahan perhatian tetapi menambah waktu render.",
+    "Channel Transition": "Gerakan",
+    "Channel Transition None": "Tidak ada (tercepat)",
+    "Channel Transition Help": "ZoomIn memperbesar perlahan di setiap klip agar materi diam tidak terlihat seperti salindia. Menambah waktu tahap potong sekitar tiga kali lipat."
   }
 }

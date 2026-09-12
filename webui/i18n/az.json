@@ -472,6 +472,16 @@
     "Channel Upload Done": "{count} video yükləndi.",
     "Channel Upload Failed": "Yükləmə {code} kodu ilə alınmadı.",
     "Channel Upload Scheduled": "Kanalın dərc saatlarına görə planlaşdır",
-    "Channel Upload Scheduled Help": "Gizli yükləyir, YouTube kanalın saatlarında dərc edir. İşarələnmədikdə video aşağıda seçilmiş görünürlüyü alır."
+    "Channel Upload Scheduled Help": "Gizli yükləyir, YouTube kanalın saatlarında dərc edir. İşarələnmədikdə video aşağıda seçilmiş görünürlüyü alır.",
+    "Channel Look": "Görünüş və səs",
+    "Channel Look Help": "Bu kanalın səsi və montajı. Kodda deyil burada saxlanılır ki, yeniləmə ayarlarınızla toqquşmasın.",
+    "Channel Voice": "Səs",
+    "Channel Voice Help": "Nümunə yarat: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Danışıq sürəti",
+    "Channel Clip Duration": "Klip başına saniyə",
+    "Channel Clip Duration Help": "Qısa kəsmələr diqqəti saxlayır, lakin render vaxtı aparır.",
+    "Channel Transition": "Hərəkət",
+    "Channel Transition None": "Yoxdur (ən sürətli)",
+    "Channel Transition Help": "ZoomIn hər klip boyunca yavaşca yaxınlaşır, beləliklə hərəkətsiz material slayd kimi görünmür. Montaj mərhələsini təxminən üç dəfə uzadır."
   }
 }

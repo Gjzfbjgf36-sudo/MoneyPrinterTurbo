@@ -4,5 +4,9 @@
   "research_model": "claude-sonnet-5",
   "topics_per_run": 3,
   "category": "28",
-  "publish_at": "08:00,13:00,18:00"
+  "publish_at": "08:00,13:00,18:00",
+  "voice_name": "de-DE-FlorianMultilingualNeural-Male",
+  "voice_rate": 1.2,
+  "video_clip_duration": 2,
+  "video_transition_mode": "ZoomIn"
 }

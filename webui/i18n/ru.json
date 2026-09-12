@@ -472,6 +472,16 @@
     "Channel Upload Done": "Загружено видео: {count}.",
     "Channel Upload Failed": "Загрузка завершилась с кодом {code}.",
     "Channel Upload Scheduled": "Запланировать по времени канала",
-    "Channel Upload Scheduled Help": "Загружает приватно, YouTube публикует во время канала. Без галочки видео получает выбранную ниже видимость."
+    "Channel Upload Scheduled Help": "Загружает приватно, YouTube публикует во время канала. Без галочки видео получает выбранную ниже видимость.",
+    "Channel Look": "Вид и голос",
+    "Channel Look Help": "Голос и монтаж этого канала. Здесь, а не в коде, чтобы обновление никогда не конфликтовало с вашими настройками.",
+    "Channel Voice": "Голос",
+    "Channel Voice Help": "Создать образцы: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Темп речи",
+    "Channel Clip Duration": "Секунд на фрагмент",
+    "Channel Clip Duration Help": "Более короткие склейки удерживают внимание, но требуют времени на рендер.",
+    "Channel Transition": "Движение",
+    "Channel Transition None": "Нет (быстрее всего)",
+    "Channel Transition Help": "ZoomIn медленно наезжает на каждый фрагмент, чтобы статичный сток не выглядел слайд-шоу. Увеличивает этап монтажа примерно втрое."
   }
 }

@@ -472,6 +472,16 @@
     "Channel Upload Done": "영상 {count}개를 업로드했습니다.",
     "Channel Upload Failed": "업로드가 코드 {code}로 실패했습니다.",
     "Channel Upload Scheduled": "채널의 공개 시각으로 예약",
-    "Channel Upload Scheduled Help": "비공개로 업로드하고 채널의 시각에 YouTube가 공개합니다. 선택하지 않으면 아래에서 고른 공개 범위를 따릅니다."
+    "Channel Upload Scheduled Help": "비공개로 업로드하고 채널의 시각에 YouTube가 공개합니다. 선택하지 않으면 아래에서 고른 공개 범위를 따릅니다.",
+    "Channel Look": "모양과 음성",
+    "Channel Look Help": "이 채널의 음성과 편집 설정입니다. 코드가 아닌 여기에 두어 업데이트가 설정과 충돌하지 않습니다.",
+    "Channel Voice": "음성",
+    "Channel Voice Help": "샘플 생성: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "말하기 속도",
+    "Channel Clip Duration": "클립당 초",
+    "Channel Clip Duration Help": "짧게 끊으면 주의를 끌지만 렌더링 시간이 늘어납니다.",
+    "Channel Transition": "움직임",
+    "Channel Transition None": "없음 (가장 빠름)",
+    "Channel Transition Help": "ZoomIn은 각 클립을 천천히 확대해 정지된 소재가 슬라이드쇼처럼 보이지 않게 합니다. 편집 단계가 약 세 배 길어집니다."
   }
 }

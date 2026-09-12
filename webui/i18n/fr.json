@@ -472,6 +472,16 @@
     "Channel Upload Done": "{count} vidéo(s) mise(s) en ligne.",
     "Channel Upload Failed": "Échec avec le code {code}.",
     "Channel Upload Scheduled": "Programmer selon les heures de la chaîne",
-    "Channel Upload Scheduled Help": "Met en ligne en privé et laisse YouTube publier aux heures de la chaîne. Sans la case, la vidéo garde la visibilité choisie ci-dessous."
+    "Channel Upload Scheduled Help": "Met en ligne en privé et laisse YouTube publier aux heures de la chaîne. Sans la case, la vidéo garde la visibilité choisie ci-dessous.",
+    "Channel Look": "Apparence et voix",
+    "Channel Look Help": "Voix et montage de cette chaîne. Ici plutôt que dans le code, pour qu'une mise à jour n'entre jamais en conflit avec vos réglages.",
+    "Channel Voice": "Voix",
+    "Channel Voice Help": "Générez des échantillons avec : uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Débit de parole",
+    "Channel Clip Duration": "Secondes par plan",
+    "Channel Clip Duration Help": "Des plans plus courts retiennent mieux mais coûtent du temps de rendu.",
+    "Channel Transition": "Mouvement",
+    "Channel Transition None": "Aucun (le plus rapide)",
+    "Channel Transition Help": "ZoomIn zoome lentement sur chaque plan, ce qui évite l'effet diaporama des images fixes. Cela triple environ la phase de montage."
   }
 }

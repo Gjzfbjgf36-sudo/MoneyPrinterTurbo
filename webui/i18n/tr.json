@@ -472,6 +472,16 @@
     "Channel Upload Done": "{count} video yüklendi.",
     "Channel Upload Failed": "Yükleme {code} koduyla başarısız oldu.",
     "Channel Upload Scheduled": "Kanalın yayın saatlerine göre planla",
-    "Channel Upload Scheduled Help": "Gizli yükler, YouTube kanalın saatlerinde yayımlar. İşaretlenmezse video aşağıda seçilen görünürlüğü alır."
+    "Channel Upload Scheduled Help": "Gizli yükler, YouTube kanalın saatlerinde yayımlar. İşaretlenmezse video aşağıda seçilen görünürlüğü alır.",
+    "Channel Look": "Görünüm ve ses",
+    "Channel Look Help": "Bu kanalın sesi ve kurgusu. Koda değil buraya yazılır, böylece bir güncelleme ayarlarınızla çakışmaz.",
+    "Channel Voice": "Ses",
+    "Channel Voice Help": "Örnek üret: uv run python scripts/voice_samples.py",
+    "Channel Voice Rate": "Konuşma hızı",
+    "Channel Clip Duration": "Klip başına saniye",
+    "Channel Clip Duration Help": "Kısa kesmeler ilgiyi tutar ama işleme süresi ister.",
+    "Channel Transition": "Hareket",
+    "Channel Transition None": "Yok (en hızlı)",
+    "Channel Transition Help": "ZoomIn her klip boyunca yavaşça yakınlaşır; böylece durağan stok görüntü slayt gibi durmaz. Kurgu aşamasını yaklaşık üçe katlar."
   }
 }
