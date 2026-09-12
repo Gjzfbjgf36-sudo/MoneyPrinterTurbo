@@ -42,6 +42,42 @@ function Write-Step($text) {
     Write-Host "=== $(Get-Date -Format 'yyyy-MM-dd HH:mm') $text ===" -ForegroundColor Cyan
 }
 
+function Invoke-Native {
+    <#
+    .SYNOPSIS
+    Ruft ein externes Programm auf und liefert Ausgabe und Rueckgabewert.
+
+    .DESCRIPTION
+    Mit $ErrorActionPreference = 'Stop' bricht PowerShell ab, sobald ein
+    externes Programm nach stderr schreibt und die Ausgabe mit 2>&1
+    eingesammelt wird: die stderr-Zeilen werden zu ErrorRecord-Objekten und
+    gelten als Fehler. Die Python-Werkzeuge hier loggen ihren normalen
+    Fortschritt nach stderr, der Lauf waere also an einer harmlosen
+    Statusmeldung gestorben.
+
+    Deshalb wird die Einstellung fuer den Aufruf zurueckgenommen, jede Zeile
+    sofort in Text verwandelt, und der Erfolg allein am Rueckgabewert
+    gemessen.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Exe,
+        [string[]]$Arguments = @()
+    )
+
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $lines = @(& $Exe @Arguments 2>&1 | ForEach-Object { "$_" })
+        $code = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previous
+    }
+
+    $lines | ForEach-Object { Write-Host $_ }
+    return [pscustomobject]@{ ExitCode = $code; Lines = $lines }
+}
+
 # Set-Content -Encoding UTF8 schreibt unter Windows PowerShell 5.1 ein BOM.
 # Pythons json.load stolpert darueber, deshalb hier ohne BOM schreiben.
 function Write-Utf8NoBom($path, $text) {
@@ -98,14 +134,19 @@ foreach ($name in $names) {
 
     if ($cfg.source -eq 'news') {
         # Recherchekanal: Themen kommen aus der Websuche, nicht aus einer Liste.
-        & $uv run --no-sync python news_to_shorts.py `
-            --count $count `
-            --topic $cfg.topic `
-            --channel $name `
-            --out $manifest `
-            --sources-out (Join-Path $dir 'sources.json') `
-            --model (Get-ConfigValue $cfg 'research_model' 'claude-sonnet-5')
-        if ($LASTEXITCODE -ne 0) { Write-Warning "$name : Recherche fehlgeschlagen."; continue }
+        $research = Invoke-Native $uv @(
+            'run', '--no-sync', 'python', 'news_to_shorts.py',
+            '--count', "$count",
+            '--topic', "$($cfg.topic)",
+            '--channel', $name,
+            '--out', $manifest,
+            '--sources-out', (Join-Path $dir 'sources.json'),
+            '--model', (Get-ConfigValue $cfg 'research_model' 'claude-sonnet-5')
+        )
+        if ($research.ExitCode -ne 0) {
+            Write-Warning "$name : Recherche fehlgeschlagen."
+            continue
+        }
     }
     else {
         # Warteschlangenkanal: die naechsten Zeilen aus tasks.jsonl.
@@ -141,9 +182,9 @@ foreach ($name in $names) {
     }
 
     Write-Step "$name : rendern"
-    $output = @(& $uv run --no-sync python cli.py --batch-file $manifest 2>&1)
-    $output | ForEach-Object { Write-Host $_ }
-    $summary = Get-BatchSummary $output
+    $render = Invoke-Native $uv @('run', '--no-sync', 'python', 'cli.py',
+                                  '--batch-file', $manifest)
+    $summary = Get-BatchSummary $render.Lines
 
     if (-not $summary) {
         Write-Warning "$name : keine JSON-Zusammenfassung erhalten, Upload uebersprungen."
@@ -192,7 +233,10 @@ foreach ($name in $names) {
         $privacy = if ($cfg.privacy) { $cfg.privacy } else { 'private' }
         $uploadArgs += @('--privacy', $privacy)
     }
-    & $uv @uploadArgs
+    $upload = Invoke-Native $uv $uploadArgs
+    if ($upload.ExitCode -ne 0) {
+        Write-Warning "$name : Hochladen fehlgeschlagen (Rueckgabewert $($upload.ExitCode))."
+    }
 }
 
 Write-Step 'fertig'
