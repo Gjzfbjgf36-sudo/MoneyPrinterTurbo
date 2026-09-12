@@ -530,6 +530,11 @@ def _generate_response(prompt: str, app_config=None) -> str:
                         command,
                         capture_output=True,
                         text=True,
+                        # CLI 始终输出 UTF-8。text=True 默认按 locale 解码，
+                        # 在非 UTF-8 的 Windows 控制台（如德语的 cp1252）会把
+                        # "weiß" 变成 "weiÃŸ"，并一路写进字幕和成片。
+                        encoding="utf-8",
+                        errors="replace",
                         timeout=timeout_seconds,
                         cwd=work_dir,
                         env=cli_env,
