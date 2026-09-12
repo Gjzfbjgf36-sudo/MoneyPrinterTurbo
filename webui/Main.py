@@ -28,6 +28,7 @@ if root_dir in sys.path:
 sys.path.insert(0, root_dir)
 
 from app.config import config
+from webui.channels_panel import render_channels_panel
 from app.models import const
 from app.models.llm_provider import (
     DEFAULT_LLM_PROVIDER_ID,
@@ -7589,6 +7590,10 @@ def _render_application():
     )
 
     _render_subtitle_settings(right_panel, params)
+
+    # Die Kanalverwaltung gehört nicht ins Vier-Spalten-Raster: sie bearbeitet
+    # nicht das Video, das gerade entsteht, sondern die Dateien des Tageslaufs.
+    render_channels_panel(tr)
 
     generation_submitted = _render_generation_controls(
         params,

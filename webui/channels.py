@@ -1,0 +1,299 @@
+"""Kanalverwaltung für die WebUI.
+
+Ein Kanal ist ein Verzeichnis unter ``channels/`` mit einer ``channel.json``
+und, bei Warteschlangenkanälen, einer ``tasks.jsonl``. ``scripts/daily_run.ps1``
+und ``scripts/youtube_upload.py --channel`` arbeiten mit denselben Dateien.
+
+Die Logik liegt bewusst hier statt in ``webui/Main.py``: das Modul ist damit
+ohne laufendes Streamlit testbar, und Main.py wächst nicht weiter.
+"""
+
+from __future__ import annotations
+
+import json
+import platform
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from app.models.schema import VideoParams
+
+ROOT = Path(__file__).resolve().parent.parent
+CHANNELS_DIR = ROOT / "channels"
+CHANNEL_STORAGE_DIR = ROOT / "storage" / "channels"
+
+# Muss mit scripts/youtube_upload.py übereinstimmen: der Name wird dort zu
+# einem Verzeichnisnamen, ein Pfadwechsel darf daraus nicht entstehen.
+CHANNEL_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+
+SOURCES = ("news", "queue")
+PRIVACY_LEVELS = ("private", "unlisted", "public")
+# Die gängigen YouTube-Kategorien für diese Art Kanal. Andere IDs bleiben
+# erlaubt, die Liste ist nur die Auswahlhilfe in der Oberfläche.
+CATEGORIES = {
+    "27": "Bildung",
+    "28": "Wissenschaft und Technik",
+    "24": "Unterhaltung",
+    "22": "Menschen und Blogs",
+    "25": "Nachrichten und Politik",
+}
+
+DEFAULT_CONFIG: dict = {
+    "source": "queue",
+    "topic": "",
+    "topics_per_run": 3,
+    "category": "27",
+    "publish_at": "08:00,13:00,18:00",
+    "privacy": "private",
+    "research_model": "claude-sonnet-5",
+}
+
+
+class ChannelError(ValueError):
+    """Eingabefehler, der dem Nutzer angezeigt werden soll."""
+
+
+@dataclass
+class Channel:
+    name: str
+    config: dict
+    queue: list[dict] = field(default_factory=list)
+    uploaded: int = 0
+
+    @property
+    def is_news(self) -> bool:
+        return self.config.get("source") == "news"
+
+
+def _channel_dir(name: str) -> Path:
+    if not CHANNEL_NAME_PATTERN.match(name or ""):
+        raise ChannelError(
+            f"Ungültiger Kanalname {name!r}. Erlaubt sind Buchstaben, Ziffern, "
+            "Bindestrich und Unterstrich, beginnend mit Buchstabe oder Ziffer."
+        )
+    return CHANNELS_DIR / name
+
+
+def list_channel_names() -> list[str]:
+    """Alle Kanäle mit einer channel.json, alphabetisch."""
+    if not CHANNELS_DIR.exists():
+        return []
+    return sorted(
+        path.name
+        for path in CHANNELS_DIR.iterdir()
+        if path.is_dir() and (path / "channel.json").exists()
+    )
+
+
+def validate_config(config: dict) -> list[str]:
+    """Sammelt alle Probleme auf einmal, statt beim ersten abzubrechen.
+
+    Die Oberfläche zeigt sie zusammen an; ein Formular, das jeden Fehler
+    einzeln meldet, kostet den Nutzer unnötige Durchläufe.
+    """
+    problems: list[str] = []
+
+    if config.get("source") not in SOURCES:
+        problems.append(f"source muss {' oder '.join(SOURCES)} sein")
+
+    if config.get("source") == "news" and not str(config.get("topic", "")).strip():
+        problems.append("Ein Recherchekanal braucht ein Thema als Suchvorgabe")
+
+    try:
+        count = int(config.get("topics_per_run", 0))
+        if count < 1:
+            problems.append("topics_per_run muss mindestens 1 sein")
+    except (TypeError, ValueError):
+        problems.append("topics_per_run muss eine Zahl sein")
+
+    category = str(config.get("category", "")).strip()
+    if not category.isdigit():
+        problems.append("category muss eine Zahl sein, etwa 27 für Bildung")
+
+    publish_at = str(config.get("publish_at", "")).strip()
+    if publish_at:
+        for slot in publish_at.split(","):
+            slot = slot.strip()
+            if not slot:
+                continue
+            try:
+                hour, minute = (int(value) for value in slot.split(":", 1))
+            except ValueError:
+                problems.append(f"Ungültige Uhrzeit {slot!r}, erwartet wird HH:MM")
+                continue
+            if not (0 <= hour < 24 and 0 <= minute < 60):
+                problems.append(f"Uhrzeit {slot!r} liegt außerhalb von 00:00–23:59")
+    elif config.get("privacy") not in PRIVACY_LEVELS:
+        # Ohne Termin entscheidet privacy über die Sichtbarkeit; mit Termin
+        # lädt der Uploader immer privat hoch und YouTube schaltet selbst frei.
+        problems.append(f"privacy muss {', '.join(PRIVACY_LEVELS)} sein")
+
+    return problems
+
+
+def load_queue(name: str) -> list[dict]:
+    """Themen aus tasks.jsonl; unlesbare Zeilen werden übersprungen."""
+    queue_file = _channel_dir(name) / "tasks.jsonl"
+    if not queue_file.exists():
+        return []
+    entries: list[dict] = []
+    for line in queue_file.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entries.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return entries
+
+
+def count_uploaded(name: str) -> int:
+    """Anzahl der laut Verlauf bereits veröffentlichten Videos."""
+    state_file = CHANNEL_STORAGE_DIR / name / "youtube-uploads.json"
+    if not state_file.exists():
+        return 0
+    try:
+        state = json.loads(state_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return 0
+    return len(state) if isinstance(state, dict) else 0
+
+
+def load_channel(name: str) -> Channel:
+    config_file = _channel_dir(name) / "channel.json"
+    if not config_file.exists():
+        raise ChannelError(f"Kanal {name!r} hat keine channel.json")
+    try:
+        config = json.loads(config_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ChannelError(f"channel.json von {name!r} ist kein gültiges JSON: {exc}")
+
+    merged = dict(DEFAULT_CONFIG)
+    merged.update(config)
+    return Channel(
+        name=name,
+        config=merged,
+        queue=load_queue(name),
+        uploaded=count_uploaded(name),
+    )
+
+
+def load_channels() -> list[Channel]:
+    channels = []
+    for name in list_channel_names():
+        try:
+            channels.append(load_channel(name))
+        except ChannelError:
+            # Ein kaputter Kanal darf die Liste der anderen nicht verhindern.
+            continue
+    return channels
+
+
+def _write_json(path: Path, payload) -> None:
+    """Immer UTF-8 ohne BOM: dieselben Dateien liest Python im Tageslauf."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def save_channel(name: str, config: dict) -> None:
+    problems = validate_config(config)
+    if problems:
+        raise ChannelError("; ".join(problems))
+    stored = dict(config)
+    stored["topics_per_run"] = int(stored["topics_per_run"])
+    stored["category"] = str(stored["category"]).strip()
+    _write_json(_channel_dir(name) / "channel.json", stored)
+
+
+def create_channel(name: str, config: dict | None = None) -> Channel:
+    directory = _channel_dir(name)
+    if (directory / "channel.json").exists():
+        raise ChannelError(f"Kanal {name!r} gibt es schon")
+    merged = dict(DEFAULT_CONFIG)
+    merged.update(config or {})
+    save_channel(name, merged)
+    return load_channel(name)
+
+
+def save_queue(name: str, entries: list[dict]) -> None:
+    """Schreibt die Warteschlange und prüft jeden Eintrag vorher.
+
+    Ein Eintrag, den cli.py später ablehnt, würde den nächtlichen Lauf des
+    Kanals scheitern lassen — also hier abfangen, wo jemand zusieht.
+    """
+    for index, entry in enumerate(entries, start=1):
+        try:
+            params = VideoParams(**entry)
+        except Exception as exc:
+            raise ChannelError(f"Thema {index} ist unbrauchbar: {exc}")
+        if not (params.video_subject or params.video_script):
+            raise ChannelError(f"Thema {index} braucht ein Thema oder ein Skript")
+
+    queue_file = _channel_dir(name) / "tasks.jsonl"
+    queue_file.parent.mkdir(parents=True, exist_ok=True)
+    lines = [json.dumps(entry, ensure_ascii=False) for entry in entries]
+    queue_file.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+
+
+def queue_subjects(entries: list[dict]) -> list[str]:
+    """Nur die Themen, für die Textfläche in der Oberfläche."""
+    return [str(entry.get("video_subject", "")).strip() for entry in entries]
+
+
+def apply_subjects(entries: list[dict], subjects: list[str]) -> list[dict]:
+    """Setzt eine bearbeitete Themenliste um und behält bestehende Einstellungen.
+
+    Wer in der Oberfläche nur Zeilen umsortiert oder ergänzt, soll nicht die
+    Stimme und den Schnitt der übrigen Themen verlieren. Ein neues Thema erbt
+    deshalb die Einstellungen des ersten vorhandenen Eintrags.
+    """
+    template = dict(entries[0]) if entries else {}
+    template.pop("video_subject", None)
+    template.pop("video_script", None)
+
+    by_subject = {
+        str(entry.get("video_subject", "")).strip(): entry for entry in entries
+    }
+    result = []
+    for subject in subjects:
+        subject = subject.strip()
+        if not subject:
+            continue
+        existing = by_subject.get(subject)
+        if existing is not None:
+            result.append(dict(existing))
+        else:
+            result.append({**template, "video_subject": subject})
+    return result
+
+
+def runner_command(channel: str | None = None, dry_run: bool = False) -> list[str]:
+    """Der Befehl für den Tageslauf auf diesem Betriebssystem."""
+    if platform.system() == "Windows":
+        command = [
+            "powershell",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(ROOT / "scripts" / "daily_run.ps1"),
+        ]
+        if channel:
+            command += ["-Channel", channel]
+        if dry_run:
+            command.append("-DryRun")
+        return command
+
+    command = ["sh", str(ROOT / "scripts" / "daily_run.sh")]
+    if dry_run or channel:
+        # daily_run.sh kennt weder Kanäle noch einen Probelauf; der Aufrufer
+        # zeigt den Befehl an, statt ein falsches Versprechen zu geben.
+        return command
+    return command
+
+
+def supports_channel_runner() -> bool:
+    """Nur der PowerShell-Runner kennt einzelne Kanäle und den Probelauf."""
+    return platform.system() == "Windows"
