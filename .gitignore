@@ -45,3 +45,8 @@ htmlcov/
 
 # Claude Code 订阅令牌（docker compose 自动读取），禁止提交
 .env
+
+# OAuth-Client des YouTube-Uploaders. Das Token liegt unter /storage/ und ist
+# darüber schon ausgeschlossen; die Client-Datei muss hier einzeln stehen.
+/client_secret.json
+/client_secret_*.json
