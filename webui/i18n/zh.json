@@ -552,6 +552,26 @@
     "Channel New Name": "名称",
     "Channel New Name Help": "字母、数字、连字符和下划线，将作为 channels/ 下的目录名。",
     "Channel Create": "创建频道",
-    "Channel Created": "频道 {name} 已创建。"
+    "Channel Created": "频道 {name} 已创建。",
+    "Channel Logged In": "已登录 YouTube。",
+    "Channel Not Logged In": "尚未登录 YouTube。上传前需要一次性登录。",
+    "Channel Login": "登录 YouTube",
+    "Channel Login Running": "浏览器即将打开，请在其中完成登录……",
+    "Channel Login Done": "已登录。",
+    "Channel Login Failed": "登录失败。",
+    "Channel Pending": "待上传",
+    "Channel Pending Empty": "该频道没有待上传的成片。",
+    "Channel Pending Help": "该频道尚未发布的全部成片。选择前请核对来源——一旦公开，其中的说法就由你负责。",
+    "Channel Pending Details": "文案、来源与预览",
+    "Channel Words": "词",
+    "Channel Source Link": "来源",
+    "Channel No Source": "该视频没有来源链接。在该字段出现之前生成的视频无法补上。",
+    "Channel No Script": "（未记录文案）",
+    "Channel Upload": "上传所选",
+    "Channel Upload Running": "正在上传……",
+    "Channel Upload Done": "已上传 {count} 个视频。",
+    "Channel Upload Failed": "上传失败，退出码 {code}。",
+    "Channel Upload Scheduled": "按频道的发布时间排期",
+    "Channel Upload Scheduled Help": "先以私享方式上传，由 YouTube 在频道设定的时间公开。不勾选则使用下方选择的可见性。"
   }
 }

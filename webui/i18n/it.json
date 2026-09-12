@@ -452,6 +452,26 @@
     "Channel New Name": "Nome",
     "Channel New Name Help": "Lettere, cifre, trattino e trattino basso. Diventa il nome della cartella in channels/.",
     "Channel Create": "Crea canale",
-    "Channel Created": "Canale {name} creato."
+    "Channel Created": "Canale {name} creato.",
+    "Channel Logged In": "Accesso a YouTube effettuato.",
+    "Channel Not Logged In": "Non ancora connesso a YouTube. Il caricamento richiede un accesso una tantum.",
+    "Channel Login": "Accedi a YouTube",
+    "Channel Login Running": "Il browser si apre, completa lì l'accesso...",
+    "Channel Login Done": "Accesso effettuato.",
+    "Channel Login Failed": "Accesso non riuscito.",
+    "Channel Pending": "Pronti al caricamento",
+    "Channel Pending Empty": "Nessun video pronto per questo canale.",
+    "Channel Pending Help": "Tutti i video finiti che questo canale non ha ancora pubblicato. Controlla la fonte prima di sceglierne uno: una volta pubblico, le affermazioni sono tue.",
+    "Channel Pending Details": "Testo, fonte e anteprima",
+    "Channel Words": "parole",
+    "Channel Source Link": "Fonte",
+    "Channel No Source": "Questo video non ha un collegamento alla fonte. I video creati prima dell'introduzione del campo non possono ottenerlo a posteriori.",
+    "Channel No Script": "(nessun testo registrato)",
+    "Channel Upload": "Carica selezionati",
+    "Channel Upload Running": "Caricamento in corso...",
+    "Channel Upload Done": "{count} video caricato/i.",
+    "Channel Upload Failed": "Caricamento fallito con codice {code}.",
+    "Channel Upload Scheduled": "Programma con gli orari del canale",
+    "Channel Upload Scheduled Help": "Carica come privato e lascia che YouTube pubblichi agli orari del canale. Senza la spunta il video mantiene la visibilità scelta sotto."
   }
 }

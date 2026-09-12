@@ -552,6 +552,26 @@
     "Channel New Name": "Name",
     "Channel New Name Help": "Letters, digits, hyphen and underscore. Becomes the folder name under channels/.",
     "Channel Create": "Create channel",
-    "Channel Created": "Channel {name} created."
+    "Channel Created": "Channel {name} created.",
+    "Channel Logged In": "Signed in to YouTube.",
+    "Channel Not Logged In": "Not signed in to YouTube yet. Uploading needs a one-time sign-in.",
+    "Channel Login": "Sign in to YouTube",
+    "Channel Login Running": "Opening the browser, please complete the sign-in there...",
+    "Channel Login Done": "Signed in.",
+    "Channel Login Failed": "Sign-in failed.",
+    "Channel Pending": "Ready to upload",
+    "Channel Pending Empty": "No finished videos waiting for this channel.",
+    "Channel Pending Help": "Every finished video that this channel has not published yet. Check the source before you pick a video — once it is public, its claims are yours.",
+    "Channel Pending Details": "Script, source and preview",
+    "Channel Words": "words",
+    "Channel Source Link": "Source",
+    "Channel No Source": "This video carries no source link. Videos rendered before the source field existed cannot get one afterwards.",
+    "Channel No Script": "(no script recorded)",
+    "Channel Upload": "Upload selected",
+    "Channel Upload Running": "Uploading...",
+    "Channel Upload Done": "{count} video(s) uploaded.",
+    "Channel Upload Failed": "Upload failed with exit code {code}.",
+    "Channel Upload Scheduled": "Schedule with the channel's publish times",
+    "Channel Upload Scheduled Help": "Uploads privately and lets YouTube publish at the channel's times. Without it the video keeps the visibility you pick below."
   }
 }

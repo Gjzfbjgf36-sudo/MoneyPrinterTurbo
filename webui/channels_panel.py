@@ -204,6 +204,114 @@ def _render_dry_run(channel: ch.Channel, tr) -> None:
     st.code(output[-8000:] or tr("Channel Dry Run No Output"))
 
 
+def _run_script(command: list[str], spinner: str, tr) -> tuple[int, str]:
+    """Führt ein Skript aus und gibt Rückgabewert und Ausgabe zurück."""
+    with st.spinner(spinner):
+        try:
+            completed = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                cwd=str(ch.ROOT),
+                timeout=3600,
+            )
+        except subprocess.TimeoutExpired:
+            return 1, tr("Channel Dry Run Timeout")
+        except OSError as exc:
+            return 1, str(exc)
+    return completed.returncode, (completed.stdout or "") + (completed.stderr or "")
+
+
+def _render_login(channel: ch.Channel, tr) -> None:
+    if ch.is_logged_in(channel.name):
+        st.caption(tr("Channel Logged In"))
+        return
+
+    st.warning(tr("Channel Not Logged In"))
+    if not st.button(tr("Channel Login"), key=f"channel_login_{channel.name}"):
+        return
+
+    code, output = _run_script(
+        ch.login_command(channel.name), tr("Channel Login Running"), tr
+    )
+    if code == 0:
+        st.success(tr("Channel Login Done"))
+        st.rerun()
+    else:
+        st.error(tr("Channel Login Failed"))
+        st.code(output[-4000:])
+
+
+def _render_pending_videos(channel: ch.Channel, tr) -> None:
+    """Fertige Videos mit Quellenangabe prüfen und auswählen."""
+    videos = ch.pending_videos(channel.name)
+    st.subheader(tr("Channel Pending"))
+    if not videos:
+        st.info(tr("Channel Pending Empty"))
+        return
+
+    st.caption(tr("Channel Pending Help"))
+    selected: list = []
+    for video in videos:
+        key = f"{channel.name}_{video.task_id}"
+        checked = st.checkbox(
+            f"{video.subject}  ·  {video.words} "
+            f"{tr('Channel Words')}  ·  {video.size_mb} MB",
+            key=f"channel_pick_{key}",
+        )
+        with st.expander(tr("Channel Pending Details"), expanded=False):
+            if video.source:
+                # Die Quelle ist der Grund, warum diese Liste existiert: hier
+                # wird geprüft, bevor eine Behauptung öffentlich wird.
+                st.markdown(f"**{tr('Channel Source Link')}:** {video.source}")
+            else:
+                st.warning(tr("Channel No Source"))
+            st.write(video.script or tr("Channel No Script"))
+            if video.path.exists():
+                st.video(str(video.path))
+        if checked:
+            selected.append(video)
+
+    st.divider()
+    schedule = st.checkbox(
+        tr("Channel Upload Scheduled"),
+        value=bool(str(channel.config.get("publish_at", "")).strip()),
+        key=f"channel_sched_{channel.name}",
+        help=tr("Channel Upload Scheduled Help"),
+    )
+    privacy_options = list(ch.PRIVACY_LEVELS)
+    privacy = st.selectbox(
+        tr("Channel Privacy"),
+        options=privacy_options,
+        index=0,
+        disabled=schedule,
+        key=f"channel_uploadvis_{channel.name}",
+    )
+
+    if not st.button(
+        tr("Channel Upload"),
+        type="primary",
+        disabled=not selected or not ch.is_logged_in(channel.name),
+        key=f"channel_upload_{channel.name}",
+    ):
+        return
+
+    command = ch.upload_command(
+        channel.name,
+        [video.path for video in selected],
+        publish_at=str(channel.config.get("publish_at", "")) if schedule else "",
+        privacy=privacy,
+    )
+    code, output = _run_script(command, tr("Channel Upload Running"), tr)
+    if code == 0:
+        st.success(tr("Channel Upload Done").format(count=len(selected)))
+    else:
+        st.error(tr("Channel Upload Failed").format(code=code))
+    st.code(output[-8000:] or tr("Channel Dry Run No Output"))
+
+
 def _render_new_channel(tr) -> None:
     with st.form(key="channel_create"):
         name = st.text_input(
@@ -247,6 +355,9 @@ def render_channels_panel(tr) -> None:
                     )
                     stats[2].metric(tr("Channel Uploaded"), channel.uploaded)
 
+                    _render_login(channel, tr)
+                    _render_pending_videos(channel, tr)
+                    st.divider()
                     _render_settings_form(channel, tr)
                     _render_queue_editor(channel, tr)
                     _render_dry_run(channel, tr)

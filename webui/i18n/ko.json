@@ -452,6 +452,26 @@
     "Channel New Name": "이름",
     "Channel New Name Help": "영문자, 숫자, 하이픈, 밑줄. channels/ 아래 폴더 이름이 됩니다.",
     "Channel Create": "채널 만들기",
-    "Channel Created": "채널 {name}을(를) 만들었습니다."
+    "Channel Created": "채널 {name}을(를) 만들었습니다.",
+    "Channel Logged In": "YouTube에 로그인되어 있습니다.",
+    "Channel Not Logged In": "아직 YouTube에 로그인하지 않았습니다. 업로드하려면 한 번 로그인해야 합니다.",
+    "Channel Login": "YouTube 로그인",
+    "Channel Login Running": "브라우저가 열립니다. 거기서 로그인을 완료하세요...",
+    "Channel Login Done": "로그인되었습니다.",
+    "Channel Login Failed": "로그인에 실패했습니다.",
+    "Channel Pending": "업로드 대기",
+    "Channel Pending Empty": "이 채널에 올릴 완성 영상이 없습니다.",
+    "Channel Pending Help": "이 채널이 아직 게시하지 않은 모든 완성 영상입니다. 고르기 전에 출처를 확인하세요. 공개되면 그 주장은 당신의 것이 됩니다.",
+    "Channel Pending Details": "대본, 출처, 미리보기",
+    "Channel Words": "단어",
+    "Channel Source Link": "출처",
+    "Channel No Source": "이 영상에는 출처 링크가 없습니다. 해당 항목이 생기기 전에 만든 영상은 나중에 추가할 수 없습니다.",
+    "Channel No Script": "(대본 없음)",
+    "Channel Upload": "선택 항목 업로드",
+    "Channel Upload Running": "업로드 중...",
+    "Channel Upload Done": "영상 {count}개를 업로드했습니다.",
+    "Channel Upload Failed": "업로드가 코드 {code}로 실패했습니다.",
+    "Channel Upload Scheduled": "채널의 공개 시각으로 예약",
+    "Channel Upload Scheduled Help": "비공개로 업로드하고 채널의 시각에 YouTube가 공개합니다. 선택하지 않으면 아래에서 고른 공개 범위를 따릅니다."
   }
 }

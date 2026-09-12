@@ -409,6 +409,13 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--login", action="store_true",
+        help=(
+            "nur anmelden und beenden. Oeffnet den Browser, legt den Token des "
+            "Kanals an und laedt nichts hoch"
+        ),
+    )
+    parser.add_argument(
         "--dry-run", action="store_true",
         help="nur Titel und Beschreibung anzeigen, nichts hochladen",
     )
@@ -430,6 +437,13 @@ def main() -> None:
     apply_category(args.category)
     if args.channel:
         print(f"Kanal: {args.channel}")
+
+    if args.login:
+        # Vor jeder Video-Suche: die Anmeldung muss auch dann funktionieren,
+        # wenn noch gar nichts gerendert wurde.
+        get_youtube_client()
+        print(f"Angemeldet. Token liegt unter {TOKEN_FILE}.")
+        return
 
     state = load_state()
     if args.scan:

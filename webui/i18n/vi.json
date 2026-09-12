@@ -452,6 +452,26 @@
     "Channel New Name": "Tên",
     "Channel New Name Help": "Chữ cái, chữ số, dấu gạch ngang và gạch dưới. Sẽ thành tên thư mục trong channels/.",
     "Channel Create": "Tạo kênh",
-    "Channel Created": "Đã tạo kênh {name}."
+    "Channel Created": "Đã tạo kênh {name}.",
+    "Channel Logged In": "Đã đăng nhập YouTube.",
+    "Channel Not Logged In": "Chưa đăng nhập YouTube. Tải lên cần đăng nhập một lần.",
+    "Channel Login": "Đăng nhập YouTube",
+    "Channel Login Running": "Trình duyệt sẽ mở, hãy hoàn tất đăng nhập ở đó...",
+    "Channel Login Done": "Đã đăng nhập.",
+    "Channel Login Failed": "Đăng nhập thất bại.",
+    "Channel Pending": "Sẵn sàng tải lên",
+    "Channel Pending Empty": "Không có video hoàn chỉnh cho kênh này.",
+    "Channel Pending Help": "Mọi video đã hoàn tất mà kênh này chưa đăng. Hãy kiểm tra nguồn trước khi chọn: khi đã công khai, các khẳng định là của bạn.",
+    "Channel Pending Details": "Kịch bản, nguồn và xem trước",
+    "Channel Words": "từ",
+    "Channel Source Link": "Nguồn",
+    "Channel No Source": "Video này không có liên kết nguồn. Video tạo trước khi có trường này không thể bổ sung sau.",
+    "Channel No Script": "(không có kịch bản)",
+    "Channel Upload": "Tải lên mục đã chọn",
+    "Channel Upload Running": "Đang tải lên...",
+    "Channel Upload Done": "Đã tải lên {count} video.",
+    "Channel Upload Failed": "Tải lên thất bại với mã {code}.",
+    "Channel Upload Scheduled": "Hẹn giờ theo giờ đăng của kênh",
+    "Channel Upload Scheduled Help": "Tải lên ở chế độ riêng tư và để YouTube công khai theo giờ của kênh. Không chọn thì video giữ chế độ hiển thị bên dưới."
   }
 }

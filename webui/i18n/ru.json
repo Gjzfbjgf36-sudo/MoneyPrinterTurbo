@@ -452,6 +452,26 @@
     "Channel New Name": "Имя",
     "Channel New Name Help": "Буквы, цифры, дефис и подчёркивание. Станет именем папки в channels/.",
     "Channel Create": "Создать канал",
-    "Channel Created": "Канал {name} создан."
+    "Channel Created": "Канал {name} создан.",
+    "Channel Logged In": "Вход в YouTube выполнен.",
+    "Channel Not Logged In": "Вход в YouTube ещё не выполнен. Для загрузки нужен однократный вход.",
+    "Channel Login": "Войти в YouTube",
+    "Channel Login Running": "Откроется браузер, завершите вход там...",
+    "Channel Login Done": "Вход выполнен.",
+    "Channel Login Failed": "Не удалось войти.",
+    "Channel Pending": "Готовы к загрузке",
+    "Channel Pending Empty": "Для этого канала нет готовых видео.",
+    "Channel Pending Help": "Все готовые видео, которые этот канал ещё не опубликовал. Проверьте источник перед выбором: после публикации утверждения становятся вашими.",
+    "Channel Pending Details": "Текст, источник и просмотр",
+    "Channel Words": "слов",
+    "Channel Source Link": "Источник",
+    "Channel No Source": "У этого видео нет ссылки на источник. Видео, созданные до появления поля, получить её задним числом не могут.",
+    "Channel No Script": "(текст не сохранён)",
+    "Channel Upload": "Загрузить выбранные",
+    "Channel Upload Running": "Загрузка...",
+    "Channel Upload Done": "Загружено видео: {count}.",
+    "Channel Upload Failed": "Загрузка завершилась с кодом {code}.",
+    "Channel Upload Scheduled": "Запланировать по времени канала",
+    "Channel Upload Scheduled Help": "Загружает приватно, YouTube публикует во время канала. Без галочки видео получает выбранную ниже видимость."
   }
 }

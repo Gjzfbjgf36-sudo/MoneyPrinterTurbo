@@ -100,10 +100,11 @@ Vorgehen:
 
 Fuer jedes Video:
 - video_subject: der Titel der Meldung, kurz und konkret.
-- video_script: der gesprochene Text, hoechstens 70 Woerter. Diese Grenze ist
-  hart. Sie ergibt rund 25 bis 30 Sekunden, und ein Short, das zu Ende gesehen
-  wird, wird weiter ausgespielt; ein laengeres, das abgebrochen wird, nicht.
-  Im Zweifel kuerzen statt ergaenzen.
+- video_script: der gesprochene Text, 55 bis 70 Woerter. Beide Grenzen gelten:
+  gemessen entspricht das 23 bis 29 Sekunden. Kuerzer wirkt duenn, weil fuer
+  die drei Aussagen kein Platz bleibt; laenger wird abgebrochen, und ein Short,
+  das zu Ende gesehen wird, wird weiter ausgespielt. Zaehle die Woerter nach,
+  bevor du antwortest.
   Der erste Satz ist der Hook: hoechstens 8 Woerter, eine konkrete Zahl oder
   eine Behauptung, die der Erwartung widerspricht. Kein "In diesem Video",
   keine Begruessung, keine Ankuendigung des Themas.

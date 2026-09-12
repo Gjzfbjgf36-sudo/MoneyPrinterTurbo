@@ -452,6 +452,26 @@
     "Channel New Name": "Nama",
     "Channel New Name Help": "Huruf, angka, tanda hubung, dan garis bawah. Menjadi nama folder di channels/.",
     "Channel Create": "Buat kanal",
-    "Channel Created": "Kanal {name} dibuat."
+    "Channel Created": "Kanal {name} dibuat.",
+    "Channel Logged In": "Sudah masuk ke YouTube.",
+    "Channel Not Logged In": "Belum masuk ke YouTube. Mengunggah memerlukan satu kali proses masuk.",
+    "Channel Login": "Masuk ke YouTube",
+    "Channel Login Running": "Peramban akan terbuka, selesaikan proses masuk di sana...",
+    "Channel Login Done": "Berhasil masuk.",
+    "Channel Login Failed": "Gagal masuk.",
+    "Channel Pending": "Siap diunggah",
+    "Channel Pending Empty": "Tidak ada video jadi untuk kanal ini.",
+    "Channel Pending Help": "Semua video jadi yang belum ditayangkan kanal ini. Periksa sumbernya sebelum memilih: begitu publik, pernyataannya menjadi tanggung jawabmu.",
+    "Channel Pending Details": "Naskah, sumber, dan pratinjau",
+    "Channel Words": "kata",
+    "Channel Source Link": "Sumber",
+    "Channel No Source": "Video ini tidak memuat tautan sumber. Video yang dibuat sebelum kolom ini ada tidak bisa ditambahi setelahnya.",
+    "Channel No Script": "(tidak ada naskah)",
+    "Channel Upload": "Unggah yang dipilih",
+    "Channel Upload Running": "Mengunggah...",
+    "Channel Upload Done": "{count} video diunggah.",
+    "Channel Upload Failed": "Pengunggahan gagal dengan kode {code}.",
+    "Channel Upload Scheduled": "Jadwalkan dengan waktu tayang kanal",
+    "Channel Upload Scheduled Help": "Mengunggah sebagai privat dan membiarkan YouTube menayangkan pada waktu kanal. Tanpa centang, video memakai visibilitas di bawah."
   }
 }

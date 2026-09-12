@@ -291,6 +291,123 @@ def apply_subjects(entries: list[dict], subjects: list[str]) -> list[dict]:
     return result
 
 
+@dataclass
+class PendingVideo:
+    """Ein fertiges Video, das in diesem Kanal noch nicht veröffentlicht ist."""
+
+    path: Path
+    task_id: str
+    subject: str
+    script: str
+    source: str
+    size_mb: float
+
+    @property
+    def words(self) -> int:
+        return len(self.script.split())
+
+
+def _read_task_metadata(task_dir: Path) -> dict:
+    script_file = task_dir / "script.json"
+    if not script_file.exists():
+        return {}
+    try:
+        return json.loads(script_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _uploaded_keys(name: str) -> set[str]:
+    state_file = CHANNEL_STORAGE_DIR / name / "youtube-uploads.json"
+    if not state_file.exists():
+        return set()
+    try:
+        state = json.loads(state_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return set()
+    return set(state) if isinstance(state, dict) else set()
+
+
+def pending_videos(name: str) -> list[PendingVideo]:
+    """Fertige Videos, die dieser Kanal noch nicht veröffentlicht hat.
+
+    Bewusst alle Videos unter ``storage/tasks``, nicht nur die dieses Kanals:
+    welcher Kanal ein Video gerendert hat, steht nirgends. Statt zu raten
+    zeigt die Oberfläche alles an und lässt den Nutzer auswählen — damit kann
+    kein Video versehentlich im falschen Kanal landen.
+    """
+    tasks_dir = ROOT / "storage" / "tasks"
+    if not tasks_dir.exists():
+        return []
+
+    uploaded = _uploaded_keys(name)
+    videos: list[PendingVideo] = []
+    for video in sorted(
+        tasks_dir.glob("*/final-*.mp4"), key=lambda path: path.stat().st_mtime
+    ):
+        try:
+            key = str(video.relative_to(ROOT)).replace("\\", "/")
+        except ValueError:
+            key = str(video)
+        if key in uploaded or str(video.relative_to(ROOT)) in uploaded:
+            continue
+
+        metadata = _read_task_metadata(video.parent)
+        params = metadata.get("params") or {}
+        videos.append(
+            PendingVideo(
+                path=video,
+                task_id=video.parent.name,
+                subject=str(params.get("video_subject") or video.parent.name),
+                script=str(metadata.get("script") or ""),
+                source=str(params.get("description_suffix") or "").strip(),
+                size_mb=round(video.stat().st_size / 1_048_576, 1),
+            )
+        )
+    return videos
+
+
+def upload_command(
+    name: str, videos: list[Path], publish_at: str = "", privacy: str = "private"
+) -> list[str]:
+    """Lädt genau die genannten Videos in diesen Kanal.
+
+    Ohne ``--scan``: der Scan kennt die Kanalzuordnung nicht und würde die
+    Videos der anderen Kanäle mitnehmen.
+    """
+    command = [
+        "uv",
+        "run",
+        "python",
+        str(ROOT / "scripts" / "youtube_upload.py"),
+        *[str(video) for video in videos],
+        "--channel",
+        name,
+    ]
+    if publish_at.strip():
+        command += ["--publish-at", publish_at.strip()]
+    else:
+        command += ["--privacy", privacy]
+    return command
+
+
+def login_command(name: str) -> list[str]:
+    """Einmalige Anmeldung eines Kanals; öffnet den Browser, lädt nichts hoch."""
+    return [
+        "uv",
+        "run",
+        "python",
+        str(ROOT / "scripts" / "youtube_upload.py"),
+        "--channel",
+        name,
+        "--login",
+    ]
+
+
+def is_logged_in(name: str) -> bool:
+    return (CHANNEL_STORAGE_DIR / name / "youtube-token.json").exists()
+
+
 def runner_command(channel: str | None = None, dry_run: bool = False) -> list[str]:
     """Der Befehl für den Tageslauf auf diesem Betriebssystem.
 

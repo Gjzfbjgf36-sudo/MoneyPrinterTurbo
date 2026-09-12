@@ -452,6 +452,26 @@
     "Channel New Name": "Nombre",
     "Channel New Name Help": "Letras, dígitos, guion y guion bajo. Será el nombre de la carpeta en channels/.",
     "Channel Create": "Crear canal",
-    "Channel Created": "Canal {name} creado."
+    "Channel Created": "Canal {name} creado.",
+    "Channel Logged In": "Sesión iniciada en YouTube.",
+    "Channel Not Logged In": "Aún sin sesión en YouTube. Subir requiere un inicio de sesión único.",
+    "Channel Login": "Iniciar sesión en YouTube",
+    "Channel Login Running": "Se abrirá el navegador, completa el acceso allí...",
+    "Channel Login Done": "Sesión iniciada.",
+    "Channel Login Failed": "Fallo al iniciar sesión.",
+    "Channel Pending": "Listos para subir",
+    "Channel Pending Empty": "No hay vídeos terminados para este canal.",
+    "Channel Pending Help": "Todos los vídeos terminados que este canal aún no ha publicado. Comprueba la fuente antes de elegir uno: una vez público, sus afirmaciones son tuyas.",
+    "Channel Pending Details": "Guion, fuente y vista previa",
+    "Channel Words": "palabras",
+    "Channel Source Link": "Fuente",
+    "Channel No Source": "Este vídeo no lleva enlace a la fuente. Los vídeos creados antes de existir ese campo no pueden obtenerlo después.",
+    "Channel No Script": "(sin guion registrado)",
+    "Channel Upload": "Subir seleccionados",
+    "Channel Upload Running": "Subiendo...",
+    "Channel Upload Done": "{count} vídeo(s) subido(s).",
+    "Channel Upload Failed": "La subida falló con el código {code}.",
+    "Channel Upload Scheduled": "Programar con las horas del canal",
+    "Channel Upload Scheduled Help": "Sube como privado y deja que YouTube publique a las horas del canal. Sin marcar, el vídeo mantiene la visibilidad elegida abajo."
   }
 }

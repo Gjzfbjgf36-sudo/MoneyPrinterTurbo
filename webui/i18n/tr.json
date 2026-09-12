@@ -452,6 +452,26 @@
     "Channel New Name": "Ad",
     "Channel New Name Help": "Harf, rakam, tire ve alt çizgi. channels/ altındaki klasör adı olur.",
     "Channel Create": "Kanal oluştur",
-    "Channel Created": "{name} kanalı oluşturuldu."
+    "Channel Created": "{name} kanalı oluşturuldu.",
+    "Channel Logged In": "YouTube oturumu açık.",
+    "Channel Not Logged In": "YouTube oturumu henüz açılmadı. Yükleme için bir kerelik giriş gerekir.",
+    "Channel Login": "YouTube'a giriş yap",
+    "Channel Login Running": "Tarayıcı açılıyor, girişi orada tamamlayın...",
+    "Channel Login Done": "Giriş yapıldı.",
+    "Channel Login Failed": "Giriş başarısız.",
+    "Channel Pending": "Yüklemeye hazır",
+    "Channel Pending Empty": "Bu kanal için hazır video yok.",
+    "Channel Pending Help": "Bu kanalın henüz yayımlamadığı tüm hazır videolar. Seçmeden önce kaynağı denetleyin: yayımlandıktan sonra iddialar sizindir.",
+    "Channel Pending Details": "Metin, kaynak ve önizleme",
+    "Channel Words": "kelime",
+    "Channel Source Link": "Kaynak",
+    "Channel No Source": "Bu videoda kaynak bağlantısı yok. Alan eklenmeden önce üretilen videolar sonradan alamaz.",
+    "Channel No Script": "(metin kaydedilmemiş)",
+    "Channel Upload": "Seçilenleri yükle",
+    "Channel Upload Running": "Yükleniyor...",
+    "Channel Upload Done": "{count} video yüklendi.",
+    "Channel Upload Failed": "Yükleme {code} koduyla başarısız oldu.",
+    "Channel Upload Scheduled": "Kanalın yayın saatlerine göre planla",
+    "Channel Upload Scheduled Help": "Gizli yükler, YouTube kanalın saatlerinde yayımlar. İşaretlenmezse video aşağıda seçilen görünürlüğü alır."
   }
 }

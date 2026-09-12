@@ -452,6 +452,26 @@
     "Channel New Name": "Nome",
     "Channel New Name Help": "Letras, dígitos, hífen e sublinhado. Torna-se o nome da pasta em channels/.",
     "Channel Create": "Criar canal",
-    "Channel Created": "Canal {name} criado."
+    "Channel Created": "Canal {name} criado.",
+    "Channel Logged In": "Sessão iniciada no YouTube.",
+    "Channel Not Logged In": "Ainda sem sessão no YouTube. O envio exige um início de sessão único.",
+    "Channel Login": "Iniciar sessão no YouTube",
+    "Channel Login Running": "O navegador vai abrir, conclua o acesso aí...",
+    "Channel Login Done": "Sessão iniciada.",
+    "Channel Login Failed": "Falha ao iniciar sessão.",
+    "Channel Pending": "Prontos para enviar",
+    "Channel Pending Empty": "Não há vídeos prontos para este canal.",
+    "Channel Pending Help": "Todos os vídeos prontos que este canal ainda não publicou. Verifique a fonte antes de escolher um: assim que for público, as afirmações são suas.",
+    "Channel Pending Details": "Texto, fonte e pré-visualização",
+    "Channel Words": "palavras",
+    "Channel Source Link": "Fonte",
+    "Channel No Source": "Este vídeo não tem ligação à fonte. Vídeos criados antes de o campo existir não a obtêm depois.",
+    "Channel No Script": "(sem texto registado)",
+    "Channel Upload": "Enviar selecionados",
+    "Channel Upload Running": "A enviar...",
+    "Channel Upload Done": "{count} vídeo(s) enviado(s).",
+    "Channel Upload Failed": "Envio falhou com o código {code}.",
+    "Channel Upload Scheduled": "Agendar com os horários do canal",
+    "Channel Upload Scheduled Help": "Envia como privado e deixa o YouTube publicar nos horários do canal. Sem a marca, o vídeo mantém a visibilidade escolhida abaixo."
   }
 }

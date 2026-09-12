@@ -452,6 +452,26 @@
     "Channel New Name": "Name",
     "Channel New Name Help": "Buchstaben, Ziffern, Bindestrich und Unterstrich. Wird zum Ordnernamen unter channels/.",
     "Channel Create": "Kanal anlegen",
-    "Channel Created": "Kanal {name} angelegt."
+    "Channel Created": "Kanal {name} angelegt.",
+    "Channel Logged In": "Bei YouTube angemeldet.",
+    "Channel Not Logged In": "Noch nicht bei YouTube angemeldet. Zum Hochladen ist eine einmalige Anmeldung nötig.",
+    "Channel Login": "Bei YouTube anmelden",
+    "Channel Login Running": "Der Browser öffnet sich, bitte dort anmelden ...",
+    "Channel Login Done": "Angemeldet.",
+    "Channel Login Failed": "Anmeldung fehlgeschlagen.",
+    "Channel Pending": "Bereit zum Hochladen",
+    "Channel Pending Empty": "Keine fertigen Videos für diesen Kanal.",
+    "Channel Pending Help": "Alle fertigen Videos, die dieser Kanal noch nicht veröffentlicht hat. Prüfe die Quelle, bevor du ein Video auswählst — sobald es öffentlich ist, sind die Behauptungen deine.",
+    "Channel Pending Details": "Skript, Quelle und Vorschau",
+    "Channel Words": "Wörter",
+    "Channel Source Link": "Quelle",
+    "Channel No Source": "Dieses Video hat keinen Quellen-Link. Videos, die vor der Einführung des Feldes erzeugt wurden, bekommen nachträglich keinen.",
+    "Channel No Script": "(kein Skript hinterlegt)",
+    "Channel Upload": "Ausgewählte hochladen",
+    "Channel Upload Running": "Wird hochgeladen ...",
+    "Channel Upload Done": "{count} Video(s) hochgeladen.",
+    "Channel Upload Failed": "Hochladen fehlgeschlagen, Rückgabewert {code}.",
+    "Channel Upload Scheduled": "Mit den Veröffentlichungszeiten des Kanals einplanen",
+    "Channel Upload Scheduled Help": "Lädt privat hoch und lässt YouTube zu den Zeiten des Kanals freischalten. Ohne Haken behält das Video die unten gewählte Sichtbarkeit."
   }
 }

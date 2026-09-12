@@ -452,6 +452,26 @@
     "Channel New Name": "Ad",
     "Channel New Name Help": "Hərflər, rəqəmlər, defis və alt xətt. channels/ altında qovluq adı olacaq.",
     "Channel Create": "Kanal yarat",
-    "Channel Created": "{name} kanalı yaradıldı."
+    "Channel Created": "{name} kanalı yaradıldı.",
+    "Channel Logged In": "YouTube-a daxil olunub.",
+    "Channel Not Logged In": "Hələ YouTube-a daxil olunmayıb. Yükləmək üçün birdəfəlik giriş lazımdır.",
+    "Channel Login": "YouTube-a daxil ol",
+    "Channel Login Running": "Brauzer açılır, girişi orada tamamlayın...",
+    "Channel Login Done": "Daxil olundu.",
+    "Channel Login Failed": "Giriş alınmadı.",
+    "Channel Pending": "Yükləməyə hazır",
+    "Channel Pending Empty": "Bu kanal üçün hazır video yoxdur.",
+    "Channel Pending Help": "Bu kanalın hələ dərc etmədiyi bütün hazır videolar. Seçməzdən əvvəl mənbəni yoxlayın: dərc olunandan sonra iddialar sizin olur.",
+    "Channel Pending Details": "Mətn, mənbə və önizləmə",
+    "Channel Words": "söz",
+    "Channel Source Link": "Mənbə",
+    "Channel No Source": "Bu videoda mənbə keçidi yoxdur. Sahə yaranmazdan əvvəl hazırlanan videolara sonradan əlavə edilə bilməz.",
+    "Channel No Script": "(mətn qeyd olunmayıb)",
+    "Channel Upload": "Seçilmişləri yüklə",
+    "Channel Upload Running": "Yüklənir...",
+    "Channel Upload Done": "{count} video yükləndi.",
+    "Channel Upload Failed": "Yükləmə {code} kodu ilə alınmadı.",
+    "Channel Upload Scheduled": "Kanalın dərc saatlarına görə planlaşdır",
+    "Channel Upload Scheduled Help": "Gizli yükləyir, YouTube kanalın saatlarında dərc edir. İşarələnmədikdə video aşağıda seçilmiş görünürlüyü alır."
   }
 }

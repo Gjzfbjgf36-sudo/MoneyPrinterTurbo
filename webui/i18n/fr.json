@@ -452,6 +452,26 @@
     "Channel New Name": "Nom",
     "Channel New Name Help": "Lettres, chiffres, tiret et tiret bas. Devient le nom du dossier sous channels/.",
     "Channel Create": "Créer la chaîne",
-    "Channel Created": "Chaîne {name} créée."
+    "Channel Created": "Chaîne {name} créée.",
+    "Channel Logged In": "Connecté à YouTube.",
+    "Channel Not Logged In": "Pas encore connecté à YouTube. La mise en ligne nécessite une connexion unique.",
+    "Channel Login": "Se connecter à YouTube",
+    "Channel Login Running": "Le navigateur s'ouvre, terminez la connexion là-bas...",
+    "Channel Login Done": "Connecté.",
+    "Channel Login Failed": "Échec de la connexion.",
+    "Channel Pending": "Prêts à être mis en ligne",
+    "Channel Pending Empty": "Aucune vidéo terminée pour cette chaîne.",
+    "Channel Pending Help": "Toutes les vidéos terminées que cette chaîne n'a pas encore publiées. Vérifiez la source avant d'en choisir une : une fois publique, ses affirmations sont les vôtres.",
+    "Channel Pending Details": "Texte, source et aperçu",
+    "Channel Words": "mots",
+    "Channel Source Link": "Source",
+    "Channel No Source": "Cette vidéo n'a pas de lien vers la source. Les vidéos créées avant l'existence de ce champ n'en obtiennent pas après coup.",
+    "Channel No Script": "(aucun texte enregistré)",
+    "Channel Upload": "Mettre en ligne la sélection",
+    "Channel Upload Running": "Mise en ligne...",
+    "Channel Upload Done": "{count} vidéo(s) mise(s) en ligne.",
+    "Channel Upload Failed": "Échec avec le code {code}.",
+    "Channel Upload Scheduled": "Programmer selon les heures de la chaîne",
+    "Channel Upload Scheduled Help": "Met en ligne en privé et laisse YouTube publier aux heures de la chaîne. Sans la case, la vidéo garde la visibilité choisie ci-dessous."
   }
 }

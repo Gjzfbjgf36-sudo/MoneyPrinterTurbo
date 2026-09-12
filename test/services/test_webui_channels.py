@@ -1,5 +1,6 @@
 """Tests für die Kanalverwaltung der WebUI (webui/channels.py)."""
 
+from pathlib import Path
 import json
 
 import pytest
@@ -260,3 +261,64 @@ def test_dry_run_on_other_systems_never_uploads(monkeypatch):
     command = ch.runner_command("tech", dry_run=True)
     assert "daily_run.sh" not in " ".join(command)
     assert "--stop-at" in command and "script" in command
+
+
+def test_pending_videos_exclude_what_this_channel_uploaded(sandbox, monkeypatch):
+    """Ein bereits veroeffentlichtes Video darf nicht erneut angeboten werden."""
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    task = sandbox / "storage" / "tasks" / "abc"
+    task.mkdir(parents=True)
+    video = task / "final-1.mp4"
+    video.write_bytes(b"x" * 2048)
+    (task / "script.json").write_text(
+        json.dumps(
+            {
+                "script": "Ein kurzer Text.",
+                "params": {
+                    "video_subject": "Testthema",
+                    "description_suffix": "Quelle: https://example.com",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+
+    offen = ch.pending_videos("tech")
+    assert len(offen) == 1
+    assert offen[0].subject == "Testthema"
+    assert offen[0].source == "Quelle: https://example.com"
+    assert offen[0].words == 3
+
+    state = sandbox / "storage" / "channels" / "tech" / "youtube-uploads.json"
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text(json.dumps({"storage/tasks/abc/final-1.mp4": {}}), encoding="utf-8")
+    assert ch.pending_videos("tech") == []
+
+
+def test_upload_command_names_the_files_and_never_scans(sandbox):
+    """--scan kennt die Kanalzuordnung nicht und wuerde fremde Videos mitnehmen."""
+    command = ch.upload_command("tech", [Path("a.mp4"), Path("b.mp4")], publish_at="08:00")
+    assert "--scan" not in command
+    assert "a.mp4" in command and "b.mp4" in command
+    assert command[command.index("--channel") + 1] == "tech"
+    assert "--publish-at" in command
+
+    ohne_termin = ch.upload_command("tech", [Path("a.mp4")], privacy="unlisted")
+    assert "--publish-at" not in ohne_termin
+    assert ohne_termin[ohne_termin.index("--privacy") + 1] == "unlisted"
+
+
+def test_login_command_only_signs_in(sandbox):
+    command = ch.login_command("tech")
+    assert "--login" in command
+    assert "--scan" not in command
+
+
+def test_is_logged_in_follows_the_channel_token(sandbox):
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    assert ch.is_logged_in("tech") is False
+    token = sandbox / "storage" / "channels" / "tech" / "youtube-token.json"
+    token.parent.mkdir(parents=True, exist_ok=True)
+    token.write_text("{}", encoding="utf-8")
+    assert ch.is_logged_in("tech") is True
