@@ -110,6 +110,14 @@ def build_tags(metadata: dict) -> list[str]:
     return [str(term)[:30] for term in terms][:10]
 
 
+def state_key(video_path: Path) -> str:
+    """Schlüssel im Upload-Verlauf: relativ zum Projekt, sonst absolut."""
+    try:
+        return str(video_path.relative_to(ROOT))
+    except ValueError:
+        return str(video_path)
+
+
 def find_new_videos(state: dict) -> list[Path]:
     """Alle final-*.mp4 unter storage/tasks, die noch nicht hochgeladen sind."""
     if not TASKS_DIR.exists():
@@ -117,7 +125,7 @@ def find_new_videos(state: dict) -> list[Path]:
     videos = sorted(
         TASKS_DIR.glob("*/final-*.mp4"), key=lambda path: path.stat().st_mtime
     )
-    return [video for video in videos if str(video.relative_to(ROOT)) not in state]
+    return [video for video in videos if state_key(video) not in state]
 
 
 def get_youtube_client():
@@ -218,13 +226,31 @@ def main() -> None:
         "--dry-run", action="store_true",
         help="nur Titel und Beschreibung anzeigen, nichts hochladen",
     )
+    parser.add_argument(
+        "--force", action="store_true",
+        help="auch Videos hochladen, die laut Verlauf schon auf YouTube sind",
+    )
     args = parser.parse_args()
 
     state = load_state()
     if args.scan:
         targets = find_new_videos(state)
     else:
-        targets = [Path(video).resolve() for video in args.videos]
+        # Auch bei ausdrücklich genannten Pfaden gegen den Verlauf prüfen. Ein
+        # versehentlich wiederholter Aufruf darf kein zweites Video im Kanal
+        # anlegen; --force bleibt der bewusste Weg für eine Neuveröffentlichung.
+        targets = []
+        for video in args.videos:
+            path = Path(video).resolve()
+            known = state.get(state_key(path))
+            if known and not args.force:
+                print(
+                    f"übersprungen, bereits hochgeladen: {path}\n"
+                    f"  {known.get('url', known.get('video_id', ''))}\n"
+                    f"  erneut hochladen mit --force"
+                )
+                continue
+            targets.append(path)
 
     if not targets:
         print("Keine neuen Videos gefunden.")
@@ -258,11 +284,9 @@ def main() -> None:
         video_id = upload(youtube, video_path, title, description, tags, args.privacy)
         url = f"https://youtu.be/{video_id}"
         print(f"  hochgeladen: {url}")
-        try:
-            key = str(video_path.relative_to(ROOT))
-        except ValueError:
-            key = str(video_path)
-        state[key] = {"video_id": video_id, "url": url, "privacy": args.privacy}
+        state[state_key(video_path)] = {
+            "video_id": video_id, "url": url, "privacy": args.privacy
+        }
         save_state(state)
 
 
