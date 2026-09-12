@@ -496,6 +496,19 @@
     "Channel Run Log": "Çalışma günlüğü",
     "Channel Run Log Help": "Günlük çalışmanın ne yaptığı. Zamanlanmış görev kendi sürecinde çalışır, yukarıdaki liste onu görmez.",
     "Channel Run Log Empty": "Henüz kayıtlı çalışma yok.",
-    "Channel Run Log Refresh": "Yenile"
+    "Channel Run Log Refresh": "Yenile",
+    "Channel Styles": "Şablonlar",
+    "Channel Settings": "Kanal ayarları",
+    "Channel Step Progress": "Adım {done} / {total}",
+    "Step login": "Buradan başlayın: YouTube'a giriş yapın. Bu olmadan hiçbir şey yayımlanamaz.",
+    "Step style": "Aşağıdan bir şablon seçin. Altyazı, kurgu ve tempoyu tek seferde ayarlar; sonra ince ayar yapabilirsiniz.",
+    "Step render": "Henüz video yok. Şunu çalıştırın: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Videolar bekliyor. Kaynağı denetleyin, önizlemeyi izleyin, sonra yükleyin.",
+    "Step ready": "Her şey hazır. Yeni videolar her çalışmadan sonra burada görünür.",
+    "Channel Delete": "Videoyu sil",
+    "Channel Delete Confirm": "“{subject}” kalıcı olarak silinsin mi? Metin, altyazı ve ses de gider.",
+    "Channel Delete Yes": "Evet, sil",
+    "Channel Delete No": "Kalsın",
+    "Channel Deleted": "Silindi: {name}"
   }
 }

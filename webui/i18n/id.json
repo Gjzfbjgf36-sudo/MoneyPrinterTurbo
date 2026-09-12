@@ -496,6 +496,19 @@
     "Channel Run Log": "Catatan jalannya",
     "Channel Run Log Help": "Apa yang dikerjakan jalannya harian. Tugas terjadwal berjalan di prosesnya sendiri, jadi daftar di atas tidak melihatnya.",
     "Channel Run Log Empty": "Belum ada jalannya yang tercatat.",
-    "Channel Run Log Refresh": "Segarkan"
+    "Channel Run Log Refresh": "Segarkan",
+    "Channel Styles": "Templat",
+    "Channel Settings": "Pengaturan kanal",
+    "Channel Step Progress": "Langkah {done} dari {total}",
+    "Step login": "Mulai di sini: masuk ke YouTube. Tanpa itu tidak ada yang bisa ditayangkan.",
+    "Step style": "Pilih templat di bawah. Ia menetapkan takarir, potongan, dan tempo sekaligus; bisa disetel halus nanti.",
+    "Step render": "Belum ada video. Jalankan: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Ada video menunggu. Periksa sumber, lihat pratinjau, lalu unggah.",
+    "Step ready": "Semua siap. Video baru muncul di sini setelah setiap jalannya.",
+    "Channel Delete": "Hapus video",
+    "Channel Delete Confirm": "Hapus “{subject}” secara permanen? Naskah, takarir, dan audio ikut terhapus.",
+    "Channel Delete Yes": "Ya, hapus",
+    "Channel Delete No": "Simpan",
+    "Channel Deleted": "Dihapus: {name}"
   }
 }

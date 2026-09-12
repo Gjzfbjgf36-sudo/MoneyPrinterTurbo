@@ -496,6 +496,19 @@
     "Channel Run Log": "Journal d'exécution",
     "Channel Run Log Help": "Ce qu'a fait l'exécution quotidienne. La tâche planifiée tourne dans son propre processus, la liste ci-dessus ne la voit pas.",
     "Channel Run Log Empty": "Aucune exécution enregistrée.",
-    "Channel Run Log Refresh": "Actualiser"
+    "Channel Run Log Refresh": "Actualiser",
+    "Channel Styles": "Modèles",
+    "Channel Settings": "Réglages de la chaîne",
+    "Channel Step Progress": "Étape {done} sur {total}",
+    "Step login": "Commencez ici : connectez-vous à YouTube. Sans cela, rien ne peut être publié.",
+    "Step style": "Choisissez un modèle ci-dessous. Il règle sous-titres, montage et rythme d'un coup ; vous pourrez ajuster ensuite.",
+    "Step render": "Pas encore de vidéos. Lancez : .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Des vidéos attendent. Vérifiez la source, regardez l'aperçu, puis mettez en ligne.",
+    "Step ready": "Tout est prêt. Les nouvelles vidéos apparaissent ici après chaque exécution.",
+    "Channel Delete": "Supprimer la vidéo",
+    "Channel Delete Confirm": "Supprimer « {subject} » définitivement ? Le texte, les sous-titres et la bande son partent avec.",
+    "Channel Delete Yes": "Oui, supprimer",
+    "Channel Delete No": "Conserver",
+    "Channel Deleted": "Supprimé : {name}"
   }
 }

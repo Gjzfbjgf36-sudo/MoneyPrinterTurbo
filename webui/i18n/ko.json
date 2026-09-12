@@ -496,6 +496,19 @@
     "Channel Run Log": "실행 기록",
     "Channel Run Log Help": "일일 실행이 무엇을 했는지. 예약 작업은 별도 프로세스에서 돌아가므로 위의 목록은 이를 보지 못합니다.",
     "Channel Run Log Empty": "아직 기록된 실행이 없습니다.",
-    "Channel Run Log Refresh": "새로 고침"
+    "Channel Run Log Refresh": "새로 고침",
+    "Channel Styles": "템플릿",
+    "Channel Settings": "채널 설정",
+    "Channel Step Progress": "{total}단계 중 {done}단계",
+    "Step login": "여기서 시작하세요: YouTube에 로그인합니다. 이것 없이는 아무것도 게시할 수 없습니다.",
+    "Step style": "아래에서 템플릿을 고르세요. 자막, 편집, 속도를 한 번에 설정하며 나중에 미세 조정할 수 있습니다.",
+    "Step render": "아직 영상이 없습니다. 실행하세요: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "영상이 대기 중입니다. 출처를 확인하고 미리보기를 본 뒤 업로드하세요.",
+    "Step ready": "모든 준비가 끝났습니다. 새 영상은 실행할 때마다 여기에 나타납니다.",
+    "Channel Delete": "영상 삭제",
+    "Channel Delete Confirm": "“{subject}”을(를) 영구 삭제할까요? 대본, 자막, 오디오도 함께 사라집니다.",
+    "Channel Delete Yes": "예, 삭제",
+    "Channel Delete No": "보관",
+    "Channel Deleted": "삭제됨: {name}"
   }
 }

@@ -596,6 +596,19 @@
     "Channel Run Log": "运行记录",
     "Channel Run Log Help": "每日任务做了什么。计划任务在独立进程中运行，上面的任务列表看不到它。",
     "Channel Run Log Empty": "尚无运行记录。",
-    "Channel Run Log Refresh": "刷新"
+    "Channel Run Log Refresh": "刷新",
+    "Channel Styles": "模板",
+    "Channel Settings": "频道设置",
+    "Channel Step Progress": "第 {done} 步，共 {total} 步",
+    "Step login": "从这里开始：登录 YouTube。没有它无法发布。",
+    "Step style": "在下方选一个模板。它一次设定字幕、剪辑与节奏，之后仍可微调。",
+    "Step render": "还没有视频。请运行：.\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "有视频在等待。先核对来源、看预览，再上传。",
+    "Step ready": "全部就绪。每次运行后新视频会出现在这里。",
+    "Channel Delete": "删除视频",
+    "Channel Delete Confirm": "永久删除“{subject}”？文案、字幕和音轨也会一并删除。",
+    "Channel Delete Yes": "确认删除",
+    "Channel Delete No": "保留",
+    "Channel Deleted": "已删除：{name}"
   }
 }

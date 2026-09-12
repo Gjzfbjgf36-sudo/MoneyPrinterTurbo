@@ -424,3 +424,170 @@ def test_a_truncated_line_does_not_hide_the_rest(sandbox, monkeypatch):
     events = ch.read_run_log()
     assert len(events) == 1
     assert events[0].message == "ok"
+
+
+def _task_with_video(root: Path, task_id: str) -> Path:
+    """Legt einen fertigen Task an, wie ihn der Renderer hinterlaesst."""
+    task = root / "storage" / "tasks" / task_id
+    task.mkdir(parents=True)
+    video = task / "final-1.mp4"
+    video.write_bytes(b"x" * 2048)
+    (task / "script.json").write_text(
+        json.dumps({"script": "Ein Text.", "params": {"video_subject": task_id}}),
+        encoding="utf-8",
+    )
+    return video
+
+
+def test_deleting_a_video_removes_the_whole_task(sandbox, monkeypatch):
+    """Skript, Untertitel und Ton nuetzen ohne das Video nichts mehr."""
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    video = _task_with_video(sandbox, "abc")
+    other = _task_with_video(sandbox, "xyz")
+
+    assert ch.delete_video(video) == "abc"
+    assert not video.parent.exists()
+    # Der Nachbartask bleibt stehen: geloescht wird genau einer.
+    assert other.parent.is_dir()
+
+
+@pytest.mark.parametrize(
+    "relativ",
+    ["", "..", "../channels", "../../etc"],
+)
+def test_deleting_outside_the_task_folder_is_refused(sandbox, monkeypatch, relativ):
+    """Ein Pfad aus der Oberflaeche darf nie ungeprueft in rmtree laufen."""
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    tasks = sandbox / "storage" / "tasks"
+    tasks.mkdir(parents=True)
+    aussen = sandbox / "channels"
+    aussen.mkdir(exist_ok=True)
+
+    ziel = tasks / relativ if relativ else tasks
+    with pytest.raises(ch.ChannelError):
+        ch.delete_video(ziel)
+    assert tasks.is_dir()
+    assert aussen.is_dir()
+
+
+def test_deleting_an_already_gone_task_says_so(sandbox, monkeypatch):
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    (sandbox / "storage" / "tasks").mkdir(parents=True)
+    with pytest.raises(ch.ChannelError):
+        ch.delete_video(sandbox / "storage" / "tasks" / "weg" / "final-1.mp4")
+
+
+def test_next_step_walks_the_setup_in_order(sandbox, monkeypatch):
+    """Jeder Schritt wird erst freigegeben, wenn der vorige wirklich erledigt ist."""
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+
+    def aktuell() -> ch.NextStep:
+        return ch.next_step(ch.load_channel("tech"))
+
+    # 1. Ohne Anmeldung laesst sich nichts hochladen.
+    assert aktuell().key == "login"
+
+    token = sandbox / "storage" / "channels" / "tech" / "youtube-token.json"
+    token.parent.mkdir(parents=True, exist_ok=True)
+    token.write_text("{}", encoding="utf-8")
+
+    # 2. Angemeldet, aber das Aussehen ist noch keine der Vorlagen.
+    assert aktuell().key == "style"
+
+    kanal = ch.load_channel("tech")
+    ch.save_channel("tech", ch.apply_style(kanal.config, "karaoke"))
+    assert ch.detect_style(ch.load_channel("tech").config) == "karaoke"
+
+    # 3. Vorlage gewaehlt, aber noch nichts gerendert.
+    assert aktuell().key == "render"
+
+    _task_with_video(sandbox, "abc")
+
+    # 4. Ein fertiges Video wartet auf den Upload.
+    assert aktuell().key == "upload"
+
+    state = sandbox / "storage" / "channels" / "tech" / "youtube-uploads.json"
+    state.write_text(
+        json.dumps({"storage/tasks/abc/final-1.mp4": {}}), encoding="utf-8"
+    )
+
+    # 5. Alles erledigt — ab hier laeuft der Kanal von allein.
+    fertig = aktuell()
+    assert fertig.key == "ready"
+    assert fertig.progress == 1.0
+
+
+def test_next_step_progress_grows_with_every_step():
+    """Der Balken darf nie zurueckspringen und nie ueber voll hinauslaufen."""
+    werte = [
+        ch.NextStep(key, index, len(ch.SETUP_STEPS) - 1).progress
+        for index, key in enumerate(ch.SETUP_STEPS)
+    ]
+    assert werte == sorted(werte)
+    assert werte[0] == 0.0
+    assert werte[-1] == 1.0
+
+
+def test_every_setup_step_has_a_translation():
+    """Ein fehlender Schluessel wuerde als roher Text in der Oberflaeche stehen."""
+    english = json.loads(
+        (Path(ch.ROOT) / "webui" / "i18n" / "en.json").read_text(encoding="utf-8")
+    )["Translation"]
+    for step in ch.SETUP_STEPS:
+        assert f"Step {step}" in english
+
+
+def test_the_delete_message_is_shown_before_the_empty_list_aborts():
+    """Nach dem letzten Video ist die Liste leer — gerade dann muss die
+    Erfolgsmeldung noch kommen.
+
+    Sie wird ueber ``session_state`` durch den ``st.rerun()`` getragen; steht
+    ihre Ausgabe hinter dem ``return`` fuer die leere Liste, sieht der Nutzer
+    nie eine Bestaetigung, obwohl geloescht wurde.
+    """
+    import ast
+
+    source = (ch.ROOT / "webui" / "channels_panel.py").read_text(encoding="utf-8")
+    funktion = next(
+        node
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.FunctionDef) and node.name == "_render_pending_videos"
+    )
+
+    meldung = abbruch = None
+    for index, statement in enumerate(funktion.body):
+        text = ast.dump(statement)
+        if meldung is None and "channel_deleted_" in text:
+            meldung = index
+        if abbruch is None and isinstance(statement, ast.If):
+            if any(isinstance(inner, ast.Return) for inner in statement.body):
+                abbruch = index
+
+    assert meldung is not None, "Die Meldung wird gar nicht mehr ausgegeben."
+    assert abbruch is not None, "Der Abbruch bei leerer Liste fehlt."
+    assert meldung < abbruch
+
+
+def test_step_texts_only_use_placeholders_the_panel_fills():
+    """``{name}`` steht im Befehl, den der Render-Schritt zum Abtippen zeigt.
+
+    Der Text wird ueber einen f-String geholt, den die Schluesselpruefung oben
+    nicht sieht. Ein zusaetzlicher Platzhalter in irgendeiner Sprache wuerde
+    hier zur Laufzeit ein ``KeyError`` aus ``format()`` werfen.
+    """
+    import re
+
+    for locale_file in sorted((ch.ROOT / "webui" / "i18n").glob("*.json")):
+        translations = json.loads(locale_file.read_text(encoding="utf-8"))[
+            "Translation"
+        ]
+        for step in ch.SETUP_STEPS:
+            text = translations.get(f"Step {step}")
+            assert text, f"{locale_file.name} fehlt 'Step {step}'"
+            unbekannt = set(re.findall(r"\{(\w+)\}", text)) - {"name"}
+            assert not unbekannt, f"{locale_file.name}/{step}: {unbekannt}"
+            text.format(name="tech")
+
+        fortschritt = translations.get("Channel Step Progress", "")
+        assert set(re.findall(r"\{(\w+)\}", fortschritt)) == {"done", "total"}

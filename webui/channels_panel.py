@@ -54,6 +54,7 @@ def _select_source(tr, current: str, key: str) -> str:
 
 
 def _render_settings_form(channel: ch.Channel, tr) -> None:
+    st.subheader(tr("Channel Settings"))
     with st.form(key=f"channel_form_{channel.name}"):
         config = dict(channel.config)
 
@@ -123,6 +124,7 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
         )
 
         st.divider()
+        st.subheader(tr("Channel Look"))
         st.caption(tr("Channel Look Help"))
 
         voices = list(ch.GERMAN_VOICES)
@@ -285,6 +287,22 @@ def _run_script(command: list[str], spinner: str, tr) -> tuple[int, str]:
     return completed.returncode, (completed.stdout or "") + (completed.stderr or "")
 
 
+def _render_next_step(channel: ch.Channel, tr) -> None:
+    """Ein klarer naechster Schritt statt einer Wand aus Einstellungen."""
+    step = ch.next_step(channel)
+    st.progress(
+        step.progress,
+        text=tr("Channel Step Progress").format(done=step.done, total=step.total),
+    )
+    # Der Kanalname steht im Befehl, den "Step render" zum Abtippen anbietet.
+    # Die übrigen Schritte kennen keinen Platzhalter; format() stört das nicht.
+    text = tr(f"Step {step.key}").format(name=channel.name)
+    if step.key == "ready":
+        st.success(text)
+    else:
+        st.info(text)
+
+
 def _render_login(channel: ch.Channel, tr) -> None:
     if ch.is_logged_in(channel.name):
         st.caption(tr("Channel Logged In"))
@@ -309,6 +327,16 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
     """Fertige Videos mit Quellenangabe prüfen und auswählen."""
     videos = ch.pending_videos(channel.name)
     st.subheader(tr("Channel Pending"))
+
+    # Die Meldung des letzten Löschens. Sie muss den Neuaufbau überleben:
+    # auf das Löschen folgt st.rerun(), das den Bildschirm neu zeichnet,
+    # bevor irgendjemand einen Text lesen konnte. Und sie steht vor dem
+    # Abbruch weiter unten: nach dem letzten Video ist die Liste leer, und
+    # gerade dann will man wissen, dass das Löschen geklappt hat.
+    deleted = st.session_state.pop(f"channel_deleted_{channel.name}", "")
+    if deleted:
+        st.success(tr("Channel Deleted").format(name=deleted))
+
     if not videos:
         st.info(tr("Channel Pending Empty"))
         return
@@ -332,6 +360,28 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
             st.write(video.script or tr("Channel No Script"))
             if video.path.exists():
                 st.video(str(video.path))
+
+            # Löschen gehört hierher und nicht neben das Auswahlkästchen:
+            # erst ansehen, dann verwerfen.
+            confirm_key = f"channel_delconfirm_{key}"
+            if st.session_state.get(confirm_key):
+                st.warning(tr("Channel Delete Confirm").format(subject=video.subject))
+                yes, no = st.columns(2)
+                if yes.button(tr("Channel Delete Yes"), key=f"channel_delyes_{key}"):
+                    try:
+                        removed = ch.delete_video(video.path)
+                    except ch.ChannelError as exc:
+                        st.error(str(exc))
+                    else:
+                        st.session_state.pop(confirm_key, None)
+                        st.session_state[f"channel_deleted_{channel.name}"] = removed
+                        st.rerun()
+                if no.button(tr("Channel Delete No"), key=f"channel_delno_{key}"):
+                    st.session_state.pop(confirm_key, None)
+                    st.rerun()
+            elif st.button(tr("Channel Delete"), key=f"channel_del_{key}"):
+                st.session_state[confirm_key] = True
+                st.rerun()
         if checked:
             selected.append(video)
 
@@ -375,6 +425,8 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
 
 def _render_style_picker(channel: ch.Channel, tr) -> None:
     """Fertige Look-Kombinationen. Einzelwerte sind schwer einzuschätzen."""
+    # Ohne Ueberschrift geht der Abschnitt zwischen den Formularfeldern unter.
+    st.subheader(tr("Channel Styles"))
     current = ch.detect_style(channel.config)
     names = list(ch.STYLES)
     labels = [tr(f"Style {name}") for name in names]
@@ -465,6 +517,7 @@ def render_channels_panel(tr) -> None:
                     )
                     stats[2].metric(tr("Channel Uploaded"), channel.uploaded)
 
+                    _render_next_step(channel, tr)
                     _render_login(channel, tr)
                     _render_run_log(channel, tr)
                     _render_pending_videos(channel, tr)

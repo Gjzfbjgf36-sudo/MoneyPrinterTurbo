@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import platform
 import re
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -576,6 +577,37 @@ def pending_videos(name: str) -> list[PendingVideo]:
     return videos
 
 
+def delete_video(path: Path) -> str:
+    """Löscht den Task-Ordner eines Videos und meldet, was entfernt wurde.
+
+    Es wird immer der ganze Ordner gelöscht, nicht nur die MP4: daneben liegen
+    Skript, Untertitel und Tonspur, die ohne das Video nichts mehr nützen.
+
+    Der Pfad wird gegen ``storage/tasks`` geprüft, bevor irgendetwas passiert.
+    Ein Pfad aus einer Oberfläche darf nie ungeprüft in ein rekursives Löschen
+    laufen — hier hinge ein Tippfehler oder ein manipulierter Zustand direkt an
+    ``rmtree``.
+    """
+    tasks_dir = (ROOT / "storage" / "tasks").resolve()
+    target = Path(path).resolve()
+
+    try:
+        relative = target.relative_to(tasks_dir)
+    except ValueError:
+        raise ChannelError(
+            f"{target} liegt nicht unter storage/tasks und wird nicht gelöscht."
+        )
+    if not relative.parts:
+        raise ChannelError("Es wird nur ein einzelner Task gelöscht, nicht alles.")
+
+    task_dir = tasks_dir / relative.parts[0]
+    if not task_dir.is_dir():
+        raise ChannelError(f"{task_dir.name} gibt es nicht mehr.")
+
+    shutil.rmtree(task_dir)
+    return task_dir.name
+
+
 def upload_command(
     name: str, videos: list[Path], publish_at: str = "", privacy: str = "private"
 ) -> list[str]:
@@ -615,6 +647,46 @@ def login_command(name: str) -> list[str]:
 
 def is_logged_in(name: str) -> bool:
     return (CHANNEL_STORAGE_DIR / name / "youtube-token.json").exists()
+
+
+@dataclass
+class NextStep:
+    """Was dieser Kanal als Naechstes braucht.
+
+    Die Oberflaeche zeigt sonst alles gleichzeitig und ueberlaesst es dem
+    Nutzer, die Reihenfolge zu erraten. Der Zustand steht in den Dateien —
+    also kann er auch ausgerechnet werden.
+    """
+
+    key: str
+    done: int
+    total: int
+
+    @property
+    def progress(self) -> float:
+        return self.done / self.total if self.total else 0.0
+
+
+# Die Schritte in der Reihenfolge, in der sie erledigt werden muessen. Der
+# erste unerfuellte ist der naechste.
+SETUP_STEPS = ("login", "style", "render", "upload", "ready")
+
+
+def next_step(channel: Channel) -> NextStep:
+    """Der erste Schritt, der bei diesem Kanal noch offen ist."""
+    total = len(SETUP_STEPS) - 1
+
+    if not is_logged_in(channel.name):
+        return NextStep("login", 0, total)
+    if detect_style(channel.config) is None:
+        # Kein Fehler, nur ungewiss: eine Vorlage nimmt dem Nutzer die
+        # Entscheidung ueber zehn Einzelwerte ab.
+        return NextStep("style", 1, total)
+    if not pending_videos(channel.name) and channel.uploaded == 0:
+        return NextStep("render", 2, total)
+    if pending_videos(channel.name):
+        return NextStep("upload", 3, total)
+    return NextStep("ready", total, total)
 
 
 def runner_command(channel: str | None = None, dry_run: bool = False) -> list[str]:

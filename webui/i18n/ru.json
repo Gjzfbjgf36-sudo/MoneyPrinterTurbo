@@ -496,6 +496,19 @@
     "Channel Run Log": "Журнал запусков",
     "Channel Run Log Help": "Что сделал ежедневный запуск. Запланированная задача работает в своём процессе, список выше её не видит.",
     "Channel Run Log Empty": "Запусков ещё не было.",
-    "Channel Run Log Refresh": "Обновить"
+    "Channel Run Log Refresh": "Обновить",
+    "Channel Styles": "Шаблоны",
+    "Channel Settings": "Настройки канала",
+    "Channel Step Progress": "Шаг {done} из {total}",
+    "Step login": "Начните здесь: войдите в YouTube. Без этого ничего не опубликовать.",
+    "Step style": "Выберите шаблон ниже. Он сразу задаёт субтитры, монтаж и темп; подправить можно потом.",
+    "Step render": "Видео пока нет. Запустите: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Видео ждут. Проверьте источник, посмотрите предпросмотр и загрузите.",
+    "Step ready": "Всё настроено. Новые видео появятся здесь после каждого запуска.",
+    "Channel Delete": "Удалить видео",
+    "Channel Delete Confirm": "Удалить «{subject}» навсегда? Текст, субтитры и звук удалятся вместе с ним.",
+    "Channel Delete Yes": "Да, удалить",
+    "Channel Delete No": "Оставить",
+    "Channel Deleted": "Удалено: {name}"
   }
 }

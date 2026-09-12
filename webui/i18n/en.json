@@ -596,6 +596,19 @@
     "Channel Run Log": "Run log",
     "Channel Run Log Help": "What the daily run did. The scheduled run happens in its own process, so the task list above cannot see it.",
     "Channel Run Log Empty": "No run recorded yet.",
-    "Channel Run Log Refresh": "Refresh"
+    "Channel Run Log Refresh": "Refresh",
+    "Channel Styles": "Templates",
+    "Channel Settings": "Channel settings",
+    "Channel Step Progress": "Step {done} of {total}",
+    "Step login": "Start here: sign in to YouTube. Without it nothing can be published.",
+    "Step style": "Pick a template below. It sets subtitles, cutting and pace in one go — you can fine-tune afterwards.",
+    "Step render": "No videos yet. Run: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Videos are waiting. Check the source, watch the preview, then upload.",
+    "Step ready": "Everything set up. New videos appear here after each run.",
+    "Channel Delete": "Delete video",
+    "Channel Delete Confirm": "Delete “{subject}” for good? The script, subtitles and audio go with it.",
+    "Channel Delete Yes": "Yes, delete",
+    "Channel Delete No": "Keep",
+    "Channel Deleted": "Deleted: {name}"
   }
 }

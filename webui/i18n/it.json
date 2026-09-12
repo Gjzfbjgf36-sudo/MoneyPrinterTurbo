@@ -496,6 +496,19 @@
     "Channel Run Log": "Registro esecuzioni",
     "Channel Run Log Help": "Cosa ha fatto l'esecuzione quotidiana. L'attività pianificata gira in un processo proprio, l'elenco sopra non la vede.",
     "Channel Run Log Empty": "Nessuna esecuzione registrata.",
-    "Channel Run Log Refresh": "Aggiorna"
+    "Channel Run Log Refresh": "Aggiorna",
+    "Channel Styles": "Modelli",
+    "Channel Settings": "Impostazioni del canale",
+    "Channel Step Progress": "Passo {done} di {total}",
+    "Step login": "Inizia qui: accedi a YouTube. Senza non si può pubblicare nulla.",
+    "Step style": "Scegli un modello qui sotto. Imposta sottotitoli, montaggio e ritmo in una volta; puoi rifinire dopo.",
+    "Step render": "Ancora nessun video. Esegui: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Ci sono video in attesa. Controlla la fonte, guarda l'anteprima, poi carica.",
+    "Step ready": "Tutto pronto. I nuovi video compaiono qui dopo ogni esecuzione.",
+    "Channel Delete": "Elimina video",
+    "Channel Delete Confirm": "Eliminare «{subject}» definitivamente? Testo, sottotitoli e audio vanno con lui.",
+    "Channel Delete Yes": "Sì, elimina",
+    "Channel Delete No": "Mantieni",
+    "Channel Deleted": "Eliminato: {name}"
   }
 }

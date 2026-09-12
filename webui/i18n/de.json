@@ -496,6 +496,19 @@
     "Channel Run Log": "Laufprotokoll",
     "Channel Run Log Help": "Was der Tageslauf gemacht hat. Der geplante Lauf läuft in einem eigenen Prozess, die Aufgabenliste oben sieht ihn nicht.",
     "Channel Run Log Empty": "Noch kein Lauf aufgezeichnet.",
-    "Channel Run Log Refresh": "Aktualisieren"
+    "Channel Run Log Refresh": "Aktualisieren",
+    "Channel Styles": "Vorlagen",
+    "Channel Settings": "Kanal-Einstellungen",
+    "Channel Step Progress": "Schritt {done} von {total}",
+    "Step login": "Fang hier an: bei YouTube anmelden. Ohne das lässt sich nichts veröffentlichen.",
+    "Step style": "Wähl unten eine Vorlage. Sie setzt Untertitel, Schnitt und Tempo auf einmal — nachjustieren kannst du danach.",
+    "Step render": "Noch keine Videos. Führ aus: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Videos warten. Quelle prüfen, Vorschau ansehen, dann hochladen.",
+    "Step ready": "Alles eingerichtet. Neue Videos erscheinen hier nach jedem Lauf.",
+    "Channel Delete": "Video löschen",
+    "Channel Delete Confirm": "„{subject}“ endgültig löschen? Skript, Untertitel und Tonspur gehen mit.",
+    "Channel Delete Yes": "Ja, löschen",
+    "Channel Delete No": "Behalten",
+    "Channel Deleted": "Gelöscht: {name}"
   }
 }

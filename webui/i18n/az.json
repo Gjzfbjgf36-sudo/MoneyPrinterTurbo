@@ -496,6 +496,19 @@
     "Channel Run Log": "İş jurnalı",
     "Channel Run Log Help": "Gündəlik icranın nə etdiyi. Planlaşdırılmış tapşırıq öz prosesində işləyir, yuxarıdakı siyahı onu görmür.",
     "Channel Run Log Empty": "Hələ qeydə alınmış icra yoxdur.",
-    "Channel Run Log Refresh": "Yenilə"
+    "Channel Run Log Refresh": "Yenilə",
+    "Channel Styles": "Şablonlar",
+    "Channel Settings": "Kanal ayarları",
+    "Channel Step Progress": "{total} addımdan {done}-cı",
+    "Step login": "Buradan başlayın: YouTube-a daxil olun. Bunsuz heç nə dərc edilə bilməz.",
+    "Step style": "Aşağıdan bir şablon seçin. Altyazı, montaj və tempi bir dəfəyə təyin edir; sonra dəqiqləşdirə bilərsiniz.",
+    "Step render": "Hələ video yoxdur. İcra edin: .\\scripts\\daily_run.ps1 -Channel {name} -DryRun -TopicsPerRun 1",
+    "Step upload": "Videolar gözləyir. Mənbəni yoxlayın, önizləməyə baxın, sonra yükləyin.",
+    "Step ready": "Hər şey hazırdır. Yeni videolar hər icradan sonra burada görünür.",
+    "Channel Delete": "Videonu sil",
+    "Channel Delete Confirm": "“{subject}” həmişəlik silinsin? Mətn, altyazı və səs də gedir.",
+    "Channel Delete Yes": "Bəli, sil",
+    "Channel Delete No": "Saxla",
+    "Channel Deleted": "Silindi: {name}"
   }
 }
