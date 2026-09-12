@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Des plans plus courts retiennent mieux mais coûtent du temps de rendu.",
     "Channel Transition": "Mouvement",
     "Channel Transition None": "Aucun (le plus rapide)",
-    "Channel Transition Help": "ZoomIn zoome lentement sur chaque plan, ce qui évite l'effet diaporama des images fixes. Cela triple environ la phase de montage."
+    "Channel Transition Help": "ZoomIn zoome lentement sur chaque plan, ce qui évite l'effet diaporama des images fixes. Cela triple environ la phase de montage.",
+    "Channel Style": "Style",
+    "Channel Style Help": "Une combinaison prête de sous-titres, de montage et de rythme. Les réglages isolés sont difficiles à juger ; ensemble ils font un style.",
+    "Channel Style Apply": "Appliquer",
+    "Channel Style Applied": "Style appliqué.",
+    "Channel Style Custom": "Les réglages actuels ne correspondent à aucun style — votre propre combinaison.",
+    "Style karaoke": "Karaoké — mot à mot, rebondissant",
+    "Style signal": "Signal — jaune, grand, fort",
+    "Style ruhig": "Calme — phrases entières, sans animation",
+    "Style kontrast": "Contraste — bandeau derrière le texte",
+    "Style sparsam": "Léger — sans zoom, rendu plus rapide",
+    "Channel Run Log": "Journal d'exécution",
+    "Channel Run Log Help": "Ce qu'a fait l'exécution quotidienne. La tâche planifiée tourne dans son propre processus, la liste ci-dessus ne la voit pas.",
+    "Channel Run Log Empty": "Aucune exécution enregistrée.",
+    "Channel Run Log Refresh": "Actualiser"
   }
 }

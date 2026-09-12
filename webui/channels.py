@@ -40,6 +40,124 @@ GERMAN_VOICES = (
     "de-DE-AmalaNeural-Female",
 )
 TRANSITIONS = (None, "ZoomIn", "ZoomOut", "FadeIn", "FadeOut", "Shuffle")
+
+# Fertige Kombinationen aus Untertitel, Schnitt und Tempo. Einzeln sind die
+# Werte schwer einzuschätzen — erst zusammen ergeben sie einen Look. Die
+# Schlüssel sind genau die Felder aus CHANNEL_OVERRIDES in news_to_shorts.py,
+# ein Stil schreibt also nichts, was der Tageslauf nicht ohnehin liest.
+STYLES: dict[str, dict] = {
+    "karaoke": {
+        # Wort für Wort mit Sprung-Animation, groß und mittig: der Look, den
+        # die meisten erfolgreichen Shorts benutzen.
+        "subtitle_display_mode": "word_by_word",
+        "subtitle_animation": "pop_spring",
+        "subtitle_position": "two_thirds_bottom",
+        "font_name": "BeVietnamPro-Bold.ttf",
+        "font_size": 84,
+        "stroke_width": 3.0,
+        "text_fore_color": "#FFFFFF",
+        "text_background_color": False,
+        "video_clip_duration": 2,
+        "video_clip_speed": 1.08,
+        "video_transition_mode": "ZoomIn",
+        "voice_rate": 1.2,
+        "bgm_volume": 0.12,
+    },
+    "signal": {
+        # Gelb auf schwarzem Rand liest sich auf jedem Untergrund, auch auf
+        # hellem Stockmaterial, wo Weiß verschwindet.
+        "subtitle_display_mode": "word_by_word",
+        "subtitle_animation": "pop_spring",
+        "subtitle_position": "center",
+        "font_name": "BeVietnamPro-Bold.ttf",
+        "font_size": 96,
+        "stroke_width": 4.0,
+        "text_fore_color": "#FFE000",
+        "text_background_color": False,
+        "video_clip_duration": 2,
+        "video_clip_speed": 1.1,
+        "video_transition_mode": "ZoomIn",
+        "voice_rate": 1.25,
+        "bgm_volume": 0.1,
+    },
+    "ruhig": {
+        # Ganze Sätze, keine Animation, kleinere Schrift: für Themen, bei denen
+        # Hektik dem Inhalt widerspricht.
+        "subtitle_display_mode": "sentence",
+        "subtitle_animation": "none",
+        "subtitle_position": "bottom",
+        "font_name": "BeVietnamPro-Medium.ttf",
+        "font_size": 64,
+        "stroke_width": 2.0,
+        "text_fore_color": "#FFFFFF",
+        "text_background_color": False,
+        "video_clip_duration": 4,
+        "video_clip_speed": 1.0,
+        "video_transition_mode": "FadeIn",
+        "voice_rate": 1.05,
+        "bgm_volume": 0.18,
+    },
+    "kontrast": {
+        # Balken hinter der Schrift statt Kontur. Auf unruhigem Material die
+        # einzige Variante, die durchgehend lesbar bleibt.
+        "subtitle_display_mode": "word_by_word",
+        "subtitle_animation": "pop_spring",
+        "subtitle_position": "two_thirds_bottom",
+        "font_name": "BeVietnamPro-Bold.ttf",
+        "font_size": 78,
+        "stroke_width": 1.0,
+        "text_fore_color": "#FFFFFF",
+        "text_background_color": "#000000",
+        "video_clip_duration": 2,
+        "video_clip_speed": 1.08,
+        "video_transition_mode": "ZoomIn",
+        "voice_rate": 1.2,
+        "bgm_volume": 0.12,
+    },
+    "sparsam": {
+        # Ohne Zoom und mit längeren Clips: rund ein Drittel weniger
+        # Renderzeit, spürbar auf Rechnern ohne Grafikkarte.
+        "subtitle_display_mode": "word_by_word",
+        "subtitle_animation": "pop_spring",
+        "subtitle_position": "two_thirds_bottom",
+        "font_name": "BeVietnamPro-Bold.ttf",
+        "font_size": 84,
+        "stroke_width": 3.0,
+        "text_fore_color": "#FFFFFF",
+        "text_background_color": False,
+        "video_clip_duration": 3,
+        "video_clip_speed": 1.0,
+        "video_transition_mode": None,
+        "voice_rate": 1.2,
+        "bgm_volume": 0.12,
+    },
+}
+
+
+def apply_style(config: dict, style: str) -> dict:
+    """Legt einen Stil über eine Kanalkonfiguration.
+
+    Die Stimme bleibt unangetastet: sie gehört zur Kanalidentität, nicht zum
+    Look, und wer den Stil wechselt will nicht plötzlich anders klingen.
+    """
+    if style not in STYLES:
+        raise ChannelError(f"Unbekannter Stil {style!r}")
+    updated = dict(config)
+    updated.update(STYLES[style])
+    updated["style"] = style
+    return updated
+
+
+def detect_style(config: dict) -> str | None:
+    """Der Stil, dessen Werte alle in der Konfiguration stehen.
+
+    Der gespeicherte Name allein würde lügen, sobald jemand danach einen
+    einzelnen Regler verstellt — deshalb wird verglichen statt geglaubt.
+    """
+    for name, style in STYLES.items():
+        if all(config.get(key) == value for key, value in style.items()):
+            return name
+    return None
 # Die gängigen YouTube-Kategorien für diese Art Kanal. Andere IDs bleiben
 # erlaubt, die Liste ist nur die Auswahlhilfe in der Oberfläche.
 CATEGORIES = {
@@ -306,6 +424,80 @@ def apply_subjects(entries: list[dict], subjects: list[str]) -> list[dict]:
         and str(entry.get("video_script", "")).strip()
     )
     return result
+
+
+RUN_LOG = ROOT / "storage" / "logs" / "daily-run.jsonl"
+# Die Schritte des Tageslaufs in ihrer Reihenfolge, fuer die Anzeige.
+RUN_STEPS = ("research", "render", "upload", "done", "error")
+
+
+@dataclass
+class RunEvent:
+    """Ein Schritt des Tageslaufs, so wie ihn daily_run.ps1 protokolliert."""
+
+    time: str
+    channel: str
+    step: str
+    message: str
+    ok: bool
+
+    @property
+    def is_error(self) -> bool:
+        return not self.ok or self.step == "error"
+
+
+def read_run_log(limit: int = 60, channel: str | None = None) -> list[RunEvent]:
+    """Die letzten Ereignisse des Tageslaufs, neueste zuletzt.
+
+    Der geplante Lauf laeuft in einem eigenen Prozess; die Aufgabenliste der
+    WebUI sieht ihn nicht. Das Protokoll ist deshalb die einzige Stelle, an
+    der sich nachvollziehen laesst, wo die Erzeugung gerade steht.
+    """
+    if not RUN_LOG.exists():
+        return []
+
+    events: list[RunEvent] = []
+    try:
+        lines = RUN_LOG.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return []
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            # Eine abgeschnittene Zeile entsteht, wenn der Lauf mitten im
+            # Schreiben abgebrochen wird. Sie darf den Rest nicht verdecken.
+            continue
+        if channel and entry.get("channel") != channel:
+            continue
+        events.append(
+            RunEvent(
+                time=str(entry.get("time", "")),
+                channel=str(entry.get("channel", "")),
+                step=str(entry.get("step", "")),
+                message=str(entry.get("message", "")),
+                ok=bool(entry.get("ok", True)),
+            )
+        )
+    return events[-limit:]
+
+
+def last_run_summary(channel: str) -> dict:
+    """Stand des letzten Laufs dieses Kanals fuer die Kennzahlen-Zeile."""
+    events = read_run_log(limit=10_000, channel=channel)
+    if not events:
+        return {"time": "", "step": "", "ok": True, "message": ""}
+    last = events[-1]
+    return {
+        "time": last.time,
+        "step": last.step,
+        "ok": not any(event.is_error for event in events if event.time == last.time),
+        "message": last.message,
+    }
 
 
 @dataclass

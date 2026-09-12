@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Cắt ngắn hơn giữ chân người xem nhưng tốn thời gian kết xuất.",
     "Channel Transition": "Chuyển động",
     "Channel Transition None": "Không (nhanh nhất)",
-    "Channel Transition Help": "ZoomIn phóng chậm trên từng cảnh, giúp tư liệu tĩnh không giống trình chiếu. Làm giai đoạn dựng lâu gấp khoảng ba lần."
+    "Channel Transition Help": "ZoomIn phóng chậm trên từng cảnh, giúp tư liệu tĩnh không giống trình chiếu. Làm giai đoạn dựng lâu gấp khoảng ba lần.",
+    "Channel Style": "Phong cách",
+    "Channel Style Help": "Bộ kết hợp sẵn của phụ đề, dựng phim và nhịp độ. Từng thanh trượt riêng lẻ khó đánh giá; kết hợp lại mới thành phong cách.",
+    "Channel Style Apply": "Áp dụng",
+    "Channel Style Applied": "Đã áp dụng phong cách.",
+    "Channel Style Custom": "Thiết lập hiện tại không khớp phong cách nào — tổ hợp riêng của bạn.",
+    "Style karaoke": "Karaoke — từng chữ, nảy lên",
+    "Style signal": "Nổi bật — vàng, lớn, mạnh",
+    "Style ruhig": "Điềm tĩnh — câu trọn vẹn, không hiệu ứng",
+    "Style kontrast": "Tương phản — thanh nền sau chữ",
+    "Style sparsam": "Nhẹ — không phóng, kết xuất nhanh hơn",
+    "Channel Run Log": "Nhật ký chạy",
+    "Channel Run Log Help": "Lượt chạy hằng ngày đã làm gì. Tác vụ hẹn giờ chạy trong tiến trình riêng nên danh sách phía trên không thấy.",
+    "Channel Run Log Empty": "Chưa có lượt chạy nào.",
+    "Channel Run Log Refresh": "Làm mới"
   }
 }

@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Qısa kəsmələr diqqəti saxlayır, lakin render vaxtı aparır.",
     "Channel Transition": "Hərəkət",
     "Channel Transition None": "Yoxdur (ən sürətli)",
-    "Channel Transition Help": "ZoomIn hər klip boyunca yavaşca yaxınlaşır, beləliklə hərəkətsiz material slayd kimi görünmür. Montaj mərhələsini təxminən üç dəfə uzadır."
+    "Channel Transition Help": "ZoomIn hər klip boyunca yavaşca yaxınlaşır, beləliklə hərəkətsiz material slayd kimi görünmür. Montaj mərhələsini təxminən üç dəfə uzadır.",
+    "Channel Style": "Üslub",
+    "Channel Style Help": "Altyazı, montaj və tempdən ibarət hazır birləşmə. Ayrı-ayrı tənzimləri qiymətləndirmək çətindir; birlikdə bir görünüş yaradırlar.",
+    "Channel Style Apply": "Tətbiq et",
+    "Channel Style Applied": "Üslub tətbiq edildi.",
+    "Channel Style Custom": "Cari tənzimlər heç bir üsluba uyğun gəlmir — öz birləşmənizdir.",
+    "Style karaoke": "Karaoke — söz-söz, sıçrayan",
+    "Style signal": "Siqnal — sarı, iri, güclü",
+    "Style ruhig": "Sakit — tam cümlələr, animasiyasız",
+    "Style kontrast": "Kontrast — mətnin arxasında zolaq",
+    "Style sparsam": "Yüngül — yaxınlaşma yox, daha sürətli render",
+    "Channel Run Log": "İş jurnalı",
+    "Channel Run Log Help": "Gündəlik icranın nə etdiyi. Planlaşdırılmış tapşırıq öz prosesində işləyir, yuxarıdakı siyahı onu görmür.",
+    "Channel Run Log Empty": "Hələ qeydə alınmış icra yoxdur.",
+    "Channel Run Log Refresh": "Yenilə"
   }
 }

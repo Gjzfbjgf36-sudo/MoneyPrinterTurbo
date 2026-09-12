@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Cortes mais curtos prendem mais, mas custam tempo de processamento.",
     "Channel Transition": "Movimento",
     "Channel Transition None": "Nenhum (mais rápido)",
-    "Channel Transition Help": "ZoomIn amplia lentamente cada clipe, evitando que material parado pareça uma apresentação. Triplica aproximadamente a fase de montagem."
+    "Channel Transition Help": "ZoomIn amplia lentamente cada clipe, evitando que material parado pareça uma apresentação. Triplica aproximadamente a fase de montagem.",
+    "Channel Style": "Estilo",
+    "Channel Style Help": "Uma combinação pronta de legendas, montagem e ritmo. Os controlos isolados são difíceis de avaliar; juntos formam um aspeto.",
+    "Channel Style Apply": "Aplicar",
+    "Channel Style Applied": "Estilo aplicado.",
+    "Channel Style Custom": "As definições atuais não correspondem a nenhum estilo — a tua combinação.",
+    "Style karaoke": "Karaoke — palavra a palavra, com salto",
+    "Style signal": "Sinal — amarelo, grande, forte",
+    "Style ruhig": "Calmo — frases inteiras, sem animação",
+    "Style kontrast": "Contraste — barra atrás do texto",
+    "Style sparsam": "Leve — sem zoom, processa mais depressa",
+    "Channel Run Log": "Registo de execução",
+    "Channel Run Log Help": "O que a execução diária fez. A tarefa agendada corre no seu próprio processo, a lista acima não a vê.",
+    "Channel Run Log Empty": "Ainda não há execuções registadas.",
+    "Channel Run Log Refresh": "Atualizar"
   }
 }

@@ -102,8 +102,13 @@ CHANNEL_OVERRIDES = (
     "video_clip_speed",
     "video_transition_mode",
     "subtitle_position",
+    "subtitle_display_mode",
+    "subtitle_animation",
+    "font_name",
     "font_size",
     "stroke_width",
+    "text_fore_color",
+    "text_background_color",
     "bgm_volume",
 )
 

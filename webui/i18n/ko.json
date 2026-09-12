@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "짧게 끊으면 주의를 끌지만 렌더링 시간이 늘어납니다.",
     "Channel Transition": "움직임",
     "Channel Transition None": "없음 (가장 빠름)",
-    "Channel Transition Help": "ZoomIn은 각 클립을 천천히 확대해 정지된 소재가 슬라이드쇼처럼 보이지 않게 합니다. 편집 단계가 약 세 배 길어집니다."
+    "Channel Transition Help": "ZoomIn은 각 클립을 천천히 확대해 정지된 소재가 슬라이드쇼처럼 보이지 않게 합니다. 편집 단계가 약 세 배 길어집니다.",
+    "Channel Style": "스타일",
+    "Channel Style Help": "자막, 편집, 속도를 묶은 완성된 조합입니다. 개별 값은 판단하기 어렵지만 함께 모이면 하나의 스타일이 됩니다.",
+    "Channel Style Apply": "적용",
+    "Channel Style Applied": "스타일을 적용했습니다.",
+    "Channel Style Custom": "현재 설정은 어떤 스타일과도 일치하지 않습니다 — 직접 만든 조합입니다.",
+    "Style karaoke": "가라오케 — 한 단어씩, 튀는 효과",
+    "Style signal": "시그널 — 노랑, 크게, 강하게",
+    "Style ruhig": "차분 — 문장 단위, 애니메이션 없음",
+    "Style kontrast": "대비 — 글자 뒤 막대",
+    "Style sparsam": "가볍게 — 확대 없음, 렌더링이 빠름",
+    "Channel Run Log": "실행 기록",
+    "Channel Run Log Help": "일일 실행이 무엇을 했는지. 예약 작업은 별도 프로세스에서 돌아가므로 위의 목록은 이를 보지 못합니다.",
+    "Channel Run Log Empty": "아직 기록된 실행이 없습니다.",
+    "Channel Run Log Refresh": "새로 고침"
   }
 }

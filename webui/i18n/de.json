@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Kürzere Schnitte halten die Aufmerksamkeit, kosten aber Renderzeit.",
     "Channel Transition": "Bewegung",
     "Channel Transition None": "Keine (am schnellsten)",
-    "Channel Transition Help": "ZoomIn zoomt langsam über jeden Clip und nimmt stillem Stockmaterial den Diashow-Eindruck. Verdreifacht ungefähr die Schnittphase."
+    "Channel Transition Help": "ZoomIn zoomt langsam über jeden Clip und nimmt stillem Stockmaterial den Diashow-Eindruck. Verdreifacht ungefähr die Schnittphase.",
+    "Channel Style": "Stil",
+    "Channel Style Help": "Eine fertige Kombination aus Untertiteln, Schnitt und Tempo. Einzelne Regler sind schwer einzuschätzen, zusammen ergeben sie einen Look.",
+    "Channel Style Apply": "Anwenden",
+    "Channel Style Applied": "Stil übernommen.",
+    "Channel Style Custom": "Aktuelle Einstellungen passen zu keinem Stil — deine eigene Kombination.",
+    "Style karaoke": "Karaoke — Wort für Wort, springend",
+    "Style signal": "Signal — gelb, groß, laut",
+    "Style ruhig": "Ruhig — ganze Sätze, ohne Animation",
+    "Style kontrast": "Kontrast — Balken hinter dem Text",
+    "Style sparsam": "Sparsam — ohne Zoom, schneller gerendert",
+    "Channel Run Log": "Laufprotokoll",
+    "Channel Run Log Help": "Was der Tageslauf gemacht hat. Der geplante Lauf läuft in einem eigenen Prozess, die Aufgabenliste oben sieht ihn nicht.",
+    "Channel Run Log Empty": "Noch kein Lauf aufgezeichnet.",
+    "Channel Run Log Refresh": "Aktualisieren"
   }
 }

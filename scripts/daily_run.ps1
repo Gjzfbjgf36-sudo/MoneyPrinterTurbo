@@ -42,6 +42,50 @@ function Write-Step($text) {
     Write-Host "=== $(Get-Date -Format 'yyyy-MM-dd HH:mm') $text ===" -ForegroundColor Cyan
 }
 
+function Write-RunLog {
+    <#
+    .SYNOPSIS
+    Schreibt einen Schritt des Laufs nach storage/logs/daily-run.jsonl.
+
+    .DESCRIPTION
+    Der geplante Lauf laeuft in einem eigenen Prozess; die Aufgabenliste der
+    WebUI sieht ihn nicht. Ohne dieses Protokoll bliebe unsichtbar, wo die
+    Erzeugung steht oder woran sie gescheitert ist.
+
+    Eine Zeile je Ereignis, damit ein Abbruch mitten im Schreiben hoechstens
+    die letzte Zeile beschaedigt und nicht die ganze Datei.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Channel,
+        [Parameter(Mandatory)][string]$Step,
+        [string]$Message = '',
+        [bool]$Ok = $true
+    )
+
+    try {
+        $logFile = Join-Path (Join-Path 'storage' 'logs') 'daily-run.jsonl'
+        $logDir = Split-Path -Parent $logFile
+        if (-not (Test-Path $logDir)) {
+            New-Item -ItemType Directory -Force $logDir | Out-Null
+        }
+        $entry = [ordered]@{
+            time    = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+            channel = $Channel
+            step    = $Step
+            message = $Message
+            ok      = $Ok
+        }
+        $line = ($entry | ConvertTo-Json -Compress -Depth 4)
+        $full = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $logFile))
+        [System.IO.File]::AppendAllText(
+            $full, $line + "`n", (New-Object System.Text.UTF8Encoding $false))
+    }
+    catch {
+        # Das Protokoll darf den Lauf nie stoppen: es beschreibt ihn nur.
+        Write-Warning "Protokoll nicht schreibbar: $($_.Exception.Message)"
+    }
+}
+
 function Invoke-Native {
     <#
     .SYNOPSIS
@@ -131,6 +175,7 @@ foreach ($name in $names) {
     $manifest = Join-Path $dir 'run.json'
 
     Write-Step "$name : $count Video(s) vorbereiten"
+    Write-RunLog -Channel $name -Step 'research' -Message "Lauf gestartet, $count Video(s) geplant"
 
     if ($cfg.source -eq 'news') {
         # Recherchekanal: Themen kommen aus der Websuche, nicht aus einer Liste.
@@ -145,8 +190,11 @@ foreach ($name in $names) {
         )
         if ($research.ExitCode -ne 0) {
             Write-Warning "$name : Recherche fehlgeschlagen."
+            Write-RunLog -Channel $name -Step 'research' -Ok $false `
+                -Message "Recherche fehlgeschlagen (Rueckgabewert $($research.ExitCode))"
             continue
         }
+        Write-RunLog -Channel $name -Step 'research' -Message "$count Meldung(en) recherchiert"
     }
     else {
         # Warteschlangenkanal: die naechsten Zeilen aus tasks.jsonl.
@@ -164,8 +212,10 @@ foreach ($name in $names) {
         foreach ($task in $tasks) {
             foreach ($field in @('voice_name', 'voice_rate', 'video_clip_duration',
                                  'video_clip_speed', 'video_transition_mode',
-                                 'subtitle_position', 'font_size', 'stroke_width',
-                                 'bgm_volume')) {
+                                 'subtitle_position', 'subtitle_display_mode',
+                                 'subtitle_animation', 'font_name', 'font_size',
+                                 'stroke_width', 'text_fore_color',
+                                 'text_background_color', 'bgm_volume')) {
                 if ($cfg.PSObject.Properties[$field]) {
                     $task | Add-Member -NotePropertyName $field `
                         -NotePropertyValue $cfg.$field -Force
@@ -188,9 +238,13 @@ foreach ($name in $names) {
 
     if (-not $summary) {
         Write-Warning "$name : keine JSON-Zusammenfassung erhalten, Upload uebersprungen."
+        Write-RunLog -Channel $name -Step 'render' -Ok $false `
+            -Message 'keine JSON-Zusammenfassung erhalten'
         continue
     }
     Write-Host "$name : $($summary.succeeded) von $($summary.total) erfolgreich."
+    Write-RunLog -Channel $name -Step 'render' -Ok ($summary.failed -eq 0) `
+        -Message "$($summary.succeeded) von $($summary.total) Video(s) erzeugt"
 
     if ($cfg.source -ne 'news' -and $null -ne $rest) {
         $donePath = Join-Path $dir 'tasks-done.jsonl'
@@ -215,6 +269,8 @@ foreach ($name in $names) {
 
     if ($DryRun) {
         Write-Step "$name : Probelauf, kein Upload"
+        Write-RunLog -Channel $name -Step 'done' `
+            -Message "Probelauf: $($videos.Count) Video(s) erzeugt, nicht hochgeladen"
         $videos | ForEach-Object { Write-Host "  $_" }
         continue
     }
@@ -236,7 +292,14 @@ foreach ($name in $names) {
     $upload = Invoke-Native $uv $uploadArgs
     if ($upload.ExitCode -ne 0) {
         Write-Warning "$name : Hochladen fehlgeschlagen (Rueckgabewert $($upload.ExitCode))."
+        Write-RunLog -Channel $name -Step 'upload' -Ok $false `
+            -Message "Hochladen fehlgeschlagen (Rueckgabewert $($upload.ExitCode))"
     }
+    else {
+        Write-RunLog -Channel $name -Step 'upload' `
+            -Message "$($videos.Count) Video(s) hochgeladen"
+    }
+    Write-RunLog -Channel $name -Step 'done' -Message 'Lauf abgeschlossen'
 }
 
 Write-Step 'fertig'

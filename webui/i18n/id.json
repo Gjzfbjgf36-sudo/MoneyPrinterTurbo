@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Potongan lebih pendek menahan perhatian tetapi menambah waktu render.",
     "Channel Transition": "Gerakan",
     "Channel Transition None": "Tidak ada (tercepat)",
-    "Channel Transition Help": "ZoomIn memperbesar perlahan di setiap klip agar materi diam tidak terlihat seperti salindia. Menambah waktu tahap potong sekitar tiga kali lipat."
+    "Channel Transition Help": "ZoomIn memperbesar perlahan di setiap klip agar materi diam tidak terlihat seperti salindia. Menambah waktu tahap potong sekitar tiga kali lipat.",
+    "Channel Style": "Gaya",
+    "Channel Style Help": "Kombinasi siap pakai dari takarir, potongan, dan tempo. Setelan satuan sulit dinilai; bersama-sama barulah membentuk gaya.",
+    "Channel Style Apply": "Terapkan",
+    "Channel Style Applied": "Gaya diterapkan.",
+    "Channel Style Custom": "Setelan saat ini tidak cocok dengan gaya mana pun — kombinasimu sendiri.",
+    "Style karaoke": "Karaoke — kata demi kata, memantul",
+    "Style signal": "Sinyal — kuning, besar, mencolok",
+    "Style ruhig": "Tenang — kalimat utuh, tanpa animasi",
+    "Style kontrast": "Kontras — bilah di belakang teks",
+    "Style sparsam": "Ringan — tanpa zoom, render lebih cepat",
+    "Channel Run Log": "Catatan jalannya",
+    "Channel Run Log Help": "Apa yang dikerjakan jalannya harian. Tugas terjadwal berjalan di prosesnya sendiri, jadi daftar di atas tidak melihatnya.",
+    "Channel Run Log Empty": "Belum ada jalannya yang tercatat.",
+    "Channel Run Log Refresh": "Segarkan"
   }
 }

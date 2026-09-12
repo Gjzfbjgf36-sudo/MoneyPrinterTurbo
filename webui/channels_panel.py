@@ -373,6 +373,55 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
     st.code(output[-8000:] or tr("Channel Dry Run No Output"))
 
 
+def _render_style_picker(channel: ch.Channel, tr) -> None:
+    """Fertige Look-Kombinationen. Einzelwerte sind schwer einzuschätzen."""
+    current = ch.detect_style(channel.config)
+    names = list(ch.STYLES)
+    labels = [tr(f"Style {name}") for name in names]
+
+    cols = st.columns([3, 1], vertical_alignment="bottom")
+    chosen = cols[0].selectbox(
+        tr("Channel Style"),
+        options=labels,
+        index=names.index(current) if current in names else 0,
+        help=tr("Channel Style Help"),
+        key=f"channel_style_{channel.name}",
+    )
+    if current is None:
+        st.caption(tr("Channel Style Custom"))
+
+    if cols[1].button(tr("Channel Style Apply"), key=f"channel_styleapply_{channel.name}"):
+        try:
+            updated = ch.apply_style(channel.config, names[labels.index(chosen)])
+            ch.save_channel(channel.name, updated)
+        except ch.ChannelError as exc:
+            st.error(str(exc))
+        else:
+            st.success(tr("Channel Style Applied"))
+            st.rerun()
+
+
+def _render_run_log(channel: ch.Channel, tr) -> None:
+    """Wo der Tageslauf dieses Kanals gerade steht."""
+    events = ch.read_run_log(limit=40, channel=channel.name)
+    with st.expander(tr("Channel Run Log"), expanded=False):
+        st.caption(tr("Channel Run Log Help"))
+        if not events:
+            st.info(tr("Channel Run Log Empty"))
+            return
+
+        if st.button(tr("Channel Run Log Refresh"), key=f"channel_logrefresh_{channel.name}"):
+            st.rerun()
+
+        # Neueste zuerst: beim Nachsehen interessiert der letzte Stand.
+        for event in reversed(events):
+            line = f"`{event.time}` · **{event.step}** · {event.message}"
+            if event.is_error:
+                st.error(line)
+            else:
+                st.markdown(line)
+
+
 def _render_new_channel(tr) -> None:
     with st.form(key="channel_create"):
         name = st.text_input(
@@ -417,8 +466,10 @@ def render_channels_panel(tr) -> None:
                     stats[2].metric(tr("Channel Uploaded"), channel.uploaded)
 
                     _render_login(channel, tr)
+                    _render_run_log(channel, tr)
                     _render_pending_videos(channel, tr)
                     st.divider()
+                    _render_style_picker(channel, tr)
                     _render_settings_form(channel, tr)
                     _render_queue_editor(channel, tr)
                     _render_dry_run(channel, tr)

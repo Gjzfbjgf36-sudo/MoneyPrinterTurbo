@@ -582,6 +582,20 @@
     "Channel Clip Duration Help": "切换越快越抓人，但更费渲染时间。",
     "Channel Transition": "画面动态",
     "Channel Transition None": "无（最快）",
-    "Channel Transition Help": "ZoomIn 在每段素材上缓慢推近，使静止素材不像幻灯片。会让剪辑阶段耗时约三倍。"
+    "Channel Transition Help": "ZoomIn 在每段素材上缓慢推近，使静止素材不像幻灯片。会让剪辑阶段耗时约三倍。",
+    "Channel Style": "风格",
+    "Channel Style Help": "字幕、剪辑与节奏的成套组合。单独的选项不易判断，合在一起才成风格。",
+    "Channel Style Apply": "应用",
+    "Channel Style Applied": "已应用风格。",
+    "Channel Style Custom": "当前设置不属于任何风格——你的自定义组合。",
+    "Style karaoke": "卡拉OK — 逐词弹跳",
+    "Style signal": "醒目 — 黄色、大字、强烈",
+    "Style ruhig": "平稳 — 整句、无动画",
+    "Style kontrast": "对比 — 文字后加底条",
+    "Style sparsam": "省时 — 不缩放，渲染更快",
+    "Channel Run Log": "运行记录",
+    "Channel Run Log Help": "每日任务做了什么。计划任务在独立进程中运行，上面的任务列表看不到它。",
+    "Channel Run Log Empty": "尚无运行记录。",
+    "Channel Run Log Refresh": "刷新"
   }
 }

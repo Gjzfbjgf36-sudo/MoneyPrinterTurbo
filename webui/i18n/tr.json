@@ -482,6 +482,20 @@
     "Channel Clip Duration Help": "Kısa kesmeler ilgiyi tutar ama işleme süresi ister.",
     "Channel Transition": "Hareket",
     "Channel Transition None": "Yok (en hızlı)",
-    "Channel Transition Help": "ZoomIn her klip boyunca yavaşça yakınlaşır; böylece durağan stok görüntü slayt gibi durmaz. Kurgu aşamasını yaklaşık üçe katlar."
+    "Channel Transition Help": "ZoomIn her klip boyunca yavaşça yakınlaşır; böylece durağan stok görüntü slayt gibi durmaz. Kurgu aşamasını yaklaşık üçe katlar.",
+    "Channel Style": "Stil",
+    "Channel Style Help": "Altyazı, kurgu ve tempodan oluşan hazır bir birleşim. Tek tek ayarları değerlendirmek zordur; birlikte bir görünüm oluştururlar.",
+    "Channel Style Apply": "Uygula",
+    "Channel Style Applied": "Stil uygulandı.",
+    "Channel Style Custom": "Mevcut ayarlar hiçbir stile uymuyor — kendi birleşiminiz.",
+    "Style karaoke": "Karaoke — kelime kelime, zıplayan",
+    "Style signal": "Sinyal — sarı, büyük, güçlü",
+    "Style ruhig": "Sakin — tam cümleler, animasyonsuz",
+    "Style kontrast": "Kontrast — metnin arkasında şerit",
+    "Style sparsam": "Hafif — yakınlaşma yok, daha hızlı işlenir",
+    "Channel Run Log": "Çalışma günlüğü",
+    "Channel Run Log Help": "Günlük çalışmanın ne yaptığı. Zamanlanmış görev kendi sürecinde çalışır, yukarıdaki liste onu görmez.",
+    "Channel Run Log Empty": "Henüz kayıtlı çalışma yok.",
+    "Channel Run Log Refresh": "Yenile"
   }
 }

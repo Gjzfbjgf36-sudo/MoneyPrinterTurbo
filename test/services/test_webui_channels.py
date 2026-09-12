@@ -322,3 +322,105 @@ def test_is_logged_in_follows_the_channel_token(sandbox):
     token.parent.mkdir(parents=True, exist_ok=True)
     token.write_text("{}", encoding="utf-8")
     assert ch.is_logged_in("tech") is True
+
+
+def test_every_style_only_sets_fields_the_daily_run_reads(sandbox):
+    """Ein Stil, der Felder setzt, die niemand liest, waere wirkungslos."""
+    import sys
+
+    sys.path.insert(0, str(ch.ROOT))
+    from news_to_shorts import CHANNEL_OVERRIDES
+
+    for name, style in ch.STYLES.items():
+        unbekannt = sorted(set(style) - set(CHANNEL_OVERRIDES))
+        assert not unbekannt, f"Stil {name!r} setzt ungelesene Felder: {unbekannt}"
+
+
+def test_every_style_produces_valid_video_params(sandbox):
+    """Ein Stil muss die Pipeline auch tatsaechlich durchlaufen koennen."""
+    from app.models.schema import VideoParams
+
+    for name, style in ch.STYLES.items():
+        params = VideoParams(video_subject="Test", **style)
+        assert params.video_subject == "Test", name
+
+
+def test_applying_a_style_keeps_the_channel_identity(sandbox):
+    """Stimme und Thema gehoeren zum Kanal, nicht zum Look."""
+    config = {
+        **ch.DEFAULT_CONFIG,
+        "topic": "KI",
+        "voice_name": "de-DE-ConradNeural-Male",
+    }
+    updated = ch.apply_style(config, "signal")
+
+    assert updated["voice_name"] == "de-DE-ConradNeural-Male"
+    assert updated["topic"] == "KI"
+    assert updated["text_fore_color"] == "#FFE000"
+    assert updated["style"] == "signal"
+
+
+def test_unknown_style_is_refused(sandbox):
+    with pytest.raises(ch.ChannelError):
+        ch.apply_style(dict(ch.DEFAULT_CONFIG), "gibtsnicht")
+
+
+def test_style_detection_compares_instead_of_trusting_the_name(sandbox):
+    """Der gespeicherte Name luegt, sobald jemand einen Regler verstellt."""
+    config = ch.apply_style(dict(ch.DEFAULT_CONFIG), "karaoke")
+    assert ch.detect_style(config) == "karaoke"
+
+    config["font_size"] = 40
+    assert ch.detect_style(config) is None
+    # Der Name steht noch drin, die Erkennung faellt trotzdem nicht darauf herein.
+    assert config["style"] == "karaoke"
+
+
+def test_run_log_is_empty_without_a_run(sandbox, monkeypatch):
+    monkeypatch.setattr(ch, "RUN_LOG", sandbox / "storage" / "logs" / "daily-run.jsonl")
+    assert ch.read_run_log() == []
+
+
+def test_run_log_reads_events_and_filters_by_channel(sandbox, monkeypatch):
+    log = sandbox / "storage" / "logs" / "daily-run.jsonl"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(ch, "RUN_LOG", log)
+
+    log.write_text(
+        "\n".join(
+            json.dumps(entry, ensure_ascii=False)
+            for entry in [
+                {"time": "2026-09-12 06:00:00", "channel": "tech", "step": "research",
+                 "message": "3 Meldungen", "ok": True},
+                {"time": "2026-09-12 06:01:00", "channel": "geld", "step": "render",
+                 "message": "1 Video", "ok": True},
+                {"time": "2026-09-12 06:20:00", "channel": "tech", "step": "upload",
+                 "message": "fehlgeschlagen", "ok": False},
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    alle = ch.read_run_log()
+    assert len(alle) == 3
+
+    nur_tech = ch.read_run_log(channel="tech")
+    assert [event.step for event in nur_tech] == ["research", "upload"]
+    assert nur_tech[-1].is_error is True
+
+
+def test_a_truncated_line_does_not_hide_the_rest(sandbox, monkeypatch):
+    """Ein Abbruch mitten im Schreiben beschaedigt hoechstens die letzte Zeile."""
+    log = sandbox / "storage" / "logs" / "daily-run.jsonl"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(ch, "RUN_LOG", log)
+    log.write_text(
+        json.dumps({"time": "t", "channel": "tech", "step": "render",
+                    "message": "ok", "ok": True})
+        + '\n{"time": "t2", "channel": "te\n',
+        encoding="utf-8",
+    )
+    events = ch.read_run_log()
+    assert len(events) == 1
+    assert events[0].message == "ok"
