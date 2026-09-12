@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import cli
 from app.config import config as app_config
+from app.models.schema import VideoTransitionMode
 
 
 class TestCli(unittest.TestCase):
@@ -466,6 +467,27 @@ class TestCli(unittest.TestCase):
         self.assertEqual(params.bgm_file, "output001.mp3")
         self.assertEqual(params.bgm_volume, 0.3)
         self.assertEqual(params.n_threads, 4)
+
+    def test_every_transition_mode_is_reachable_from_the_cli(self):
+        """WebUI 能选的转场，命令行也必须能选，否则 CLI 用户少一半效果。"""
+        cli_values = {
+            value
+            for value in cli._TRANSITION_MODE_VALUES.values()
+            if value is not None
+        }
+        # "None" 是枚举里的"不使用转场"，CLI 用 --video-transition-mode none
+        # 映射成 Python 的 None，因此不参与这里的比对。
+        schema_values = {mode.value for mode in VideoTransitionMode} - {"None"}
+        self.assertEqual(cli_values, schema_values)
+
+    def test_zoom_transition_maps_to_video_params(self):
+        for cli_value, expected in (("zoom-in", "ZoomIn"), ("zoom-out", "ZoomOut")):
+            with self.subTest(cli_value=cli_value):
+                args = cli.parse_args(
+                    ["--video-subject", "test", "--video-transition-mode", cli_value]
+                )
+                params = cli.build_video_params(args)
+                self.assertEqual(params.video_transition_mode, expected)
 
     def test_custom_audio_file_maps_to_video_params(self):
         args = cli.parse_args(
