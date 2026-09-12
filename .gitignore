@@ -46,6 +46,16 @@ htmlcov/
 # Claude Code 订阅令牌（docker compose 自动读取），禁止提交
 .env
 
-# Von news_to_shorts.py erzeugte Batch-Manifeste und Quellenbelege
+# Von news_to_shorts.py erzeugte Batch-Manifeste und Quellenbelege.
+# --split schreibt zusätzlich shorts.1.json, shorts.2.json, ...
 /shorts.json
+/shorts.[0-9]*.json
 /shorts.sources.json
+
+# OAuth-Client des YouTube-Uploaders. Das Token liegt unter /storage/ und ist
+# darüber schon ausgeschlossen; die Client-Datei muss hier einzeln stehen.
+/client_secret.json
+/client_secret_*.json
+
+# Kanaltext des YouTube-Uploaders (Haftungsausschluss o. ä.), bleibt lokal
+/youtube-footer.txt

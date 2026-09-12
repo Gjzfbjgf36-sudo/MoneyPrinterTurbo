@@ -139,6 +139,8 @@ def _task_id(value: str) -> str:
         ) from exc
 
 
+# 每个 VideoTransitionMode 都要在这里有对应的 CLI 取值，否则 WebUI 能选的
+# 转场在命令行里无法使用。test_cli 会比对两者，新增枚举时不会漏配。
 _TRANSITION_MODE_VALUES = {
     "none": None,
     "shuffle": "Shuffle",
@@ -146,6 +148,8 @@ _TRANSITION_MODE_VALUES = {
     "fade-out": "FadeOut",
     "slide-in": "SlideIn",
     "slide-out": "SlideOut",
+    "zoom-in": "ZoomIn",
+    "zoom-out": "ZoomOut",
 }
 
 
@@ -367,7 +371,9 @@ Batch manifests:
         "--video-transition-mode",
         type=_transition_mode,
         default=None,
-        metavar="{none,shuffle,fade-in,fade-out,slide-in,slide-out}",
+        metavar=(
+            "{none,shuffle,fade-in,fade-out,slide-in,slide-out,zoom-in,zoom-out}"
+        ),
         help="transition applied between source clips (default: none)",
     )
     video_group.add_argument(
