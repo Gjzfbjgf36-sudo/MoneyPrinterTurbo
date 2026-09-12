@@ -212,6 +212,15 @@ def main() -> int:
         help="Datei mit Quellen und Datum je Video",
     )
     parser.add_argument(
+        "--split",
+        action="store_true",
+        help=(
+            "zusaetzlich ein Manifest je Video schreiben (shorts.1.json, "
+            "shorts.2.json, ...), damit die Uploads ueber den Tag verteilt "
+            "in getrennten Laeufen erfolgen koennen"
+        ),
+    )
+    parser.add_argument(
         "--model", default="", help="Modell fuer die Recherche, z. B. claude-sonnet-5"
     )
     parser.add_argument(
@@ -232,13 +241,30 @@ def main() -> int:
         json.dumps(sources, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
+    split_paths: list[Path] = []
+    if args.split:
+        # Ein Manifest je Video: cli.py rendert immer die ganze Datei, also
+        # braucht jeder ueber den Tag verteilte Lauf seine eigene.
+        out_path = Path(args.out)
+        for index, task in enumerate(manifest, start=1):
+            part = out_path.with_name(f"{out_path.stem}.{index}{out_path.suffix}")
+            part.write_text(
+                json.dumps([task], ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            split_paths.append(part)
+
     print(f"\n{len(manifest)} Videos geschrieben nach {args.out}")
     for entry in sources:
         print(f"  - {entry['video_subject']}  ({entry['woerter']} Woerter, {entry['datum']})")
+    if split_paths:
+        print("\nEinzelne Manifeste:")
+        for part in split_paths:
+            print(f"  uv run python cli.py --batch-file .\\{part.name}")
     print(
-        f"\nQuellen in {args.sources_out}. Pruefe sie, bevor du die Videos hochlaedst.\n"
-        f"Weiter mit: uv run python cli.py --batch-file {args.out}"
+        f"\nQuellen in {args.sources_out}. Pruefe sie, bevor du die Videos hochlaedst."
     )
+    if not split_paths:
+        print(f"Weiter mit: uv run python cli.py --batch-file {args.out}")
     return 0
 
 
