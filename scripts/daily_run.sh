@@ -73,8 +73,16 @@ cat "$RUN_FILE" >> "$DONE_FILE"
 tail -n +"$((TOPICS_PER_RUN + 1))" "$REST_FILE" > "$TASK_FILE"
 echo "Warteschlange: $(grep -c '' "$TASK_FILE" || true) Thema/Themen uebrig"
 
-echo "=== $(date '+%Y-%m-%d %H:%M') Hochladen und einplanen ==="
-"$UV_BIN" run --no-sync python scripts/youtube_upload.py \
-  --scan --limit "$TOPICS_PER_RUN" --publish-at "$PUBLISH_AT"
+# Leeres PUBLISH_AT heisst: nur hochladen, nichts einplanen. Die Videos
+# bleiben dann privat, bis sie jemand in YouTube Studio freigibt.
+if [ -n "$PUBLISH_AT" ]; then
+  echo "=== $(date '+%Y-%m-%d %H:%M') Hochladen und einplanen ($PUBLISH_AT) ==="
+  "$UV_BIN" run --no-sync python scripts/youtube_upload.py \
+    --scan --limit "$TOPICS_PER_RUN" --publish-at "$PUBLISH_AT"
+else
+  echo "=== $(date '+%Y-%m-%d %H:%M') Hochladen (privat, ohne Termin) ==="
+  "$UV_BIN" run --no-sync python scripts/youtube_upload.py \
+    --scan --limit "$TOPICS_PER_RUN" --privacy private
+fi
 
 echo "=== $(date '+%Y-%m-%d %H:%M') fertig ==="
