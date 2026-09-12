@@ -38,6 +38,10 @@ DESCRIPTION_LIMIT = 4900
 # Die Pexels-API-Bedingungen verlangen eine sichtbare Namensnennung, sobald
 # damit erzeugte Inhalte veröffentlicht werden.
 PEXELS_CREDIT = "Videomaterial: Pexels (https://www.pexels.com)"
+# Optionaler Kanaltext, der an jede Beschreibung angehängt wird: Haftungs-
+# ausschluss, Impressumshinweis, Kanalregeln. Fehlt die Datei, bleibt die
+# Beschreibung unverändert.
+FOOTER_FILE = ROOT / "youtube-footer.txt"
 
 
 def load_state() -> dict:
@@ -80,6 +84,17 @@ def build_title(metadata: dict, fallback: str) -> str:
     return subject + suffix
 
 
+def read_footer() -> str:
+    """Kanaltext aus youtube-footer.txt, falls vorhanden."""
+    if not FOOTER_FILE.exists():
+        return ""
+    try:
+        return FOOTER_FILE.read_text(encoding="utf-8").strip()
+    except OSError as exc:
+        print(f"Warnung: {FOOTER_FILE.name} nicht lesbar ({exc})")
+        return ""
+
+
 def build_description(metadata: dict) -> str:
     """Beschreibung aus Skript, Hashtags und der Pexels-Namensnennung."""
     blocks = []
@@ -99,6 +114,11 @@ def build_description(metadata: dict) -> str:
         blocks.append(" ".join(["#shorts"] + hashtags[:5]))
 
     blocks.append(PEXELS_CREDIT)
+
+    footer = read_footer()
+    if footer:
+        blocks.append(footer)
+
     description = "\n\n".join(blocks)
     return description[:DESCRIPTION_LIMIT]
 

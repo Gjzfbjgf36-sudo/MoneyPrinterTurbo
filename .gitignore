@@ -50,3 +50,6 @@ htmlcov/
 # darüber schon ausgeschlossen; die Client-Datei muss hier einzeln stehen.
 /client_secret.json
 /client_secret_*.json
+
+# Kanaltext des YouTube-Uploaders (Haftungsausschluss o. ä.), bleibt lokal
+/youtube-footer.txt
