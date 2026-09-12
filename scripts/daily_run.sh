@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
-# Erzeugt alle Videos aus tasks.jsonl und lädt sie danach zu YouTube hoch.
-# Aufruf: ./scripts/daily_run.sh   (oder per cron, siehe README-Abschnitt)
+# Rendert die naechsten Themen aus der Warteschlange und plant sie auf YouTube ein.
+#
+# Aufruf:   ./scripts/daily_run.sh
+# Anpassen: TOPICS_PER_RUN=2 PUBLISH_AT=09:00,17:00 ./scripts/daily_run.sh
+#
+# Abgearbeitete Themen wandern nach tasks-done.jsonl, damit ein taeglicher
+# Cron-Lauf ohne Zutun weiterlaeuft und keine Wiederholungen erzeugt.
 set -eu
 
 PROJECT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
@@ -8,8 +13,9 @@ cd "$PROJECT_DIR"
 
 UV_BIN="${UV_BIN:-$HOME/.local/bin/uv}"
 TASK_FILE="${TASK_FILE:-tasks.jsonl}"
-PRIVACY="${PRIVACY:-private}"
-UPLOAD_LIMIT="${UPLOAD_LIMIT:-5}"
+DONE_FILE="${DONE_FILE:-tasks-done.jsonl}"
+TOPICS_PER_RUN="${TOPICS_PER_RUN:-3}"
+PUBLISH_AT="${PUBLISH_AT:-08:00,13:00,18:00}"
 
 # Der Aufhaenger entscheidet ueber die ersten drei Sekunden, deshalb steht er
 # als erste Regel. Die Wortgrenze haelt das Video im Shorts-Format.
@@ -25,13 +31,27 @@ if [ ! -f "$TASK_FILE" ]; then
   exit 1
 fi
 
-echo "=== $(date '+%Y-%m-%d %H:%M') Videos erzeugen ==="
+RUN_FILE=$(mktemp "${TMPDIR:-/tmp}/mpt-run.XXXXXX")
+REST_FILE=$(mktemp "${TMPDIR:-/tmp}/mpt-rest.XXXXXX")
+trap 'rm -f "$RUN_FILE" "$REST_FILE"' EXIT
+
+# Leerzeilen ignorieren, damit eine haendisch editierte Liste nicht zu
+# leeren Durchlaeufen fuehrt.
+grep -v '^[[:space:]]*$' "$TASK_FILE" > "$REST_FILE" || true
+head -n "$TOPICS_PER_RUN" "$REST_FILE" > "$RUN_FILE"
+
+if [ ! -s "$RUN_FILE" ]; then
+  echo "Warteschlange $TASK_FILE ist leer, nichts zu tun."
+  exit 0
+fi
+
+echo "=== $(date '+%Y-%m-%d %H:%M') $(wc -l < "$RUN_FILE" | tr -d ' ') Video(s) erzeugen ==="
 # Kurzformat-Einstellungen: Zoom gegen den Diashow-Eindruck, 4-Sekunden-Schnitte
-# für den Rhythmus, große Untertitel oberhalb der Plattform-Bedienelemente und
-# eine leicht beschleunigte Stimme. Wort-für-Wort-Untertitel lassen sich nur
-# über [ui] in der config.toml setzen, die CLI kennt dafür keinen Schalter.
+# fuer den Rhythmus, grosse Untertitel oberhalb der Plattform-Bedienelemente und
+# eine leicht beschleunigte Stimme. Wort-fuer-Wort-Untertitel lassen sich nur
+# ueber [ui] in der config.toml setzen, die CLI kennt dafuer keinen Schalter.
 "$UV_BIN" run --no-sync python cli.py \
-  --batch-file "$TASK_FILE" \
+  --batch-file "$RUN_FILE" \
   --video-language de-DE \
   --voice-name de-DE-KatjaNeural-Female \
   --voice-rate 1.1 \
@@ -47,8 +67,14 @@ echo "=== $(date '+%Y-%m-%d %H:%M') Videos erzeugen ==="
   --n-threads 4 \
   --video-script-prompt "$SCRIPT_PROMPT"
 
-echo "=== $(date '+%Y-%m-%d %H:%M') Hochladen ==="
+# Erst nach dem Rendern aus der Warteschlange nehmen. Gescheiterte Themen
+# stehen danach in $DONE_FILE und koennen von dort zurueckkopiert werden.
+cat "$RUN_FILE" >> "$DONE_FILE"
+tail -n +"$((TOPICS_PER_RUN + 1))" "$REST_FILE" > "$TASK_FILE"
+echo "Warteschlange: $(grep -c '' "$TASK_FILE" || true) Thema/Themen uebrig"
+
+echo "=== $(date '+%Y-%m-%d %H:%M') Hochladen und einplanen ==="
 "$UV_BIN" run --no-sync python scripts/youtube_upload.py \
-  --scan --privacy "$PRIVACY" --limit "$UPLOAD_LIMIT"
+  --scan --limit "$TOPICS_PER_RUN" --publish-at "$PUBLISH_AT"
 
 echo "=== $(date '+%Y-%m-%d %H:%M') fertig ==="

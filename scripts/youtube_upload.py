@@ -22,6 +22,7 @@ import argparse
 import json
 import os
 import sys
+from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -148,6 +149,57 @@ def find_new_videos(state: dict) -> list[Path]:
     return [video for video in videos if state_key(video) not in state]
 
 
+def parse_slot_times(raw: str) -> list[time]:
+    """Wandelt "08:00,13:00,18:00" in sortierte Uhrzeiten der lokalen Zeitzone."""
+    slots = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            hour, minute = (int(value) for value in part.split(":", 1))
+            slots.append(time(hour=hour, minute=minute))
+        except ValueError:
+            sys.exit(f"Ungültige Uhrzeit in --publish-at: {part!r} (erwartet HH:MM)")
+    if not slots:
+        sys.exit("--publish-at braucht mindestens eine Uhrzeit, etwa 08:00,13:00")
+    return sorted(set(slots))
+
+
+def publish_slots(raw: str, count: int, now: datetime | None = None) -> list[datetime]:
+    """Die nächsten count Veröffentlichungszeitpunkte ab jetzt.
+
+    Bereits vergangene Uhrzeiten des heutigen Tages werden übersprungen; sind
+    für heute keine mehr frei, geht es am Folgetag weiter. Damit verteilt ein
+    nächtlicher Lauf seine Videos über den kommenden Tag.
+    """
+    if count <= 0:
+        return []
+    now = now or datetime.now().astimezone()
+    times = parse_slot_times(raw)
+    result: list[datetime] = []
+    day = now.date()
+    while len(result) < count:
+        for slot_time in times:
+            candidate = datetime.combine(day, slot_time, tzinfo=now.tzinfo)
+            if candidate > now:
+                result.append(candidate)
+                if len(result) == count:
+                    break
+        day += timedelta(days=1)
+    return result
+
+
+def to_youtube_timestamp(moment: datetime) -> str:
+    """RFC-3339 in UTC, wie es die YouTube-API für publishAt erwartet."""
+    return (
+        moment.astimezone(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
 def get_youtube_client():
     """OAuth-Flow; der Token wird gespeichert, der Browser öffnet sich nur einmal."""
     try:
@@ -186,7 +238,7 @@ def get_youtube_client():
 
 
 def upload(youtube, video_path: Path, title: str, description: str,
-           tags: list[str], privacy: str) -> str:
+           tags: list[str], privacy: str, publish_at: datetime | None = None) -> str:
     from googleapiclient.errors import HttpError
     from googleapiclient.http import MediaFileUpload
 
@@ -198,11 +250,15 @@ def upload(youtube, video_path: Path, title: str, description: str,
             "categoryId": CATEGORY_ID,
         },
         "status": {
-            "privacyStatus": privacy,
+            # Ein geplantes Video muss bis zum Termin privat bleiben; YouTube
+            # schaltet es dann selbst öffentlich.
+            "privacyStatus": "private" if publish_at else privacy,
             # YouTube verlangt eine Angabe zur Zielgruppe.
             "selfDeclaredMadeForKids": False,
         },
     }
+    if publish_at:
+        body["status"]["publishAt"] = to_youtube_timestamp(publish_at)
     media = MediaFileUpload(str(video_path), chunksize=4 * 1024 * 1024, resumable=True)
     request = youtube.videos().insert(
         part="snippet,status", body=body, media_body=media
@@ -250,6 +306,14 @@ def main() -> None:
         "--force", action="store_true",
         help="auch Videos hochladen, die laut Verlauf schon auf YouTube sind",
     )
+    parser.add_argument(
+        "--publish-at", default=None, metavar="HH:MM[,HH:MM...]",
+        help=(
+            "Veröffentlichung planen statt sofort freizugeben; die Videos "
+            "belegen der Reihe nach die nächsten freien Uhrzeiten "
+            "(Beispiel: 08:00,13:00,18:00)"
+        ),
+    )
     args = parser.parse_args()
 
     state = load_state()
@@ -277,9 +341,19 @@ def main() -> None:
         return
 
     targets = targets[: args.limit]
+    schedule = (
+        publish_slots(args.publish_at, len(targets)) if args.publish_at else []
+    )
+    if schedule and args.privacy != "private":
+        # publishAt und ein oeffentliches Video schliessen sich aus: YouTube
+        # lehnt die Kombination ab. Der Termin gewinnt, der Hinweis bleibt.
+        print(
+            f"Hinweis: --privacy {args.privacy} wird ignoriert; geplante Videos "
+            "bleiben bis zum Termin privat."
+        )
     youtube = None if args.dry_run else get_youtube_client()
 
-    for video_path in targets:
+    for index, video_path in enumerate(targets):
         if not video_path.exists():
             print(f"übersprungen, Datei fehlt: {video_path}")
             continue
@@ -293,7 +367,11 @@ def main() -> None:
         print(f"\n{video_path}  ({size_mb:.1f} MB)")
         print(f"  Titel:       {title}")
         print(f"  Tags:        {', '.join(tags) or '—'}")
-        print(f"  Sichtbarkeit: {args.privacy}")
+        publish_at = schedule[index] if schedule else None
+        if publish_at:
+            print(f"  Sichtbarkeit: geplant für {publish_at:%d.%m.%Y %H:%M}")
+        else:
+            print(f"  Sichtbarkeit: {args.privacy}")
         print("  Beschreibung:")
         for line in description.splitlines():
             print(f"    {line}")
@@ -301,11 +379,16 @@ def main() -> None:
         if args.dry_run:
             continue
 
-        video_id = upload(youtube, video_path, title, description, tags, args.privacy)
+        video_id = upload(
+            youtube, video_path, title, description, tags, args.privacy, publish_at
+        )
         url = f"https://youtu.be/{video_id}"
         print(f"  hochgeladen: {url}")
         state[state_key(video_path)] = {
-            "video_id": video_id, "url": url, "privacy": args.privacy
+            "video_id": video_id,
+            "url": url,
+            "privacy": "private" if publish_at else args.privacy,
+            "publish_at": to_youtube_timestamp(publish_at) if publish_at else None,
         }
         save_state(state)
 
