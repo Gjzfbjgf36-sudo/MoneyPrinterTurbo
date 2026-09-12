@@ -113,3 +113,53 @@ def test_state_key_is_relative_inside_the_project():
 def test_state_key_keeps_absolute_paths_from_outside():
     outside = Path("/tmp/woanders/final-1.mp4")
     assert uploader.state_key(outside) == "/tmp/woanders/final-1.mp4"
+
+
+def test_channel_paths_default_to_the_project_root():
+    """Ohne --channel bleiben die alten Pfade, damit ein bestehender
+    Einzelkanal nach dem Update nicht neu angemeldet werden muss."""
+    paths = uploader.channel_paths(None)
+    assert paths["token"] == uploader.ROOT / "storage" / "youtube-token.json"
+    assert paths["state"] == uploader.ROOT / "storage" / "youtube-uploads.json"
+    assert paths["footer"] == uploader.ROOT / "youtube-footer.txt"
+
+
+def test_channel_paths_are_separate_per_channel():
+    """Zwei Kanäle duerfen sich weder Token noch Upload-Verlauf teilen:
+    ein gemeinsamer Token wuerde in den falschen Kanal hochladen."""
+    tech = uploader.channel_paths("tech")
+    geld = uploader.channel_paths("geld")
+    assert tech["token"] != geld["token"]
+    assert tech["state"] != geld["state"]
+    assert tech["footer"] != geld["footer"]
+    assert tech["token"].parent == uploader.CHANNEL_STORAGE_DIR / "tech"
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["../evil", "a/b", "..", "", "/absolut", "mit leerzeichen", "-start", "x" * 65],
+)
+def test_channel_name_cannot_escape_the_project(name):
+    """Der Kanalname wird zum Verzeichnisnamen; ein Pfadwechsel darf daraus
+    nicht entstehen."""
+    with pytest.raises(SystemExit):
+        uploader.channel_paths(name)
+
+
+def test_apply_channel_switches_the_module_paths(monkeypatch):
+    monkeypatch.setattr(uploader, "STATE_FILE", Path("unset"))
+    monkeypatch.setattr(uploader, "TOKEN_FILE", Path("unset"))
+    monkeypatch.setattr(uploader, "FOOTER_FILE", Path("unset"))
+    uploader.apply_channel("tech")
+    assert uploader.TOKEN_FILE == uploader.CHANNEL_STORAGE_DIR / "tech" / "youtube-token.json"
+    assert uploader.FOOTER_FILE == uploader.CHANNELS_DIR / "tech" / "footer.txt"
+
+
+def test_apply_category_accepts_digits_and_rejects_anything_else(monkeypatch):
+    monkeypatch.setattr(uploader, "CATEGORY_ID", "27")
+    uploader.apply_category("")
+    assert uploader.CATEGORY_ID == "27"
+    uploader.apply_category("28")
+    assert uploader.CATEGORY_ID == "28"
+    with pytest.raises(SystemExit):
+        uploader.apply_category("Bildung")

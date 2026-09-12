@@ -59,3 +59,11 @@ htmlcov/
 
 # Kanaltext des YouTube-Uploaders (Haftungsausschluss o. ä.), bleibt lokal
 /youtube-footer.txt
+
+# Laufzeitdaten der einzelnen Kanäle. channel.json und tasks.jsonl gehören
+# dagegen ins Repo: sie beschreiben die Kanäle und sollen auf allen Rechnern
+# gleich sein. Die Tokens liegen unter /storage/ und sind darüber schon raus.
+/channels/*/run.json
+/channels/*/sources.json
+/channels/*/tasks-done.jsonl
+/channels/*/footer.txt

@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
@@ -30,6 +31,15 @@ TASKS_DIR = ROOT / "storage" / "tasks"
 STATE_FILE = ROOT / "storage" / "youtube-uploads.json"
 TOKEN_FILE = ROOT / "storage" / "youtube-token.json"
 CLIENT_SECRET_FILE = ROOT / "client_secret.json"
+# Je Kanal ein eigener OAuth-Token, ein eigener Upload-Verlauf und ein eigener
+# Kanaltext. Der OAuth-Client (client_secret.json) bleibt gemeinsam: er gehört
+# zum Google-Cloud-Projekt, nicht zum YouTube-Konto, und beim Anmelden wählt
+# man den jeweiligen Kanal aus.
+CHANNEL_STORAGE_DIR = ROOT / "storage" / "channels"
+CHANNELS_DIR = ROOT / "channels"
+# Der Kanalname wird zu einem Verzeichnisnamen. Ohne Prüfung könnte "../.."
+# den Token außerhalb des Projekts ablegen oder eine fremde Datei überschreiben.
+CHANNEL_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 # 27 = Education. Andere gängige Werte: 22 Menschen & Blogs, 24 Unterhaltung.
@@ -43,6 +53,55 @@ PEXELS_CREDIT = "Videomaterial: Pexels (https://www.pexels.com)"
 # ausschluss, Impressumshinweis, Kanalregeln. Fehlt die Datei, bleibt die
 # Beschreibung unverändert.
 FOOTER_FILE = ROOT / "youtube-footer.txt"
+
+
+def channel_paths(channel: str | None) -> dict[str, Path]:
+    """Token, Upload-Verlauf und Kanaltext für einen Kanal.
+
+    Ohne Kanalnamen bleiben es die bisherigen Pfade im Projektstamm, damit ein
+    bestehender Einzelkanal nach dem Update weiterläuft und sich nicht neu
+    anmelden muss.
+    """
+    if channel is None:
+        # Nur das fehlende Argument heißt "kein Kanal". Ein ausdrücklich
+        # übergebenes --channel "" ist ein Tippfehler und darf nicht
+        # stillschweigend im Standardkanal landen.
+        return {
+            "state": ROOT / "storage" / "youtube-uploads.json",
+            "token": ROOT / "storage" / "youtube-token.json",
+            "footer": ROOT / "youtube-footer.txt",
+        }
+    if not CHANNEL_NAME_PATTERN.match(channel):
+        sys.exit(
+            f"Ungültiger Kanalname {channel!r}. Erlaubt sind Buchstaben, "
+            "Ziffern, Bindestrich und Unterstrich, beginnend mit "
+            "Buchstabe oder Ziffer."
+        )
+    return {
+        "state": CHANNEL_STORAGE_DIR / channel / "youtube-uploads.json",
+        "token": CHANNEL_STORAGE_DIR / channel / "youtube-token.json",
+        "footer": CHANNELS_DIR / channel / "footer.txt",
+    }
+
+
+def apply_channel(channel: str | None) -> None:
+    """Schaltet die Modulpfade auf den gewählten Kanal um."""
+    global STATE_FILE, TOKEN_FILE, FOOTER_FILE
+    paths = channel_paths(channel)
+    STATE_FILE = paths["state"]
+    TOKEN_FILE = paths["token"]
+    FOOTER_FILE = paths["footer"]
+
+
+def apply_category(category: str | None) -> None:
+    """Setzt die YouTube-Kategorie, wenn der Kanal eine eigene braucht."""
+    global CATEGORY_ID
+    category = (category or "").strip()
+    if not category:
+        return
+    if not category.isdigit():
+        sys.exit(f"Ungültige Kategorie-ID {category!r}; erwartet wird eine Zahl.")
+    CATEGORY_ID = category
 
 
 def load_state() -> dict:
@@ -287,8 +346,28 @@ def main() -> None:
     )
     parser.add_argument("videos", nargs="*", help="Pfade zu final-*.mp4")
     parser.add_argument(
+        "--channel", default=None, metavar="NAME",
+        help=(
+            "Kanal, in den hochgeladen wird. Token, Upload-Verlauf und "
+            "Kanaltext liegen dann unter storage/channels/NAME/ bzw. "
+            "channels/NAME/. Ohne Angabe gelten die Pfade im Projektstamm."
+        ),
+    )
+    parser.add_argument(
+        "--category", default=None, metavar="ID",
+        help=(
+            "YouTube-Kategorie-ID, etwa 27 Bildung, 28 Wissenschaft und "
+            f"Technik, 24 Unterhaltung (Standard: {CATEGORY_ID})"
+        ),
+    )
+    parser.add_argument(
         "--scan", action="store_true",
-        help="alle noch nicht hochgeladenen Videos unter storage/tasks verwenden",
+        help=(
+            "alle noch nicht hochgeladenen Videos unter storage/tasks "
+            "verwenden. Bei mehreren Kanälen nicht benutzen: der Scan sieht "
+            "auch die Videos der anderen Kanäle und würde sie hier "
+            "veröffentlichen. Dann die Pfade ausdrücklich übergeben."
+        ),
     )
     parser.add_argument(
         "--privacy", choices=["private", "unlisted", "public"], default="private",
@@ -315,6 +394,11 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+
+    apply_channel(args.channel)
+    apply_category(args.category)
+    if args.channel:
+        print(f"Kanal: {args.channel}")
 
     state = load_state()
     if args.scan:

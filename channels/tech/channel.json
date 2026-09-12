@@ -1,0 +1,8 @@
+{
+  "source": "news",
+  "topic": "Technologie und kuenstliche Intelligenz",
+  "research_model": "claude-sonnet-5",
+  "topics_per_run": 3,
+  "category": "28",
+  "publish_at": "08:00,13:00,18:00"
+}

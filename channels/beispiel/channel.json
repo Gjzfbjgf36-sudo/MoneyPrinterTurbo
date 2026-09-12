@@ -1,0 +1,7 @@
+{
+  "source": "queue",
+  "topic": "Alltagswissen",
+  "topics_per_run": 2,
+  "category": "27",
+  "publish_at": "09:00,17:00"
+}
