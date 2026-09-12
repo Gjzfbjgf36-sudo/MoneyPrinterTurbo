@@ -34,8 +34,10 @@ SHORTS_PRESET: dict = {
     "video_language": "de-DE",
     "video_source": "pexels",
     "video_concat_mode": "random",
+    # Harte Schnitte statt Blenden: auf Shorts haelt schneller Bildwechsel
+    # laenger fest als eine weiche Ueberblendung.
     "video_transition_mode": None,
-    "video_clip_duration": 3,
+    "video_clip_duration": 2,
     "video_clip_speed": 1.0,
     "match_materials_to_script": True,
     "video_count": 1,
@@ -95,11 +97,15 @@ Vorgehen:
 
 Fuer jedes Video:
 - video_subject: der Titel der Meldung, kurz und konkret.
-- video_script: der gesprochene Text, 90 bis 130 Woerter, also rund 40 Sekunden.
-  Die ersten Sekunden sind ein Hook, der neugierig macht. Kurze gesprochene Saetze,
-  direkte Ansprache mit "du", kein Fachjargon, keine Begruessung, kein Intro.
-  Reiner Fliesstext ohne Ueberschriften, ohne Aufzaehlungszeichen, ohne Emojis,
-  ohne Regieanweisungen. Schliesse mit einer Frage an die Zuschauer.
+- video_script: der gesprochene Text, hoechstens 95 Woerter. Diese Grenze ist
+  hart: laengere Skripte ergeben Videos ueber 45 Sekunden, und die laufen auf
+  Shorts schlechter. Der erste Satz ist ein Hook von maximal 12 Woertern, der
+  eine Frage aufwirft oder etwas Ueberraschendes behauptet. Danach kurze
+  gesprochene Saetze, direkte Ansprache mit "du", kein Fachjargon, keine
+  Begruessung, kein Intro. Nenne die handelnden Personen und Unternehmen beim
+  Namen, damit die Meldung ueberpruefbar bleibt. Reiner Fliesstext ohne
+  Ueberschriften, ohne Aufzaehlungszeichen, ohne Emojis, ohne Regieanweisungen.
+  Schliesse mit einer Frage an die Zuschauer.
 - quellen: die URLs, auf die du dich stuetzt.
 - datum: das Veroeffentlichungsdatum der Meldung als YYYY-MM-DD."""
 
@@ -168,9 +174,14 @@ def build_manifest(videos: list[dict]) -> tuple[list[dict], list[dict]]:
     manifest: list[dict] = []
     sources: list[dict] = []
     for item in videos:
+        quellen = item.get("quellen", [])
         task = dict(SHORTS_PRESET)
         task["video_subject"] = item["video_subject"]
         task["video_script"] = item["video_script"]
+        if quellen:
+            # Landet woertlich unter der Beschreibung des Uploads. Die erste
+            # Quelle ist die, auf der die Meldung hauptsaechlich beruht.
+            task["description_suffix"] = f"Quelle: {quellen[0]}"
         manifest.append(task)
         sources.append(
             {

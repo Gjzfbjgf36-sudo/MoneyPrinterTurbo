@@ -1491,6 +1491,114 @@ class TestTaskService(unittest.TestCase):
         )
         self.assertEqual(published_task["cross_post_error"], "upload failed")
 
+    def test_append_description_suffix_keeps_suffix_within_limit(self):
+        """
+        后缀通常是来源链接，必须逐字保留。先拼接再截断会把链接挤掉，
+        因此这里验证反过来压缩前面的文案。
+        """
+        self.assertEqual(tm._append_description_suffix("Text", "", 100), "Text")
+        self.assertEqual(
+            tm._append_description_suffix("Text", "https://example.com", 100),
+            "Text\n\nhttps://example.com",
+        )
+        self.assertEqual(
+            tm._append_description_suffix("", "https://example.com", 100),
+            "https://example.com",
+        )
+
+        suffix = "https://example.com/article"
+        result = tm._append_description_suffix("word " * 200, suffix, 60)
+        self.assertLessEqual(len(result), 60)
+        self.assertTrue(result.endswith(suffix))
+
+        # 后缀本身超过上限时，保留后缀开头而不是返回被截断的正文。
+        self.assertEqual(tm._append_description_suffix("Text", "x" * 50, 10), "x" * 10)
+
+    def test_start_appends_description_suffix_to_upload_text(self):
+        """来源链接要同时出现在通用发布文案和 YouTube 描述里。"""
+        source = "Quelle: https://example.com/news"
+        params = VideoParams(
+            video_subject="Coffee",
+            video_language="en",
+            description_suffix=source,
+        )
+        metadata = {
+            "title": "Morning Coffee",
+            "caption": "A better morning.",
+            "hashtags": ["coffee"],
+        }
+        service = tm.upload_post.upload_post_service
+        state = MemoryState()
+
+        def run_immediately(function, *args):
+            future = Future()
+            try:
+                function(*args)
+            except Exception as exc:
+                future.set_exception(exc)
+            else:
+                future.set_result(None)
+            return future
+
+        with (
+            patch.object(tm, "generate_script", return_value="generated script"),
+            patch.object(tm, "generate_terms", return_value=["coffee"]),
+            patch.object(tm, "save_script_data"),
+            patch.object(
+                tm, "generate_audio", return_value=("audio.mp3", 5, object())
+            ),
+            patch.object(tm, "generate_subtitle", return_value="subtitle.srt"),
+            patch.object(tm, "get_video_materials", return_value=["clip.mp4"]),
+            patch.object(
+                tm,
+                "generate_final_videos",
+                return_value=(["final-1.mp4"], ["combined-1.mp4"], []),
+            ),
+            patch.object(service, "is_configured", return_value=True),
+            patch.object(
+                type(service),
+                "auto_upload",
+                new_callable=PropertyMock,
+                return_value=True,
+            ),
+            patch.object(
+                type(service),
+                "platforms",
+                new_callable=PropertyMock,
+                return_value=["youtube"],
+            ),
+            patch.object(
+                type(service),
+                "youtube_privacy_status",
+                new_callable=PropertyMock,
+                return_value="public",
+            ),
+            patch.object(
+                type(service),
+                "youtube_made_for_kids",
+                new_callable=PropertyMock,
+                return_value=False,
+            ),
+            patch.object(
+                tm.llm, "generate_social_metadata", return_value=metadata
+            ),
+            patch.object(
+                tm.upload_post, "cross_post_video", return_value={"success": True}
+            ) as cross_post,
+            patch.object(tm.sm, "state", state),
+            patch.object(
+                tm._cross_post_executor, "submit", side_effect=run_immediately
+            ),
+        ):
+            tm.start("suffix-cross-post", params)
+
+        call = cross_post.call_args
+        self.assertEqual(
+            call.kwargs["youtube_extra"]["youtube_description"],
+            f"A better morning.\n\n{source}",
+        )
+        self.assertEqual(call.kwargs["title"], f"A better morning.\n\n{source}")
+
     def test_start_returns_before_cross_post_worker_runs(self):
         """视频任务完成时只提交发布工作，不能在生成线程中同步上传。"""
         params = VideoParams(video_subject="Coffee")

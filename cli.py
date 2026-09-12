@@ -277,6 +277,14 @@ Batch manifests:
         default=None,
         help="replace the default LLM system prompt for script generation",
     )
+    content_group.add_argument(
+        "--description-suffix",
+        default=None,
+        help=(
+            "text appended verbatim to the cross-post caption and YouTube "
+            "description, such as a news source link or a fixed call to action"
+        ),
+    )
 
     material_group = parser.add_argument_group("materials and pipeline")
     material_group.add_argument(
@@ -793,6 +801,7 @@ def build_video_params(args: argparse.Namespace) -> VideoParams:
         "paragraph_number",
         "video_script_prompt",
         "custom_system_prompt",
+        "description_suffix",
         "video_fit_mode",
         "video_concat_mode",
         "video_transition_mode",

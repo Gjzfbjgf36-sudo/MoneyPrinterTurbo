@@ -162,6 +162,10 @@ class VideoParams(BaseModel):
     paragraph_number: int = Field(default=1, ge=1, le=10)
     video_script_prompt: str = Field(default="", max_length=2000)
     custom_system_prompt: str = Field(default="", max_length=8000)
+    # 追加到跨平台发布文案末尾的固定文本，例如新闻来源链接或固定的行动
+    # 号召。发布文案由 LLM 每次重新生成，而来源链接必须逐字保留，因此
+    # 单独成字段，不混进提示词。
+    description_suffix: str = Field(default="", max_length=500)
 
 
 class SubtitleRequest(BaseModel):

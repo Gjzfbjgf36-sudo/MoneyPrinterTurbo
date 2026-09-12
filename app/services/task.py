@@ -1057,6 +1057,28 @@ def recover_interrupted_cross_posts(page_size: int = 100) -> int | None:
     return recovered
 
 
+def _append_description_suffix(text: str, suffix: str, limit: int) -> str:
+    """把固定后缀接到发布文案末尾，并保证后缀不会被长度上限截掉。
+
+    上传接口对标题和描述各有字符上限。如果先拼接再截断，超长的 LLM 文案
+    会把来源链接挤出去——而链接恰恰是必须逐字保留的部分。因此这里先为
+    后缀留出位置，需要时反过来压缩前面的文案。
+    """
+    suffix = suffix.strip()
+    if not suffix:
+        return text
+
+    separator = "\n\n"
+    reserved = len(suffix) + len(separator)
+    if reserved >= limit:
+        # 后缀本身就超过上限时，保留后缀的开头总比返回一个被截断的
+        # 文案更有用，调用方至少还能看出配置有问题。
+        return suffix[:limit]
+
+    head = (text or "").strip()[: limit - reserved].rstrip()
+    return f"{head}{separator}{suffix}" if head else suffix
+
+
 def _run_cross_post(
     task_id: str,
     video_paths: tuple[str, ...],
@@ -1066,6 +1088,7 @@ def _run_cross_post(
     platforms: tuple[str, ...],
     youtube_privacy_status: str,
     youtube_made_for_kids: bool = False,
+    description_suffix: str = "",
 ) -> None:
     """后台执行跨平台发布，并只补充发布相关的任务字段。"""
     results = []
@@ -1121,6 +1144,18 @@ def _run_cross_post(
                 or video_subject
                 or "Check out this video! #shorts #viral"
             )
+            if description_suffix:
+                # 上限与 upload_post 对各字段的截断保持一致，YouTube 描述
+                # 的 5000 字符是平台自身的限制。
+                post_title = _append_description_suffix(
+                    post_title, description_suffix, 2200
+                )
+                if youtube_extra is not None:
+                    youtube_extra["youtube_description"] = _append_description_suffix(
+                        youtube_extra.get("youtube_description", ""),
+                        description_suffix,
+                        5000,
+                    )
 
         for video_path in video_paths:
             result = upload_post.cross_post_video(
@@ -1265,6 +1300,7 @@ def _schedule_cross_post(
             tuple(platforms),
             youtube_privacy_status,
             youtube_made_for_kids,
+            params.description_suffix or "",
         )
         _register_cross_post_future(task_id, future)
         future.add_done_callback(partial(_finalize_cross_post_future, task_id))
