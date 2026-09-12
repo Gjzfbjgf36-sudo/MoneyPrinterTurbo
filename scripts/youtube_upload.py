@@ -173,6 +173,14 @@ def build_description(metadata: dict) -> str:
     if hashtags:
         blocks.append(" ".join(["#shorts"] + hashtags[:5]))
 
+    # description_suffix trägt bei Recherchevideos die Quelle der Behauptungen.
+    # Es steht vor dem Pexels-Hinweis, weil es zum Inhalt gehört und nicht zur
+    # Lizenz des Bildmaterials.
+    params = metadata.get("params") or {}
+    suffix = str(params.get("description_suffix") or "").strip()
+    if suffix:
+        blocks.append(suffix)
+
     blocks.append(PEXELS_CREDIT)
 
     footer = read_footer()
@@ -240,7 +248,10 @@ def publish_slots(raw: str, count: int, now: datetime | None = None) -> list[dat
     day = now.date()
     while len(result) < count:
         for slot_time in times:
-            candidate = datetime.combine(day, slot_time, tzinfo=now.tzinfo)
+            # Den Zeitzonen-Versatz je Tag neu bestimmen statt den von heute
+            # weiterzureichen: ueber eine Zeitumstellung hinweg laegen die
+            # Termine der Folgetage sonst eine Stunde daneben.
+            candidate = datetime.combine(day, slot_time).astimezone()
             if candidate > now:
                 result.append(candidate)
                 if len(result) == count:
@@ -274,11 +285,26 @@ def get_youtube_client():
 
     credentials = None
     if TOKEN_FILE.exists():
-        credentials = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
+        try:
+            credentials = Credentials.from_authorized_user_file(
+                str(TOKEN_FILE), SCOPES
+            )
+        except (OSError, ValueError) as exc:
+            print(f"Warnung: {TOKEN_FILE.name} unbrauchbar ({exc}), melde neu an.")
+            credentials = None
 
     if credentials and credentials.expired and credentials.refresh_token:
-        credentials.refresh(Request())
-    elif not credentials or not credentials.valid:
+        try:
+            credentials.refresh(Request())
+        except Exception as exc:
+            # Google widerruft das Refresh-Token eines OAuth-Clients im Status
+            # "Testing" nach sieben Tagen. Ohne diesen Zweig endet der
+            # naechtliche Lauf dann mit einem Traceback statt mit einer neuen
+            # Anmeldung — und bei einem geplanten Lauf sieht das niemand.
+            print(f"Anmeldung abgelaufen ({exc}), starte die Anmeldung neu.")
+            credentials = None
+
+    if not credentials or not credentials.valid:
         if not CLIENT_SECRET_FILE.exists():
             sys.exit(
                 f"{CLIENT_SECRET_FILE.name} fehlt. OAuth-Client vom Typ "
@@ -375,7 +401,12 @@ def main() -> None:
     )
     parser.add_argument(
         "--limit", type=int, default=5,
-        help="maximale Uploads pro Aufruf; schützt vor dem Tageskontingent",
+        help=(
+            "maximale Uploads pro --scan; schützt vor dem Tageskontingent. "
+            "Ausdrücklich genannte Pfade werden immer alle hochgeladen, sonst "
+            "fielen genau die Videos still unter den Tisch, die der Aufrufer "
+            "gerade erzeugt hat"
+        ),
     )
     parser.add_argument(
         "--dry-run", action="store_true",
@@ -424,7 +455,17 @@ def main() -> None:
         print("Keine neuen Videos gefunden.")
         return
 
-    targets = targets[: args.limit]
+    if args.scan and len(targets) > args.limit:
+        # Nur beim Scan ist die Menge unbekannt gross. Genannte Pfade sind die
+        # bewusste Auswahl des Aufrufers und werden nicht beschnitten: der
+        # Tageslauf uebergibt genau die Videos, die er gerade gerendert hat,
+        # und weil er ohne --scan arbeitet, wuerde sie niemand nachholen.
+        print(
+            f"{len(targets)} neue Videos gefunden, lade die ersten "
+            f"{args.limit} hoch (--limit)."
+        )
+        targets = targets[: args.limit]
+
     schedule = (
         publish_slots(args.publish_at, len(targets)) if args.publish_at else []
     )

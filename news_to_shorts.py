@@ -34,15 +34,18 @@ SHORTS_PRESET: dict = {
     "video_language": "de-DE",
     "video_source": "pexels",
     "video_concat_mode": "random",
-    # Harte Schnitte statt Blenden: auf Shorts haelt schneller Bildwechsel
-    # laenger fest als eine weiche Ueberblendung.
-    "video_transition_mode": None,
+    # ZoomIn ist keine Ueberblendung, sondern ein durchgehender Zoom von 1,0
+    # auf 1,2 ueber den ganzen Clip. Stockmaterial steht oft still; die
+    # staendige Bewegung nimmt dem Ergebnis den Diashow-Eindruck.
+    "video_transition_mode": "ZoomIn",
     "video_clip_duration": 2,
-    "video_clip_speed": 1.0,
+    # Leichte Beschleunigung der Clips: merklich straffer, ohne dass die
+    # Bewegung im Bild unnatuerlich wirkt.
+    "video_clip_speed": 1.08,
     "match_materials_to_script": True,
     "video_count": 1,
     "voice_name": "de-DE-KatjaNeural-Female",
-    "voice_rate": 1.15,
+    "voice_rate": 1.2,
     "voice_volume": 1.0,
     "bgm_type": "random",
     "bgm_volume": 0.12,
@@ -97,15 +100,21 @@ Vorgehen:
 
 Fuer jedes Video:
 - video_subject: der Titel der Meldung, kurz und konkret.
-- video_script: der gesprochene Text, hoechstens 95 Woerter. Diese Grenze ist
-  hart: laengere Skripte ergeben Videos ueber 45 Sekunden, und die laufen auf
-  Shorts schlechter. Der erste Satz ist ein Hook von maximal 12 Woertern, der
-  eine Frage aufwirft oder etwas Ueberraschendes behauptet. Danach kurze
-  gesprochene Saetze, direkte Ansprache mit "du", kein Fachjargon, keine
-  Begruessung, kein Intro. Nenne die handelnden Personen und Unternehmen beim
-  Namen, damit die Meldung ueberpruefbar bleibt. Reiner Fliesstext ohne
-  Ueberschriften, ohne Aufzaehlungszeichen, ohne Emojis, ohne Regieanweisungen.
-  Schliesse mit einer Frage an die Zuschauer.
+- video_script: der gesprochene Text, hoechstens 70 Woerter. Diese Grenze ist
+  hart. Sie ergibt rund 25 bis 30 Sekunden, und ein Short, das zu Ende gesehen
+  wird, wird weiter ausgespielt; ein laengeres, das abgebrochen wird, nicht.
+  Im Zweifel kuerzen statt ergaenzen.
+  Der erste Satz ist der Hook: hoechstens 8 Woerter, eine konkrete Zahl oder
+  eine Behauptung, die der Erwartung widerspricht. Kein "In diesem Video",
+  keine Begruessung, keine Ankuendigung des Themas.
+  Danach hoechstens drei Aussagen, je ein Satz, jede mit etwas Konkretem:
+  einer Zahl, einem Namen, einem Datum. Nenne die handelnden Personen und
+  Unternehmen beim Namen, damit die Meldung ueberpruefbar bleibt.
+  Keine Fuellwoerter ("eigentlich", "quasi", "im Grunde"), keine Einschuebe,
+  keine Nebensaetze, wo ein Hauptsatz reicht. Aktive Verben.
+  Der letzte Satz ist eine kurze Frage an die Zuschauer.
+  Reiner Fliesstext ohne Ueberschriften, ohne Aufzaehlungszeichen, ohne
+  Emojis, ohne Regieanweisungen.
 - quellen: die URLs, auf die du dich stuetzt.
 - datum: das Veroeffentlichungsdatum der Meldung als YYYY-MM-DD."""
 

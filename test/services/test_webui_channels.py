@@ -177,7 +177,9 @@ def test_runner_command_names_the_platform_script(monkeypatch):
     assert ch.supports_channel_runner() is True
 
     monkeypatch.setattr(ch.platform, "system", lambda: "Linux")
-    assert ch.runner_command("tech", dry_run=True)[0] == "sh"
+    # Ohne Probelauf bleibt es das Tagesskript; der Probelauf selbst geht
+    # einen anderen Weg, siehe test_dry_run_on_other_systems_never_uploads.
+    assert ch.runner_command(None, dry_run=False)[0] == "sh"
     assert ch.supports_channel_runner() is False
 
 
@@ -216,3 +218,45 @@ def test_translation_placeholders_match_between_locales():
         assert set(re.findall(r"\{(\w+)\}", english)) == set(
             re.findall(r"\{(\w+)\}", german)
         ), f"Platzhalter weichen ab bei {key!r}"
+
+
+def test_duplicate_subjects_keep_their_own_entries(sandbox):
+    """Zwei gleich benannte Zeilen duerfen nicht auf denselben Eintrag fallen.
+
+    Nach dem Thema zu gruppieren haette den einen samt fertigem Skript
+    verworfen und beide auf den letzten Eintrag abgebildet.
+    """
+    erste = {**QUEUE_ENTRY, "video_script": "Erstes Skript."}
+    zweite = {**QUEUE_ENTRY, "video_script": "Zweites Skript."}
+
+    result = ch.apply_subjects([erste, zweite], [QUEUE_ENTRY["video_subject"]] * 2)
+
+    assert len(result) == 2
+    assert [entry["video_script"] for entry in result] == [
+        "Erstes Skript.",
+        "Zweites Skript.",
+    ]
+
+
+def test_an_entry_without_a_subject_is_not_lost(sandbox):
+    """Ein mitgebrachtes Skript ohne Thema laesst sich in der Liste nicht
+    darstellen, darf aber beim Bearbeiten nicht verschwinden."""
+    nur_skript = {"video_script": "Fertiger Text.", "video_aspect": "9:16"}
+
+    result = ch.apply_subjects([QUEUE_ENTRY, nur_skript], [QUEUE_ENTRY["video_subject"]])
+
+    assert len(result) == 2
+    assert result[1]["video_script"] == "Fertiger Text."
+
+
+def test_dry_run_on_other_systems_never_uploads(monkeypatch):
+    """Der Probelauf darf auf keinem System einen Upload ausloesen.
+
+    daily_run.sh rendert und laedt per --scan aus der gemeinsamen
+    Warteschlange hoch — als Probelauf angeboten waere das genau die
+    kanaluebergreifende Veroeffentlichung, die die Kanaltrennung verhindert.
+    """
+    monkeypatch.setattr(ch.platform, "system", lambda: "Linux")
+    command = ch.runner_command("tech", dry_run=True)
+    assert "daily_run.sh" not in " ".join(command)
+    assert "--stop-at" in command and "script" in command

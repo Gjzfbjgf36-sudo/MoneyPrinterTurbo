@@ -274,10 +274,13 @@ def main() -> None:
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     if rejected:
-        Path(args.rejected).write_text(
-            "".join(json.dumps(item, ensure_ascii=False) + "\n" for item in rejected),
-            encoding="utf-8",
-        )
+        # Anhängen, nicht überschreiben: daily_run nimmt zurückgestellte Themen
+        # endgültig aus tasks.jsonl heraus, sie stehen danach nur noch hier.
+        # Ein Überschreiben hätte die Befunde des Vortags gelöscht, und damit
+        # die einzige Spur der aussortierten Themen.
+        with Path(args.rejected).open("a", encoding="utf-8") as handle:
+            for item in rejected:
+                handle.write(json.dumps(item, ensure_ascii=False) + "\n")
 
     print(
         f"\nFreigegeben: {len(approved)} → {args.out}"

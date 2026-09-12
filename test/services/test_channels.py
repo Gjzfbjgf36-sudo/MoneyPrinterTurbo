@@ -78,3 +78,44 @@ def test_queue_entries_are_valid_video_params(channel: Path):
         assert params.video_subject or params.video_script, (
             f"{channel.name}, Zeile {index}: braucht video_subject oder video_script"
         )
+
+
+# Die Tempo-Einstellungen entscheiden ueber den Eindruck der Shorts. Weichen
+# Warteschlangen-Vorlage und Recherche-Preset voneinander ab, sehen die Videos
+# eines Kanals anders aus als die des anderen, ohne dass es jemand merkt.
+PACING_FIELDS = (
+    "video_aspect",
+    "video_clip_duration",
+    "video_clip_speed",
+    "video_transition_mode",
+    "voice_rate",
+    "subtitle_position",
+    "subtitle_display_mode",
+    "subtitle_animation",
+    "font_size",
+    "stroke_width",
+)
+
+
+@pytest.mark.parametrize("channel", channel_dirs(), ids=lambda path: path.name)
+def test_queue_template_matches_the_shorts_preset(channel: Path):
+    """Beide Themenquellen muessen dasselbe Kurzformat erzeugen."""
+    import sys
+
+    sys.path.insert(0, str(ROOT))
+    from news_to_shorts import SHORTS_PRESET
+
+    config = json.loads((channel / "channel.json").read_text(encoding="utf-8"))
+    if config.get("source") != "queue":
+        return
+
+    queue = channel / "tasks.jsonl"
+    for index, line in enumerate(queue.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        entry = json.loads(line)
+        for field in PACING_FIELDS:
+            assert entry.get(field) == SHORTS_PRESET.get(field), (
+                f"{channel.name}, Zeile {index}: {field} weicht vom Preset ab "
+                f"({entry.get(field)!r} statt {SHORTS_PRESET.get(field)!r})"
+            )

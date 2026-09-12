@@ -163,3 +163,53 @@ def test_apply_category_accepts_digits_and_rejects_anything_else(monkeypatch):
     assert uploader.CATEGORY_ID == "28"
     with pytest.raises(SystemExit):
         uploader.apply_category("Bildung")
+
+
+def test_description_carries_the_source_link_from_the_task(tmp_path, monkeypatch):
+    """news_to_shorts schreibt die Quelle je Video; sie muss im Upload landen.
+
+    Ohne diesen Weg erreicht der Link nur den Upload-Post-Pfad, nicht aber den
+    direkten YouTube-Upload, den der Tageslauf benutzt.
+    """
+    monkeypatch.setattr(uploader, "FOOTER_FILE", tmp_path / "fehlt.txt")
+    metadata = {
+        "script": "Text.",
+        "params": {"description_suffix": "Quelle: https://example.com/artikel"},
+    }
+    description = uploader.build_description(metadata)
+    assert "Quelle: https://example.com/artikel" in description
+    # Die Pexels-Namensnennung bleibt am Ende, sie betrifft die Lizenz.
+    assert description.endswith(uploader.PEXELS_CREDIT)
+
+
+def test_description_without_a_source_link_is_unchanged(tmp_path, monkeypatch):
+    monkeypatch.setattr(uploader, "FOOTER_FILE", tmp_path / "fehlt.txt")
+    description = uploader.build_description({"script": "Text.", "params": {}})
+    assert description.endswith(uploader.PEXELS_CREDIT)
+
+
+def test_publish_slots_keep_the_wall_clock_across_a_dst_change(monkeypatch):
+    """Über die Zeitumstellung hinweg muss 08:00 auch am Folgetag 08:00 sein."""
+    import os
+    import time as time_module
+
+    if not hasattr(time_module, "tzset"):
+        pytest.skip("tzset gibt es nur auf POSIX")
+
+    monkeypatch.setitem(os.environ, "TZ", "Europe/Berlin")
+    time_module.tzset()
+    try:
+        # In der Nacht zum 29.03.2026 wird in Europa auf Sommerzeit gestellt.
+        now = datetime(2026, 3, 28, 9, 0).astimezone()
+        slots = uploader.publish_slots("08:00,18:00", 4, now=now)
+        assert [slot.strftime("%d.%m %H:%M") for slot in slots] == [
+            "28.03 18:00",
+            "29.03 08:00",
+            "29.03 18:00",
+            "30.03 08:00",
+        ]
+        # Der Versatz muss sich über die Umstellung tatsächlich ändern.
+        assert slots[0].utcoffset() != slots[-1].utcoffset()
+    finally:
+        os.environ.pop("TZ", None)
+        time_module.tzset()

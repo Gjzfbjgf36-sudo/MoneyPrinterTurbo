@@ -249,29 +249,58 @@ def apply_subjects(entries: list[dict], subjects: list[str]) -> list[dict]:
     Wer in der Oberfläche nur Zeilen umsortiert oder ergänzt, soll nicht die
     Stimme und den Schnitt der übrigen Themen verlieren. Ein neues Thema erbt
     deshalb die Einstellungen des ersten vorhandenen Eintrags.
+
+    Jeder vorhandene Eintrag wird höchstens einmal wiederverwendet. Nach dem
+    Thema zu gruppieren wäre verlockend, würde aber bei zwei gleich benannten
+    Zeilen beide auf denselben Eintrag abbilden und den anderen samt seinem
+    fertigen Skript verwerfen.
     """
     template = dict(entries[0]) if entries else {}
     template.pop("video_subject", None)
     template.pop("video_script", None)
 
-    by_subject = {
-        str(entry.get("video_subject", "")).strip(): entry for entry in entries
-    }
+    unused = list(entries)
     result = []
     for subject in subjects:
         subject = subject.strip()
         if not subject:
             continue
-        existing = by_subject.get(subject)
-        if existing is not None:
-            result.append(dict(existing))
+        match = next(
+            (
+                entry
+                for entry in unused
+                if str(entry.get("video_subject", "")).strip() == subject
+            ),
+            None,
+        )
+        if match is not None:
+            unused.remove(match)
+            result.append(dict(match))
         else:
             result.append({**template, "video_subject": subject})
+
+    # Einträge ohne Thema lassen sich über die Themenliste nicht darstellen.
+    # Wer ein fertiges Skript mitgebracht hat, darf es aber nicht dadurch
+    # verlieren, dass jemand die Liste bearbeitet — sie bleiben erhalten.
+    result.extend(
+        dict(entry)
+        for entry in unused
+        if not str(entry.get("video_subject", "")).strip()
+        and str(entry.get("video_script", "")).strip()
+    )
     return result
 
 
 def runner_command(channel: str | None = None, dry_run: bool = False) -> list[str]:
-    """Der Befehl für den Tageslauf auf diesem Betriebssystem."""
+    """Der Befehl für den Tageslauf auf diesem Betriebssystem.
+
+    Nur ``daily_run.ps1`` kennt einzelne Kanäle und einen Probelauf. Auf
+    anderen Systemen wird für einen angefragten Probelauf deshalb ``cli.py``
+    direkt aufgerufen: ``daily_run.sh`` würde rendern **und** über ``--scan``
+    aus der gemeinsamen Warteschlange hochladen — als „Probelauf“ angeboten
+    wäre das genau die kanalübergreifende Veröffentlichung, die diese
+    Kanaltrennung verhindern soll.
+    """
     if platform.system() == "Windows":
         command = [
             "powershell",
@@ -286,12 +315,20 @@ def runner_command(channel: str | None = None, dry_run: bool = False) -> list[st
             command.append("-DryRun")
         return command
 
-    command = ["sh", str(ROOT / "scripts" / "daily_run.sh")]
-    if dry_run or channel:
-        # daily_run.sh kennt weder Kanäle noch einen Probelauf; der Aufrufer
-        # zeigt den Befehl an, statt ein falsches Versprechen zu geben.
-        return command
-    return command
+    if dry_run:
+        manifest = CHANNELS_DIR / (channel or "") / "tasks.jsonl"
+        return [
+            "uv",
+            "run",
+            "python",
+            str(ROOT / "cli.py"),
+            "--batch-file",
+            str(manifest),
+            "--stop-at",
+            "script",
+        ]
+
+    return ["sh", str(ROOT / "scripts" / "daily_run.sh")]
 
 
 def supports_channel_runner() -> bool:

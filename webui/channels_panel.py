@@ -67,11 +67,20 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
             help=tr("Channel Topic Help"),
         )
 
+        # Ein von Hand eingetragener Wert ausserhalb der Spanne laesst
+        # st.number_input werfen. Die Seite wird inline gerendert, ein Fehler
+        # hier nimmt also die ganze Oberflaeche mit — deshalb begrenzen statt
+        # durchreichen.
+        try:
+            current_count = int(config.get("topics_per_run", 3))
+        except (TypeError, ValueError):
+            current_count = 3
         topics_per_run = st.number_input(
             tr("Channel Videos Per Run"),
             min_value=1,
             max_value=20,
-            value=int(config.get("topics_per_run", 3)),
+            value=max(1, min(current_count, 20)),
+            key=f"channel_count_{channel.name}",
         )
 
         category_ids = list(ch.CATEGORIES)
