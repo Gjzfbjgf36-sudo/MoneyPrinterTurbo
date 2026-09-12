@@ -16,6 +16,9 @@ TASK_FILE="${TASK_FILE:-tasks.jsonl}"
 DONE_FILE="${DONE_FILE:-tasks-done.jsonl}"
 TOPICS_PER_RUN="${TOPICS_PER_RUN:-3}"
 PUBLISH_AT="${PUBLISH_AT:-08:00,13:00,18:00}"
+# REVIEW=1 schaltet die Fach-Pruefungen vor die Produktion: Fakten, Kurzformat
+# und Auffindbarkeit. Nur freigegebene Themen werden gerendert.
+REVIEW="${REVIEW:-0}"
 
 # Der Aufhaenger entscheidet ueber die ersten drei Sekunden, deshalb steht er
 # als erste Regel. Die Wortgrenze haelt das Video im Shorts-Format.
@@ -33,7 +36,9 @@ fi
 
 RUN_FILE=$(mktemp "${TMPDIR:-/tmp}/mpt-run.XXXXXX")
 REST_FILE=$(mktemp "${TMPDIR:-/tmp}/mpt-rest.XXXXXX")
-trap 'rm -f "$RUN_FILE" "$REST_FILE"' EXIT
+PROMPT_FILE=$(mktemp "${TMPDIR:-/tmp}/mpt-prompt.XXXXXX")
+APPROVED_FILE=$(mktemp "${TMPDIR:-/tmp}/mpt-approved.XXXXXX")
+trap 'rm -f "$RUN_FILE" "$REST_FILE" "$PROMPT_FILE" "$APPROVED_FILE"' EXIT
 
 # Leerzeilen ignorieren, damit eine haendisch editierte Liste nicht zu
 # leeren Durchlaeufen fuehrt.
@@ -45,7 +50,28 @@ if [ ! -s "$RUN_FILE" ]; then
   exit 0
 fi
 
-echo "=== $(date '+%Y-%m-%d %H:%M') $(wc -l < "$RUN_FILE" | tr -d ' ') Video(s) erzeugen ==="
+printf '%s\n' "$SCRIPT_PROMPT" > "$PROMPT_FILE"
+
+if [ "$REVIEW" = "1" ]; then
+  echo "=== $(date '+%Y-%m-%d %H:%M') Skripte pruefen ==="
+  "$UV_BIN" run --no-sync python scripts/review_topics.py "$RUN_FILE" \
+    --script-prompt-file "$PROMPT_FILE" \
+    --out "$APPROVED_FILE" \
+    --rejected tasks-review.jsonl \
+    --report tasks-report.json
+  # Zurueckgestellte Themen bleiben in tasks-review.jsonl liegen und werden
+  # trotzdem aus der Warteschlange genommen, damit der naechste Lauf nicht
+  # dieselben Befunde erneut erarbeitet.
+  cp "$APPROVED_FILE" "$RUN_FILE"
+  if [ ! -s "$RUN_FILE" ]; then
+    cat "$RUN_FILE" >> "$DONE_FILE" 2>/dev/null || true
+    tail -n +"$((TOPICS_PER_RUN + 1))" "$REST_FILE" > "$TASK_FILE"
+    echo "Kein Thema freigegeben, siehe tasks-review.jsonl. Nichts zu rendern."
+    exit 0
+  fi
+fi
+
+echo "=== $(date '+%Y-%m-%d %H:%M') $(grep -c '' "$RUN_FILE") Video(s) erzeugen ==="
 # Kurzformat-Einstellungen: Zoom gegen den Diashow-Eindruck, 4-Sekunden-Schnitte
 # fuer den Rhythmus, grosse Untertitel oberhalb der Plattform-Bedienelemente und
 # eine leicht beschleunigte Stimme. Wort-fuer-Wort-Untertitel lassen sich nur
