@@ -519,6 +519,11 @@
     "Channel Script Words": "Metin uzunluğu (kelime)",
     "Channel Script Words Help": "Seslendirilen metnin uzunluğu. Yaklaşık 145 kelime bir dakika eder — üçten fazla nokta için yeterli, sonuna kadar izlenecek kadar kısa.",
     "Channel Script Seconds": "≈ {seconds} saniye konuşma",
-    "Channel Delete Short": "Sil"
+    "Channel Delete Short": "Sil",
+    "Channel Take Over": "Yukarıdaki ayarları al",
+    "Channel Take Over Help": "Yukarıdaki büyük formda beğendiğin bir görünüm mü buldun? Bu; sesi, kurguyu, altyazıları ve müziği bu kanala kopyalar — otomasyon yalnızca kanalı okur.",
+    "Channel Take Over Preview": "{count} değer değişecek",
+    "Channel Take Over Same": "Yukarıdaki form bu kanalla aynı.",
+    "Channel Took Over": "Alındı: {count} değer değişti."
   }
 }

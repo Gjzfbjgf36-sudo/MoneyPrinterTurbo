@@ -619,6 +619,11 @@
     "Channel Script Words": "脚本长度（词数）",
     "Channel Script Words Help": "口播文本的长度。约 145 词大致是一分钟——足够讲三点以上，又短到能被看完。",
     "Channel Script Seconds": "口播约 {seconds} 秒",
-    "Channel Delete Short": "删除"
+    "Channel Delete Short": "删除",
+    "Channel Take Over": "采用上方表单的设置",
+    "Channel Take Over Help": "在页面顶部的表单里调出了满意的效果？这会把配音、剪辑、字幕和音乐复制到该频道——自动流程只读取频道配置。",
+    "Channel Take Over Preview": "将改变 {count} 项",
+    "Channel Take Over Same": "上方表单与该频道一致。",
+    "Channel Took Over": "已采用：改变了 {count} 项。"
   }
 }

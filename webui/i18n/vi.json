@@ -519,6 +519,11 @@
     "Channel Script Words": "Độ dài kịch bản (từ)",
     "Channel Script Words Help": "Phần lời đọc dài bao nhiêu. Khoảng 145 từ là chừng một phút — đủ cho hơn ba ý, đủ ngắn để xem hết.",
     "Channel Script Seconds": "≈ {seconds} giây lời đọc",
-    "Channel Delete Short": "Xoá"
+    "Channel Delete Short": "Xoá",
+    "Channel Take Over": "Lấy thiết lập ở trên",
+    "Channel Take Over Help": "Đã tìm được kiểu ưng ý ở biểu mẫu lớn phía trên? Thao tác này chép giọng đọc, cách cắt, phụ đề và nhạc vào kênh này — phần tự động chỉ đọc kênh.",
+    "Channel Take Over Preview": "{count} giá trị sẽ thay đổi",
+    "Channel Take Over Same": "Biểu mẫu ở trên trùng với kênh này.",
+    "Channel Took Over": "Đã lấy: {count} giá trị thay đổi."
   }
 }

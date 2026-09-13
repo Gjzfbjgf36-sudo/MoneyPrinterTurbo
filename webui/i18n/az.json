@@ -519,6 +519,11 @@
     "Channel Script Words": "Ssenarinin uzunluğu (söz)",
     "Channel Script Words Help": "Danışılan mətnin uzunluğu. Təxminən 145 söz bir dəqiqədir — üç fikirdən çoxu üçün kifayət, sona qədər baxılacaq qədər qısa.",
     "Channel Script Seconds": "≈ {seconds} saniyə danışıq",
-    "Channel Delete Short": "Sil"
+    "Channel Delete Short": "Sil",
+    "Channel Take Over": "Yuxarıdakı parametrləri götür",
+    "Channel Take Over Help": "Yuxarıdakı böyük formada bir görünüş tapdınız? Bu, səsi, montajı, altyazıları və musiqini bu kanala köçürür — avtomatika yalnız kanalı oxuyur.",
+    "Channel Take Over Preview": "{count} dəyər dəyişəcək",
+    "Channel Take Over Same": "Yuxarıdakı forma bu kanalla eynidir.",
+    "Channel Took Over": "Götürüldü: {count} dəyər dəyişdi."
   }
 }

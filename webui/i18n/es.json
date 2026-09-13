@@ -519,6 +519,11 @@
     "Channel Script Words": "Longitud del guion (palabras)",
     "Channel Script Words Help": "Cuánto dura el texto hablado. Unas 145 palabras son aproximadamente un minuto: suficiente para más de tres ideas y lo bastante corto para verse entero.",
     "Channel Script Seconds": "≈ {seconds} segundos hablados",
-    "Channel Delete Short": "Eliminar"
+    "Channel Delete Short": "Eliminar",
+    "Channel Take Over": "Tomar los ajustes de arriba",
+    "Channel Take Over Help": "¿Encontraste un look en el formulario grande de arriba? Esto copia voz, corte, subtítulos y música a este canal: la automatización solo lee el canal.",
+    "Channel Take Over Preview": "Cambiarían {count} valores",
+    "Channel Take Over Same": "El formulario de arriba coincide con este canal.",
+    "Channel Took Over": "Tomado: {count} valores cambiados."
   }
 }

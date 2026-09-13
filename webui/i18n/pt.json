@@ -519,6 +519,11 @@
     "Channel Script Words": "Tamanho do roteiro (palavras)",
     "Channel Script Words Help": "Quanto dura o texto falado. Cerca de 145 palavras dão mais ou menos um minuto: suficiente para mais de três pontos e curto o bastante para ser visto até o fim.",
     "Channel Script Seconds": "≈ {seconds} segundos falados",
-    "Channel Delete Short": "Excluir"
+    "Channel Delete Short": "Excluir",
+    "Channel Take Over": "Pegar os ajustes de cima",
+    "Channel Take Over Help": "Achou um visual no formulário grande lá em cima? Isto copia voz, corte, legendas e música para este canal — a automação só lê o canal.",
+    "Channel Take Over Preview": "{count} valores mudariam",
+    "Channel Take Over Same": "O formulário acima coincide com este canal.",
+    "Channel Took Over": "Pegos: {count} valores alterados."
   }
 }

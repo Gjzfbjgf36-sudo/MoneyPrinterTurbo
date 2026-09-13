@@ -519,6 +519,11 @@
     "Channel Script Words": "Lunghezza del copione (parole)",
     "Channel Script Words Help": "Quanto dura il testo parlato. Circa 145 parole fanno più o meno un minuto: abbastanza per più di tre punti, abbastanza breve da essere visto fino in fondo.",
     "Channel Script Seconds": "≈ {seconds} secondi parlati",
-    "Channel Delete Short": "Elimina"
+    "Channel Delete Short": "Elimina",
+    "Channel Take Over": "Prendi le impostazioni da sopra",
+    "Channel Take Over Help": "Hai trovato un look nel modulo grande in alto? Questo copia voce, montaggio, sottotitoli e musica in questo canale: l'automazione legge solo il canale.",
+    "Channel Take Over Preview": "Cambierebbero {count} valori",
+    "Channel Take Over Same": "Il modulo in alto coincide con questo canale.",
+    "Channel Took Over": "Preso: {count} valori cambiati."
   }
 }

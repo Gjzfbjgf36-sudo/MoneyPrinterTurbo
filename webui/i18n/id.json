@@ -519,6 +519,11 @@
     "Channel Script Words": "Panjang naskah (kata)",
     "Channel Script Words Help": "Seberapa panjang teks yang dibacakan. Sekitar 145 kata kira-kira satu menit — cukup untuk lebih dari tiga poin, cukup pendek untuk ditonton sampai habis.",
     "Channel Script Seconds": "≈ {seconds} detik dibacakan",
-    "Channel Delete Short": "Hapus"
+    "Channel Delete Short": "Hapus",
+    "Channel Take Over": "Ambil pengaturan dari atas",
+    "Channel Take Over Help": "Menemukan tampilan yang pas di formulir besar di atas? Ini menyalin suara, potongan, subtitel, dan musik ke saluran ini — otomatisasi hanya membaca saluran.",
+    "Channel Take Over Preview": "{count} nilai akan berubah",
+    "Channel Take Over Same": "Formulir di atas sama dengan saluran ini.",
+    "Channel Took Over": "Diambil: {count} nilai berubah."
   }
 }

@@ -519,6 +519,11 @@
     "Channel Script Words": "Longueur du script (mots)",
     "Channel Script Words Help": "Durée du texte parlé. Environ 145 mots font à peu près une minute : assez pour plus de trois idées, assez court pour être regardé jusqu'au bout.",
     "Channel Script Seconds": "≈ {seconds} secondes parlées",
-    "Channel Delete Short": "Supprimer"
+    "Channel Delete Short": "Supprimer",
+    "Channel Take Over": "Reprendre les réglages du haut",
+    "Channel Take Over Help": "Un rendu vous plaît dans le grand formulaire en haut ? Ceci copie voix, montage, sous-titres et musique dans cette chaîne — l'automatisation ne lit que la chaîne.",
+    "Channel Take Over Preview": "{count} valeurs changeraient",
+    "Channel Take Over Same": "Le formulaire du haut correspond à cette chaîne.",
+    "Channel Took Over": "Repris : {count} valeurs modifiées."
   }
 }

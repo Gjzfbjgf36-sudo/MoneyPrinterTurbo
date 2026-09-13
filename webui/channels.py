@@ -23,6 +23,7 @@ from app.models.schema import VideoParams
 # importiert: zwei Stellen mit denselben Zahlen laufen irgendwann auseinander,
 # und dann lässt die Oberfläche einen Wert zu, den die Recherche ablehnt.
 from news_to_shorts import (
+    CHANNEL_OVERRIDES,
     SCRIPT_WORDS,
     SCRIPT_WORDS_MAX,
     SCRIPT_WORDS_MIN,
@@ -159,6 +160,34 @@ def apply_style(config: dict, style: str) -> dict:
     updated.update(STYLES[style])
     updated["style"] = style
     return updated
+
+
+def settings_from_params(params) -> dict:
+    """Die Werte des großen Formulars, die ein Kanal übernehmen darf.
+
+    Das Formular oben auf der Seite kennt weit mehr Regler als die
+    channel.json. Übernommen wird nur, was der Tageslauf auch liest —
+    ``CHANNEL_OVERRIDES``. Alles andere käme nie beim gerenderten Video an
+    und würde in der Datei nur so aussehen, als täte es etwas.
+    """
+    # VideoParams ist ein Pydantic-Modell: Aufzählungen und Pfade müssen in
+    # JSON-taugliche Werte übersetzt werden, sonst scheitert das Speichern.
+    werte = params.model_dump(mode="json") if hasattr(params, "model_dump") else dict(params)
+    return {name: werte[name] for name in CHANNEL_OVERRIDES if name in werte}
+
+
+def describe_changes(before: dict, after: dict) -> list[str]:
+    """Was sich durch eine Übernahme ändert, als lesbare Zeilen.
+
+    Ein "Übernommen" ohne Angabe, was genau, lässt den Nutzer im Ungewissen,
+    ob überhaupt etwas passiert ist.
+    """
+    lines: list[str] = []
+    for name, neu in after.items():
+        alt = before.get(name)
+        if alt != neu:
+            lines.append(f"{name}: {alt!r} → {neu!r}")
+    return lines
 
 
 def detect_style(config: dict) -> str | None:

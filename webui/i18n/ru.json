@@ -519,6 +519,11 @@
     "Channel Script Words": "Длина сценария (слов)",
     "Channel Script Words Help": "Какой длины будет произносимый текст. Около 145 слов — примерно минута: хватает больше чем на три мысли и достаточно коротко, чтобы досмотрели.",
     "Channel Script Seconds": "≈ {seconds} секунд речи",
-    "Channel Delete Short": "Удалить"
+    "Channel Delete Short": "Удалить",
+    "Channel Take Over": "Взять настройки сверху",
+    "Channel Take Over Help": "Подобрали вид в большой форме наверху? Это скопирует голос, нарезку, субтитры и музыку в этот канал — автоматика читает только канал.",
+    "Channel Take Over Preview": "Изменится значений: {count}",
+    "Channel Take Over Same": "Форма наверху совпадает с этим каналом.",
+    "Channel Took Over": "Взято: изменено значений — {count}."
   }
 }

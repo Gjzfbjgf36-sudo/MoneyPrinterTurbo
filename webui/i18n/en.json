@@ -619,6 +619,11 @@
     "Channel Script Words": "Script length (words)",
     "Channel Script Words Help": "How long the spoken text is. Around 145 words is about a minute — long enough for more than three points, short enough to be watched to the end.",
     "Channel Script Seconds": "≈ {seconds} seconds spoken",
-    "Channel Delete Short": "Delete"
+    "Channel Delete Short": "Delete",
+    "Channel Take Over": "Take settings from the form above",
+    "Channel Take Over Help": "Tried out a look in the big form at the top of the page? This copies voice, cutting, subtitles and music into this channel — the automation only ever reads the channel.",
+    "Channel Take Over Preview": "{count} values would change",
+    "Channel Take Over Same": "The form above matches this channel.",
+    "Channel Took Over": "Taken over: {count} values changed."
   }
 }

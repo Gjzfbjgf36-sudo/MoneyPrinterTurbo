@@ -699,3 +699,83 @@ def test_the_delete_button_is_reachable_without_expanding():
     # Und die Rueckfrage bleibt: einmal danebengeklickt darf nichts kosten.
     bestaetigung = source.index('key=f"channel_delyes_{key}"')
     assert loeschen < bestaetigung < aufklappbereich
+
+
+def test_taking_over_copies_only_what_the_daily_run_reads():
+    """Ein Feld, das der Tageslauf nicht liest, saehe in der Datei nur so aus,
+    als taete es etwas."""
+    params = VideoParams(
+        video_subject="egal",
+        voice_name="de-DE-KatjaNeural-Female",
+        font_size=96,
+        video_clip_duration=3,
+        # Wird nicht uebernommen: das grosse Formular baut ein einzelnes
+        # Video, der Kanal bestimmt sein Thema selbst.
+        video_script="Ein Satz, der nicht in den Kanal gehoert.",
+    )
+    werte = ch.settings_from_params(params)
+
+    assert werte["voice_name"] == "de-DE-KatjaNeural-Female"
+    assert werte["font_size"] == 96
+    assert werte["video_clip_duration"] == 3
+    assert "video_script" not in werte
+    assert "video_subject" not in werte
+    assert set(werte) <= set(ch.CHANNEL_OVERRIDES)
+
+
+def test_taken_over_values_survive_the_channel_validation(sandbox):
+    """Was uebernommen wird, muss die channel.json auch speichern koennen."""
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    params = VideoParams(video_subject="egal", font_size=96, voice_rate=1.35)
+
+    kanal = ch.load_channel("tech")
+    ch.save_channel("tech", {**kanal.config, **ch.settings_from_params(params)})
+
+    gespeichert = ch.load_channel("tech").config
+    assert gespeichert["font_size"] == 96
+    assert gespeichert["voice_rate"] == 1.35
+    # Der Kanal bleibt ein Kanal: Thema und Quelle sind unberuehrt.
+    assert gespeichert["topic"] == "KI"
+    assert gespeichert["source"] == "news"
+
+
+def test_an_enum_value_becomes_something_json_can_hold(sandbox):
+    """VideoParams liefert Aufzaehlungen; die channel.json will Text."""
+    params = VideoParams(video_subject="egal", video_transition_mode="ZoomIn")
+    werte = ch.settings_from_params(params)
+    assert werte["video_transition_mode"] == "ZoomIn"
+    json.dumps(werte)  # wirft, sobald ein Wert nicht serialisierbar ist
+
+
+def test_changes_are_listed_before_they_are_applied():
+    """„Übernommen“ ohne Angabe, was genau, sagt dem Nutzer nichts."""
+    vorher = {"voice_rate": 1.2, "font_size": 84, "topic": "KI"}
+    nachher = {"voice_rate": 1.35, "font_size": 84}
+
+    zeilen = ch.describe_changes(vorher, nachher)
+    assert len(zeilen) == 1
+    assert "voice_rate" in zeilen[0] and "1.2" in zeilen[0] and "1.35" in zeilen[0]
+    # Unveraenderte Felder und Felder, die gar nicht uebernommen werden,
+    # tauchen nicht auf.
+    assert not any("font_size" in zeile for zeile in zeilen)
+    assert not any("topic" in zeile for zeile in zeilen)
+
+
+def test_nothing_to_take_over_is_an_empty_list():
+    assert ch.describe_changes({"voice_rate": 1.2}, {"voice_rate": 1.2}) == []
+
+
+def test_the_panel_only_takes_over_outside_the_form():
+    """Ein Knopf im Formular waere ein zweiter Absenden-Knopf und wuerde die
+    Felder darueber ungefragt mitspeichern."""
+    import ast
+
+    source = (ch.ROOT / "webui" / "channels_panel.py").read_text(encoding="utf-8")
+    funktion = next(
+        node
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.FunctionDef) and node.name == "_render_settings_form"
+    )
+    aufruf = funktion.body[-1]
+    assert isinstance(aufruf, ast.Expr)
+    assert getattr(aufruf.value.func, "id", "") == "_render_take_over"

@@ -519,6 +519,11 @@
     "Channel Script Words": "대본 길이 (단어)",
     "Channel Script Words Help": "읽는 텍스트의 길이입니다. 약 145단어가 대략 1분으로, 세 가지 이상을 말하기에 충분하면서 끝까지 볼 만큼 짧습니다.",
     "Channel Script Seconds": "말하면 약 {seconds}초",
-    "Channel Delete Short": "삭제"
+    "Channel Delete Short": "삭제",
+    "Channel Take Over": "위 설정 가져오기",
+    "Channel Take Over Help": "페이지 위쪽 큰 양식에서 마음에 드는 스타일을 찾으셨나요? 음성, 컷, 자막, 음악을 이 채널로 복사합니다 — 자동화는 채널 설정만 읽습니다.",
+    "Channel Take Over Preview": "{count}개 값이 바뀝니다",
+    "Channel Take Over Same": "위 양식이 이 채널과 같습니다.",
+    "Channel Took Over": "가져왔습니다: {count}개 값 변경."
   }
 }

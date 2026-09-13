@@ -53,8 +53,48 @@ def _select_source(tr, current: str, key: str) -> str:
     return ch.SOURCES[0]
 
 
-def _render_settings_form(channel: ch.Channel, tr) -> None:
+def _render_take_over(channel: ch.Channel, tr, params) -> None:
+    """Übernimmt die Werte des großen Formulars in diesen Kanal.
+
+    Ohne das muss jeder gefundene Look zweimal eingestellt werden: einmal
+    oben zum Ausprobieren, einmal unten für die Automatik.
+    """
+    if params is None:
+        return
+
+    neu = ch.settings_from_params(params)
+    aenderungen = ch.describe_changes(channel.config, neu)
+
+    st.caption(tr("Channel Take Over Help"))
+    if not aenderungen:
+        st.caption(tr("Channel Take Over Same"))
+        return
+
+    with st.expander(
+        tr("Channel Take Over Preview").format(count=len(aenderungen)), expanded=True
+    ):
+        # Aufgeklappt, nicht zugeklappt: das Formular oben steht auf seinen
+        # Vorgaben englisch, und ein unbedachter Klick würde einen deutschen
+        # Kanal umstellen. Der Kanal läuft nachts allein — ein unbemerkt
+        # verstellter Wert fällt erst am fertigen Video auf.
+        for line in aenderungen:
+            st.markdown(f"- `{line}`")
+
+    if st.button(tr("Channel Take Over"), key=f"channel_takeover_{channel.name}"):
+        try:
+            ch.save_channel(channel.name, {**channel.config, **neu})
+        except ch.ChannelError as exc:
+            st.error(str(exc))
+        else:
+            st.session_state[f"channel_took_over_{channel.name}"] = len(aenderungen)
+            st.rerun()
+
+
+def _render_settings_form(channel: ch.Channel, tr, params=None) -> None:
     st.subheader(tr("Channel Settings"))
+    took_over = st.session_state.pop(f"channel_took_over_{channel.name}", 0)
+    if took_over:
+        st.success(tr("Channel Took Over").format(count=took_over))
     with st.form(key=f"channel_form_{channel.name}"):
         config = dict(channel.config)
 
@@ -224,6 +264,10 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
             else:
                 st.success(tr("Channel Saved"))
                 st.rerun()
+
+    # Außerhalb des Formulars: ein Knopf darin wäre ein zweiter Absenden-Knopf
+    # und würde die Felder oben mitspeichern.
+    _render_take_over(channel, tr, params)
 
 
 def _render_queue_editor(channel: ch.Channel, tr) -> None:
@@ -542,8 +586,13 @@ def _render_new_channel(tr) -> None:
                 st.rerun()
 
 
-def render_channels_panel(tr) -> None:
-    """Zeichnet die Kanalverwaltung. ``tr`` ist die Übersetzungsfunktion."""
+def render_channels_panel(tr, params=None) -> None:
+    """Zeichnet die Kanalverwaltung.
+
+    ``tr`` ist die Übersetzungsfunktion, ``params`` sind die aktuellen
+    Werte des großen Formulars — nur dafür da, sie auf Knopfdruck in
+    einen Kanal zu übernehmen.
+    """
     with st.expander(tr("Channels"), expanded=False):
         st.caption(tr("Channels Help"))
 
@@ -579,7 +628,7 @@ def render_channels_panel(tr) -> None:
 
                     # Ab hier nur noch Feinheiten, die kein Schritt verlangt.
                     st.divider()
-                    _render_settings_form(channel, tr)
+                    _render_settings_form(channel, tr, params)
                     _render_queue_editor(channel, tr)
 
         st.divider()

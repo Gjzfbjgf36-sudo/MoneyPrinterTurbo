@@ -7593,7 +7593,7 @@ def _render_application():
 
     # Die Kanalverwaltung gehört nicht ins Vier-Spalten-Raster: sie bearbeitet
     # nicht das Video, das gerade entsteht, sondern die Dateien des Tageslaufs.
-    render_channels_panel(tr)
+    render_channels_panel(tr, params)
 
     generation_submitted = _render_generation_controls(
         params,
