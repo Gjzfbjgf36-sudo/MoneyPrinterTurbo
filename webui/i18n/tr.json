@@ -515,6 +515,9 @@
     "Channel Step Done": "Hazır · her şey kurulu",
     "Channel No Source Short": "kaynaksız",
     "Channel Unknown Owner Short": "kanal bilinmiyor",
-    "Channel Unknown Owner": "Bu videoda kanal kaydı yok — bu not eklenmeden önce üretilmiş. Yüklemeden önce buraya ait olduğunu doğrulayın."
+    "Channel Unknown Owner": "Bu videoda kanal kaydı yok — bu not eklenmeden önce üretilmiş. Yüklemeden önce buraya ait olduğunu doğrulayın.",
+    "Channel Script Words": "Metin uzunluğu (kelime)",
+    "Channel Script Words Help": "Seslendirilen metnin uzunluğu. Yaklaşık 145 kelime bir dakika eder — üçten fazla nokta için yeterli, sonuna kadar izlenecek kadar kısa.",
+    "Channel Script Seconds": "≈ {seconds} saniye konuşma"
   }
 }

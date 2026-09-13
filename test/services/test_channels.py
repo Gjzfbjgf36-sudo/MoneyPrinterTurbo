@@ -197,3 +197,82 @@ def test_without_a_channel_the_manifest_stays_unstamped():
     videos = [{"video_subject": "Thema", "video_script": "Ein Satz."}]
     manifest, _ = nts.build_manifest(videos)
     assert "channel" not in manifest[0]
+
+
+def test_the_prompt_states_both_bounds_and_the_seconds():
+    """Ohne beide Grenzen liefert das Modell zuverlaessig zu kurze Skripte."""
+    import news_to_shorts as nts
+
+    # Der Prompt ist umbrochen; gelesen wird er als Fliesstext.
+    prompt = " ".join(nts.build_research_prompt(3, 7, "Tech", words=145).split())
+    assert "137 bis 153 Woerter" in prompt
+    # 145 Woerter sind rund eine Minute — die Sekunden stehen im Prompt, damit
+    # das Modell die Groessenordnung kennt und nicht nur eine nackte Zahl.
+    assert "57 bis 64 Sekunden" in prompt
+
+
+def test_a_longer_script_gets_more_beats_and_a_rehook():
+    """Ein 60-Sekunden-Skript mit drei Aussagen besteht aus Leerlauf."""
+    import news_to_shorts as nts
+
+    kurz = nts.build_research_prompt(1, 7, "Tech", words=60)
+    lang = nts.build_research_prompt(1, 7, "Tech", words=145)
+
+    assert "Danach 3 Aussagen" in kurz
+    assert "Danach 5 Aussagen" in lang
+    # Der Bruch in der Mitte lohnt sich erst, wenn es eine Mitte gibt.
+    assert "Haltequote" in lang and "Haelfte" in lang
+    assert "Haelfte" not in kurz
+
+
+def test_script_length_never_falls_below_the_minimum():
+    """Die Toleranz darf die Untergrenze nicht unterlaufen."""
+    import news_to_shorts as nts
+
+    prompt = nts.build_research_prompt(1, 7, "Tech", words=nts.SCRIPT_WORDS_MIN)
+    assert f"{nts.SCRIPT_WORDS_MIN} bis" in prompt
+
+
+def test_the_channel_sets_the_script_length(tmp_path, monkeypatch):
+    import news_to_shorts as nts
+
+    monkeypatch.setattr(nts, "ROOT", tmp_path)
+    kanal = tmp_path / "channels" / "tech"
+    kanal.mkdir(parents=True)
+    (kanal / "channel.json").write_text(
+        json.dumps({"script_words": 90}), encoding="utf-8"
+    )
+    assert nts.words_for_channel("tech") == 90
+
+
+def test_a_channel_without_the_field_gets_the_default(tmp_path, monkeypatch):
+    import news_to_shorts as nts
+
+    monkeypatch.setattr(nts, "ROOT", tmp_path)
+    kanal = tmp_path / "channels" / "tech"
+    kanal.mkdir(parents=True)
+    (kanal / "channel.json").write_text(json.dumps({"topic": "KI"}), encoding="utf-8")
+    assert nts.words_for_channel("tech") == nts.SCRIPT_WORDS
+    assert nts.words_for_channel(None) == nts.SCRIPT_WORDS
+
+
+@pytest.mark.parametrize("wert", [10, 500, "viel", None])
+def test_an_impossible_length_fails_loudly(tmp_path, monkeypatch, wert):
+    """Lieber hier scheitern als ein Skript, das niemand zu Ende sieht."""
+    import news_to_shorts as nts
+
+    monkeypatch.setattr(nts, "ROOT", tmp_path)
+    kanal = tmp_path / "channels" / "tech"
+    kanal.mkdir(parents=True)
+    (kanal / "channel.json").write_text(
+        json.dumps({"script_words": wert}), encoding="utf-8"
+    )
+    with pytest.raises(SystemExit):
+        nts.words_for_channel("tech")
+
+
+def test_the_default_length_is_about_a_minute():
+    """Die Vorgabe soll das treffen, was als „etwa eine Minute“ gemeint ist."""
+    import news_to_shorts as nts
+
+    assert 55 <= nts.script_seconds(nts.SCRIPT_WORDS) <= 65

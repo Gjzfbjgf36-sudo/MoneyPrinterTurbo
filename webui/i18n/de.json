@@ -515,6 +515,9 @@
     "Channel Step Done": "Fertig · alles eingerichtet",
     "Channel No Source Short": "ohne Quelle",
     "Channel Unknown Owner Short": "Kanal unbekannt",
-    "Channel Unknown Owner": "Bei diesem Video steht kein Kanal dabei — es entstand, bevor Videos diese Notiz bekamen. Prüfe vor dem Hochladen, ob es hierher gehört."
+    "Channel Unknown Owner": "Bei diesem Video steht kein Kanal dabei — es entstand, bevor Videos diese Notiz bekamen. Prüfe vor dem Hochladen, ob es hierher gehört.",
+    "Channel Script Words": "Länge des Skripts (Wörter)",
+    "Channel Script Words Help": "Wie lang der gesprochene Text wird. Rund 145 Wörter sind etwa eine Minute — lang genug für mehr als drei Aussagen, kurz genug, dass es zu Ende gesehen wird.",
+    "Channel Script Seconds": "≈ {seconds} Sekunden gesprochen"
   }
 }

@@ -515,6 +515,9 @@
     "Channel Step Done": "Terminé · tout est prêt",
     "Channel No Source Short": "sans source",
     "Channel Unknown Owner Short": "chaîne inconnue",
-    "Channel Unknown Owner": "Aucune chaîne n'est notée pour cette vidéo : elle date d'avant cette note. Vérifiez qu'elle appartient bien ici avant de l'envoyer."
+    "Channel Unknown Owner": "Aucune chaîne n'est notée pour cette vidéo : elle date d'avant cette note. Vérifiez qu'elle appartient bien ici avant de l'envoyer.",
+    "Channel Script Words": "Longueur du script (mots)",
+    "Channel Script Words Help": "Durée du texte parlé. Environ 145 mots font à peu près une minute : assez pour plus de trois idées, assez court pour être regardé jusqu'au bout.",
+    "Channel Script Seconds": "≈ {seconds} secondes parlées"
   }
 }

@@ -515,6 +515,9 @@
     "Channel Step Done": "Xong · đã thiết lập đủ",
     "Channel No Source Short": "không nguồn",
     "Channel Unknown Owner Short": "chưa rõ kênh",
-    "Channel Unknown Owner": "Video này không ghi kênh — nó được tạo trước khi có ghi chú đó. Hãy kiểm tra xem nó có thuộc về đây không trước khi tải lên."
+    "Channel Unknown Owner": "Video này không ghi kênh — nó được tạo trước khi có ghi chú đó. Hãy kiểm tra xem nó có thuộc về đây không trước khi tải lên.",
+    "Channel Script Words": "Độ dài kịch bản (từ)",
+    "Channel Script Words Help": "Phần lời đọc dài bao nhiêu. Khoảng 145 từ là chừng một phút — đủ cho hơn ba ý, đủ ngắn để xem hết.",
+    "Channel Script Seconds": "≈ {seconds} giây lời đọc"
   }
 }

@@ -615,6 +615,9 @@
     "Channel Step Done": "Done · all set up",
     "Channel No Source Short": "no source",
     "Channel Unknown Owner Short": "channel unknown",
-    "Channel Unknown Owner": "No channel recorded for this video — it was made before videos carried that note. Check that it belongs here before you upload it."
+    "Channel Unknown Owner": "No channel recorded for this video — it was made before videos carried that note. Check that it belongs here before you upload it.",
+    "Channel Script Words": "Script length (words)",
+    "Channel Script Words Help": "How long the spoken text is. Around 145 words is about a minute — long enough for more than three points, short enough to be watched to the end.",
+    "Channel Script Seconds": "≈ {seconds} seconds spoken"
   }
 }

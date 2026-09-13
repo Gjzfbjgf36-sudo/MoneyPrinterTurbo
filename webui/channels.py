@@ -19,6 +19,18 @@ from pathlib import Path
 
 from app.models.schema import VideoParams
 
+# Die Grenzen der Skriptlänge stehen dort, wo das Skript entsteht. Hier nur
+# importiert: zwei Stellen mit denselben Zahlen laufen irgendwann auseinander,
+# und dann lässt die Oberfläche einen Wert zu, den die Recherche ablehnt.
+from news_to_shorts import (
+    SCRIPT_WORDS,
+    SCRIPT_WORDS_MAX,
+    SCRIPT_WORDS_MIN,
+    # Nur weitergereicht: die Oberfläche rechnet Wörter in Sekunden um, holt
+    # sich aber alles über dieses Modul.
+    script_seconds,  # noqa: F401
+)
+
 ROOT = Path(__file__).resolve().parent.parent
 CHANNELS_DIR = ROOT / "channels"
 CHANNEL_STORAGE_DIR = ROOT / "storage" / "channels"
@@ -177,6 +189,9 @@ DEFAULT_CONFIG: dict = {
     "publish_at": "08:00,13:00,18:00",
     "privacy": "private",
     "research_model": "claude-sonnet-5",
+    # Die Laenge des gesprochenen Textes. Rund eine Minute — lang genug für
+    # mehr als drei Aussagen, kurz genug, dass es zu Ende gesehen wird.
+    "script_words": 145,
     # Diese vier überschreiben das Kurzformat aus news_to_shorts.py.
     "voice_name": "de-DE-FlorianMultilingualNeural-Male",
     "voice_rate": 1.2,
@@ -241,6 +256,16 @@ def validate_config(config: dict) -> list[str]:
             problems.append("topics_per_run muss mindestens 1 sein")
     except (TypeError, ValueError):
         problems.append("topics_per_run muss eine Zahl sein")
+
+    try:
+        words = int(config.get("script_words", SCRIPT_WORDS))
+        if not SCRIPT_WORDS_MIN <= words <= SCRIPT_WORDS_MAX:
+            problems.append(
+                f"script_words muss zwischen {SCRIPT_WORDS_MIN} und "
+                f"{SCRIPT_WORDS_MAX} liegen"
+            )
+    except (TypeError, ValueError):
+        problems.append("script_words muss eine Zahl sein")
 
     category = str(config.get("category", "")).strip()
     if not category.isdigit():

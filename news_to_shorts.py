@@ -69,6 +69,30 @@ SHORTS_PRESET: dict = {
     "n_threads": 4,
 }
 
+# Gemessen an fertigen Videos mit voice_rate 1.2: 55 bis 70 Woerter ergaben
+# 23 bis 29 Sekunden. Daraus laesst sich die Laenge eines Skripts vorhersagen,
+# ohne es vorher zu vertonen.
+WORDS_PER_SECOND = 2.4
+
+# Rund eine Minute. Kuerzer wirkte duenn, sobald die Meldung mehr als drei
+# Aussagen hergibt; laenger faellt die Haltequote spuerbar ab.
+SCRIPT_WORDS = 145
+
+# Unterhalb davon bleibt kein Platz fuer Hook und Schluss, oberhalb wird aus
+# dem Short ein Video, das niemand zu Ende sieht.
+SCRIPT_WORDS_MIN = 40
+SCRIPT_WORDS_MAX = 260
+
+# Das Skript darf um diese Spanne vom Ziel abweichen. Ohne Toleranz zaehlt das
+# Modell auf das letzte Wort und opfert dafuer den Satzbau.
+SCRIPT_WORDS_TOLERANCE = 8
+
+
+def script_seconds(words: int) -> float:
+    """Wie lang ein Skript dieser Wortzahl gesprochen etwa dauert."""
+    return words / WORDS_PER_SECOND
+
+
 RESEARCH_SCHEMA: dict = {
     "type": "object",
     "properties": {
@@ -113,27 +137,70 @@ CHANNEL_OVERRIDES = (
 )
 
 
-def preset_for_channel(channel: str | None) -> dict:
-    """Das Kurzformat, ueberschrieben mit den Einstellungen des Kanals."""
-    preset = dict(SHORTS_PRESET)
+def load_channel_config(channel: str | None) -> dict:
+    """Die channel.json eines Kanals, oder ein leeres Dict ohne Kanal."""
     if not channel:
-        return preset
+        return {}
 
     config_file = ROOT / "channels" / channel / "channel.json"
     if not config_file.exists():
         raise SystemExit(f"Kanal {channel!r} hat keine channel.json.")
     try:
-        config = json.loads(config_file.read_text(encoding="utf-8"))
+        return json.loads(config_file.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise SystemExit(f"channel.json von {channel!r} ist kein gueltiges JSON: {exc}")
 
+
+def preset_for_channel(channel: str | None) -> dict:
+    """Das Kurzformat, ueberschrieben mit den Einstellungen des Kanals."""
+    preset = dict(SHORTS_PRESET)
+    config = load_channel_config(channel)
     for field in CHANNEL_OVERRIDES:
         if field in config:
             preset[field] = config[field]
     return preset
 
 
-def build_research_prompt(count: int, days: int, topic: str) -> str:
+def words_for_channel(channel: str | None) -> int:
+    """Die Ziel-Wortzahl dieses Kanals.
+
+    Steht nicht im Render-Preset: die Laenge entscheidet sich beim Schreiben
+    des Skripts, nicht beim Schnitt. ``VideoParams`` kennt das Feld nicht und
+    wuerde ein Manifest damit ablehnen.
+    """
+    wert = load_channel_config(channel).get("script_words", SCRIPT_WORDS)
+    try:
+        words = int(wert)
+    except (TypeError, ValueError):
+        raise SystemExit(
+            f"script_words von {channel!r} ist keine Zahl: {wert!r}"
+        )
+    if not SCRIPT_WORDS_MIN <= words <= SCRIPT_WORDS_MAX:
+        raise SystemExit(
+            f"script_words von {channel!r} liegt bei {words}; erlaubt sind "
+            f"{SCRIPT_WORDS_MIN} bis {SCRIPT_WORDS_MAX} Woerter "
+            f"(etwa {script_seconds(SCRIPT_WORDS_MIN):.0f} bis "
+            f"{script_seconds(SCRIPT_WORDS_MAX):.0f} Sekunden)."
+        )
+    return words
+
+
+def build_research_prompt(
+    count: int, days: int, topic: str, words: int = SCRIPT_WORDS
+) -> str:
+    low = max(SCRIPT_WORDS_MIN, words - SCRIPT_WORDS_TOLERANCE)
+    high = words + SCRIPT_WORDS_TOLERANCE
+    # Etwa eine Aussage je 25 Woerter, nach Hook und Schlussfrage. Eine feste
+    # Zahl wuerde ein langes Skript mit drei aufgeblaehten Saetzen fuellen —
+    # genau die Leerlaufstellen, an denen weggewischt wird.
+    beats = max(3, round((words - 30) / 25))
+    rehook = (
+        "\n  Nach etwa der Haelfte steht ein Satz, der eine neue Frage aufmacht "
+        '("Der eigentliche Grund ist ein anderer.", "Dabei war das nicht der '
+        'Plan."). Ohne diesen Bruch faellt genau hier die Haltequote ab.'
+        if words >= 100
+        else ""
+    )
     return f"""Recherchiere mit der Websuche {count} aktuelle Meldungen aus dem Bereich {topic}
 aus den letzten {days} Tagen. Schreibe zu jeder ein fertiges Skript fuer ein
 vertikales Short-Video.
@@ -146,19 +213,24 @@ Vorgehen:
 
 Fuer jedes Video:
 - video_subject: der Titel der Meldung, kurz und konkret.
-- video_script: der gesprochene Text, 55 bis 70 Woerter. Beide Grenzen gelten:
-  gemessen entspricht das 23 bis 29 Sekunden. Kuerzer wirkt duenn, weil fuer
-  die drei Aussagen kein Platz bleibt; laenger wird abgebrochen, und ein Short,
-  das zu Ende gesehen wird, wird weiter ausgespielt. Zaehle die Woerter nach,
-  bevor du antwortest.
+- video_script: der gesprochene Text, {low} bis {high} Woerter. Beide Grenzen
+  gelten: gemessen entspricht das {script_seconds(low):.0f} bis
+  {script_seconds(high):.0f} Sekunden. Zaehle die Woerter nach, bevor du
+  antwortest, und nenne im Zweifel lieber ein Detail mehr als einen Satz zu
+  strecken.
   Der erste Satz ist der Hook: hoechstens 8 Woerter, eine konkrete Zahl oder
   eine Behauptung, die der Erwartung widerspricht. Kein "In diesem Video",
   keine Begruessung, keine Ankuendigung des Themas.
-  Danach hoechstens drei Aussagen, je ein Satz, jede mit etwas Konkretem:
-  einer Zahl, einem Namen, einem Datum. Nenne die handelnden Personen und
-  Unternehmen beim Namen, damit die Meldung ueberpruefbar bleibt.
+  Der zweite Satz belegt den Hook sofort: wer, wann, welche Zahl. Wer den
+  Hook erst spaeter einloest, verliert die Zuschauer dazwischen.
+  Danach {beats} Aussagen, je ein Satz, jede mit etwas Konkretem: einer Zahl,
+  einem Namen, einem Datum. Jeder Satz bringt etwas Neues; keine Aussage
+  wiederholt eine vorherige mit anderen Worten. Nenne die handelnden Personen
+  und Unternehmen beim Namen, damit die Meldung ueberpruefbar bleibt.{rehook}
   Keine Fuellwoerter ("eigentlich", "quasi", "im Grunde"), keine Einschuebe,
-  keine Nebensaetze, wo ein Hauptsatz reicht. Aktive Verben.
+  keine Nebensaetze, wo ein Hauptsatz reicht. Aktive Verben. Kein Satz laenger
+  als etwa 15 Woerter — gesprochen wird er sonst zum Stolperstein.
+  Der vorletzte Satz sagt, was das fuer die Zuschauer bedeutet.
   Der letzte Satz ist eine kurze Frage an die Zuschauer.
   Reiner Fliesstext ohne Ueberschriften, ohne Aufzaehlungszeichen, ohne
   Emojis, ohne Regieanweisungen.
@@ -166,7 +238,10 @@ Fuer jedes Video:
 - datum: das Veroeffentlichungsdatum der Meldung als YYYY-MM-DD."""
 
 
-def run_research(count: int, days: int, topic: str, model: str, timeout: int) -> list[dict]:
+def run_research(
+    count: int, days: int, topic: str, model: str, timeout: int,
+    words: int = SCRIPT_WORDS,
+) -> list[dict]:
     cli = shutil.which("claude")
     if not cli:
         raise SystemExit(
@@ -177,7 +252,7 @@ def run_research(count: int, days: int, topic: str, model: str, timeout: int) ->
     command = [
         cli,
         "-p",
-        build_research_prompt(count, days, topic),
+        build_research_prompt(count, days, topic, words),
         "--allowedTools",
         "WebSearch,WebFetch",
         "--permission-mode",
@@ -299,13 +374,30 @@ def main() -> int:
     parser.add_argument(
         "--timeout", type=int, default=900, help="Zeitlimit der Recherche in Sekunden"
     )
+    parser.add_argument(
+        "--words",
+        type=int,
+        default=0,
+        help=(
+            "Ziel-Wortzahl des Skripts; 0 nimmt den Wert des Kanals "
+            f"(Standard {SCRIPT_WORDS}, etwa {script_seconds(SCRIPT_WORDS):.0f} Sekunden)"
+        ),
+    )
     args = parser.parse_args()
 
     if args.count < 1:
         raise SystemExit("--count muss mindestens 1 sein")
 
     preset = preset_for_channel(args.channel)
-    videos = run_research(args.count, args.days, args.topic, args.model, args.timeout)
+    words = args.words or words_for_channel(args.channel)
+    if not SCRIPT_WORDS_MIN <= words <= SCRIPT_WORDS_MAX:
+        raise SystemExit(
+            f"--words liegt bei {words}; erlaubt sind {SCRIPT_WORDS_MIN} bis "
+            f"{SCRIPT_WORDS_MAX}."
+        )
+    videos = run_research(
+        args.count, args.days, args.topic, args.model, args.timeout, words
+    )
     manifest, sources = build_manifest(videos, preset, args.channel or "")
 
     Path(args.out).write_text(

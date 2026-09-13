@@ -515,6 +515,9 @@
     "Channel Step Done": "Pronto · tudo configurado",
     "Channel No Source Short": "sem fonte",
     "Channel Unknown Owner Short": "canal desconhecido",
-    "Channel Unknown Owner": "Este vídeo não registra o canal: foi criado antes dessa anotação. Confira se pertence aqui antes de enviar."
+    "Channel Unknown Owner": "Este vídeo não registra o canal: foi criado antes dessa anotação. Confira se pertence aqui antes de enviar.",
+    "Channel Script Words": "Tamanho do roteiro (palavras)",
+    "Channel Script Words Help": "Quanto dura o texto falado. Cerca de 145 palavras dão mais ou menos um minuto: suficiente para mais de três pontos e curto o bastante para ser visto até o fim.",
+    "Channel Script Seconds": "≈ {seconds} segundos falados"
   }
 }

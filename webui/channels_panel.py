@@ -84,6 +84,27 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
             key=f"channel_count_{channel.name}",
         )
 
+        try:
+            current_words = int(config.get("script_words", ch.SCRIPT_WORDS))
+        except (TypeError, ValueError):
+            current_words = ch.SCRIPT_WORDS
+        script_words = st.number_input(
+            tr("Channel Script Words"),
+            min_value=ch.SCRIPT_WORDS_MIN,
+            max_value=ch.SCRIPT_WORDS_MAX,
+            step=5,
+            value=max(ch.SCRIPT_WORDS_MIN, min(current_words, ch.SCRIPT_WORDS_MAX)),
+            help=tr("Channel Script Words Help"),
+            key=f"channel_words_{channel.name}",
+        )
+        # Die Sekunden sind das, was der Nutzer meint; die Wortzahl ist nur
+        # der Weg dorthin, den die Recherche versteht.
+        st.caption(
+            tr("Channel Script Seconds").format(
+                seconds=round(ch.script_seconds(int(script_words)))
+            )
+        )
+
         category_ids = list(ch.CATEGORIES)
         current_category = str(config.get("category", "27"))
         if current_category not in category_ids:
@@ -186,6 +207,7 @@ def _render_settings_form(channel: ch.Channel, tr) -> None:
                 "source": source,
                 "topic": topic,
                 "topics_per_run": int(topics_per_run),
+                "script_words": int(script_words),
                 "category": category,
                 "publish_at": publish_at.strip(),
                 "privacy": privacy,

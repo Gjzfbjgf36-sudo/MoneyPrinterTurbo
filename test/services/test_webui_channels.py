@@ -653,3 +653,33 @@ def test_the_stamped_queue_stays_valid_for_the_pipeline(sandbox):
     ch.save_queue("tech", [dict(QUEUE_ENTRY)])
     params = VideoParams(**ch.load_queue("tech")[0])
     assert params.channel == "tech"
+
+
+def test_the_script_length_is_part_of_the_channel(sandbox):
+    """Die Laenge gehoert zum Kanal, nicht ins Skript — jeder Kanal anders."""
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    geladen = ch.load_channel("tech")
+    assert geladen.config["script_words"] == ch.SCRIPT_WORDS
+
+    ch.save_channel("tech", {**geladen.config, "script_words": 90})
+    assert ch.load_channel("tech").config["script_words"] == 90
+
+
+@pytest.mark.parametrize("wert", [10, 500, "lang"])
+def test_an_impossible_script_length_is_refused(sandbox, wert):
+    problems = ch.validate_config(
+        {**ch.DEFAULT_CONFIG, "topic": "x", "script_words": wert}
+    )
+    assert any("script_words" in problem for problem in problems)
+
+
+def test_the_channel_length_reaches_the_research(sandbox, monkeypatch):
+    """Was in der Oberflaeche steht, muss beim Schreiben des Skripts ankommen."""
+    import news_to_shorts as nts
+
+    monkeypatch.setattr(nts, "ROOT", sandbox)
+    monkeypatch.setattr(ch, "CHANNELS_DIR", sandbox / "channels")
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    ch.save_channel("tech", {**ch.load_channel("tech").config, "script_words": 200})
+
+    assert nts.words_for_channel("tech") == 200
