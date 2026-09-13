@@ -518,6 +518,7 @@
     "Channel Unknown Owner": "Video ini tidak mencatat salurannya — dibuat sebelum catatan itu ada. Pastikan memang milik saluran ini sebelum diunggah.",
     "Channel Script Words": "Panjang naskah (kata)",
     "Channel Script Words Help": "Seberapa panjang teks yang dibacakan. Sekitar 145 kata kira-kira satu menit — cukup untuk lebih dari tiga poin, cukup pendek untuk ditonton sampai habis.",
-    "Channel Script Seconds": "≈ {seconds} detik dibacakan"
+    "Channel Script Seconds": "≈ {seconds} detik dibacakan",
+    "Channel Delete Short": "Hapus"
   }
 }

@@ -518,6 +518,7 @@
     "Channel Unknown Owner": "이 영상에는 채널이 기록되어 있지 않습니다. 기록이 도입되기 전에 만들어진 영상입니다. 업로드 전에 이 채널의 것이 맞는지 확인하세요.",
     "Channel Script Words": "대본 길이 (단어)",
     "Channel Script Words Help": "읽는 텍스트의 길이입니다. 약 145단어가 대략 1분으로, 세 가지 이상을 말하기에 충분하면서 끝까지 볼 만큼 짧습니다.",
-    "Channel Script Seconds": "말하면 약 {seconds}초"
+    "Channel Script Seconds": "말하면 약 {seconds}초",
+    "Channel Delete Short": "삭제"
   }
 }

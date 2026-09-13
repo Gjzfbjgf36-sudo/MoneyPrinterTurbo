@@ -518,6 +518,7 @@
     "Channel Unknown Owner": "Bu videoda kanal kaydı yok — bu not eklenmeden önce üretilmiş. Yüklemeden önce buraya ait olduğunu doğrulayın.",
     "Channel Script Words": "Metin uzunluğu (kelime)",
     "Channel Script Words Help": "Seslendirilen metnin uzunluğu. Yaklaşık 145 kelime bir dakika eder — üçten fazla nokta için yeterli, sonuna kadar izlenecek kadar kısa.",
-    "Channel Script Seconds": "≈ {seconds} saniye konuşma"
+    "Channel Script Seconds": "≈ {seconds} saniye konuşma",
+    "Channel Delete Short": "Sil"
   }
 }

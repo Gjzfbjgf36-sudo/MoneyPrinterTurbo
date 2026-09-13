@@ -518,6 +518,7 @@
     "Channel Unknown Owner": "Questo video non registra il canale: è stato creato prima di quella nota. Verifica che appartenga qui prima di caricarlo.",
     "Channel Script Words": "Lunghezza del copione (parole)",
     "Channel Script Words Help": "Quanto dura il testo parlato. Circa 145 parole fanno più o meno un minuto: abbastanza per più di tre punti, abbastanza breve da essere visto fino in fondo.",
-    "Channel Script Seconds": "≈ {seconds} secondi parlati"
+    "Channel Script Seconds": "≈ {seconds} secondi parlati",
+    "Channel Delete Short": "Elimina"
   }
 }

@@ -618,6 +618,7 @@
     "Channel Unknown Owner": "该视频没有记录所属频道——它是在加入这项记录之前生成的。上传前请确认它确实属于这里。",
     "Channel Script Words": "脚本长度（词数）",
     "Channel Script Words Help": "口播文本的长度。约 145 词大致是一分钟——足够讲三点以上，又短到能被看完。",
-    "Channel Script Seconds": "口播约 {seconds} 秒"
+    "Channel Script Seconds": "口播约 {seconds} 秒",
+    "Channel Delete Short": "删除"
   }
 }

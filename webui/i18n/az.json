@@ -518,6 +518,7 @@
     "Channel Unknown Owner": "Bu video üçün kanal qeyd olunmayıb — o, bu qeyd əlavə edilməzdən əvvəl yaradılıb. Yükləməzdən əvvəl buraya aid olduğunu yoxlayın.",
     "Channel Script Words": "Ssenarinin uzunluğu (söz)",
     "Channel Script Words Help": "Danışılan mətnin uzunluğu. Təxminən 145 söz bir dəqiqədir — üç fikirdən çoxu üçün kifayət, sona qədər baxılacaq qədər qısa.",
-    "Channel Script Seconds": "≈ {seconds} saniyə danışıq"
+    "Channel Script Seconds": "≈ {seconds} saniyə danışıq",
+    "Channel Delete Short": "Sil"
   }
 }

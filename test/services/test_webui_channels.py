@@ -683,3 +683,19 @@ def test_the_channel_length_reaches_the_research(sandbox, monkeypatch):
     ch.save_channel("tech", {**ch.load_channel("tech").config, "script_words": 200})
 
     assert nts.words_for_channel("tech") == 200
+
+
+def test_the_delete_button_is_reachable_without_expanding():
+    """Ein Knopf, den niemand findet, gibt es nicht.
+
+    Er lag im zugeklappten Bereich „Skript, Quelle und Vorschau“ — wer ein
+    Video wegwerfen will, sucht dort nicht.
+    """
+    source = (ch.ROOT / "webui" / "channels_panel.py").read_text(encoding="utf-8")
+    loeschen = source.index('key=f"channel_del_{key}"')
+    aufklappbereich = source.index('st.expander(tr("Channel Pending Details")')
+    assert loeschen < aufklappbereich
+
+    # Und die Rueckfrage bleibt: einmal danebengeklickt darf nichts kosten.
+    bestaetigung = source.index('key=f"channel_delyes_{key}"')
+    assert loeschen < bestaetigung < aufklappbereich

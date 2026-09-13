@@ -383,11 +383,42 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
             marker += f"  ·  ⚠️ {tr('Channel No Source Short')}"
         if video.is_foreign:
             marker += f"  ·  ❓ {tr('Channel Unknown Owner Short')}"
-        checked = st.checkbox(
+        # Löschen steht sichtbar in der Zeile. Vorher lag es im
+        # Aufklappbereich — die Ordnung „erst ansehen, dann verwerfen“ war
+        # sauber gedacht, aber wer ein Video wegwerfen will, sucht den Knopf
+        # dort nicht, und ein Knopf, den niemand findet, gibt es nicht.
+        zeile, knopf = st.columns([6, 1], vertical_alignment="center")
+        checked = zeile.checkbox(
             f"{video.subject}  ·  {video.words} "
             f"{tr('Channel Words')}  ·  {video.size_mb} MB{marker}",
             key=f"channel_pick_{key}",
         )
+        confirm_key = f"channel_delconfirm_{key}"
+        if knopf.button(
+            tr("Channel Delete Short"),
+            key=f"channel_del_{key}",
+            help=tr("Channel Delete"),
+            disabled=bool(st.session_state.get(confirm_key)),
+        ):
+            st.session_state[confirm_key] = True
+            st.rerun()
+
+        if st.session_state.get(confirm_key):
+            st.warning(tr("Channel Delete Confirm").format(subject=video.subject))
+            ja, nein, _ = st.columns([1, 1, 4])
+            if ja.button(tr("Channel Delete Yes"), key=f"channel_delyes_{key}"):
+                try:
+                    removed = ch.delete_video(video.path)
+                except ch.ChannelError as exc:
+                    st.error(str(exc))
+                else:
+                    st.session_state.pop(confirm_key, None)
+                    st.session_state[f"channel_deleted_{channel.name}"] = removed
+                    st.rerun()
+            if nein.button(tr("Channel Delete No"), key=f"channel_delno_{key}"):
+                st.session_state.pop(confirm_key, None)
+                st.rerun()
+
         with st.expander(tr("Channel Pending Details"), expanded=False):
             if video.source:
                 # Die Quelle ist der Grund, warum diese Liste existiert: hier
@@ -400,28 +431,6 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
             st.write(video.script or tr("Channel No Script"))
             if video.path.exists():
                 st.video(str(video.path))
-
-            # Löschen gehört hierher und nicht neben das Auswahlkästchen:
-            # erst ansehen, dann verwerfen.
-            confirm_key = f"channel_delconfirm_{key}"
-            if st.session_state.get(confirm_key):
-                st.warning(tr("Channel Delete Confirm").format(subject=video.subject))
-                yes, no = st.columns(2)
-                if yes.button(tr("Channel Delete Yes"), key=f"channel_delyes_{key}"):
-                    try:
-                        removed = ch.delete_video(video.path)
-                    except ch.ChannelError as exc:
-                        st.error(str(exc))
-                    else:
-                        st.session_state.pop(confirm_key, None)
-                        st.session_state[f"channel_deleted_{channel.name}"] = removed
-                        st.rerun()
-                if no.button(tr("Channel Delete No"), key=f"channel_delno_{key}"):
-                    st.session_state.pop(confirm_key, None)
-                    st.rerun()
-            elif st.button(tr("Channel Delete"), key=f"channel_del_{key}"):
-                st.session_state[confirm_key] = True
-                st.rerun()
         if checked:
             selected.append(video)
 

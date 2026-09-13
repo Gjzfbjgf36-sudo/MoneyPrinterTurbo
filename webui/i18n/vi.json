@@ -518,6 +518,7 @@
     "Channel Unknown Owner": "Video này không ghi kênh — nó được tạo trước khi có ghi chú đó. Hãy kiểm tra xem nó có thuộc về đây không trước khi tải lên.",
     "Channel Script Words": "Độ dài kịch bản (từ)",
     "Channel Script Words Help": "Phần lời đọc dài bao nhiêu. Khoảng 145 từ là chừng một phút — đủ cho hơn ba ý, đủ ngắn để xem hết.",
-    "Channel Script Seconds": "≈ {seconds} giây lời đọc"
+    "Channel Script Seconds": "≈ {seconds} giây lời đọc",
+    "Channel Delete Short": "Xoá"
   }
 }
