@@ -26,6 +26,14 @@ import sys
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    # Auf Windows schreibt Python sonst in der Codepage der Konsole. Titel und
+    # Beschreibung stehen hier vor dem Upload zur Kontrolle — aus "für 60
+    # Milliarden" wurde dabei "f�r 60 Milliarden", und wer die Beschreibung
+    # pruefen will, prueft dann Zeichensalat.
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
 TASKS_DIR = ROOT / "storage" / "tasks"
 STATE_FILE = ROOT / "storage" / "youtube-uploads.json"
@@ -322,6 +330,76 @@ def get_youtube_client():
     return build("youtube", "v3", credentials=credentials)
 
 
+# Ein Upload laeuft ueber Minuten; in der Zeit reicht ein WLAN-Aussetzer oder
+# ein Router, der die Verbindung kappt. Der Abbruch ist kein Fehler des
+# Videos — die Uebertragung laeuft wieder auf einem neuen Socket weiter,
+# YouTube kennt die Sitzung und nimmt sie ab dem letzten Block wieder auf.
+UPLOAD_RETRIES = 5
+
+# Nur voruebergehende Stoerungen. Alles andere (falsche Zugangsdaten, ein
+# abgelehntes Video) wuerde auch beim zehnten Versuch scheitern.
+RETRYABLE_STATUS = (429, 500, 502, 503, 504)
+
+
+def _is_retryable(exc: Exception) -> bool:
+    """Ob sich ein erneuter Versuch lohnt.
+
+    ``ConnectionError`` deckt auch ``ConnectionAbortedError`` ab — den Fall,
+    den Windows mit "Eine bestehende Verbindung wurde softwaregesteuert durch
+    den Hostcomputer abgebrochen" meldet.
+    """
+    import http.client
+    import socket
+    import ssl
+
+    status = getattr(getattr(exc, "resp", None), "status", None)
+    if status is not None:
+        return status in RETRYABLE_STATUS
+    return isinstance(
+        exc,
+        (ConnectionError, TimeoutError, socket.timeout, ssl.SSLError,
+         http.client.HTTPException),
+    )
+
+
+def upload_chunks(request, retries: int = UPLOAD_RETRIES, sleep=None, out=print):
+    """Uebertraegt das Video und nimmt einen Abbruch nicht als Ende hin.
+
+    Ohne das endete ein Upload, der bei 88 Prozent die Verbindung verlor, mit
+    einem Traceback — und das fertige Video lag unveroeffentlicht auf der
+    Platte, ohne dass es jemandem auffiel.
+    """
+    if sleep is None:
+        import time
+
+        sleep = time.sleep
+
+    versuch = 0
+    response = None
+    while response is None:
+        try:
+            status, response = request.next_chunk()
+        except Exception as exc:
+            if not _is_retryable(exc) or versuch >= retries:
+                raise
+            versuch += 1
+            # Verdoppelnde Wartezeit: ein kurzer Aussetzer ist nach Sekunden
+            # vorbei, eine echte Stoerung braucht laenger als ein Neuversuch
+            # im Sekundentakt sie abwartet.
+            wartezeit = 2**versuch
+            out(
+                f"  Verbindung unterbrochen ({type(exc).__name__}). Neuer "
+                f"Versuch {versuch}/{retries} in {wartezeit} s; die "
+                "Uebertragung setzt dort fort, wo sie stehen geblieben ist."
+            )
+            sleep(wartezeit)
+        else:
+            versuch = 0
+            if status:
+                out(f"  {int(status.progress() * 100)} % uebertragen")
+    return response
+
+
 def upload(youtube, video_path: Path, title: str, description: str,
            tags: list[str], privacy: str, publish_at: datetime | None = None) -> str:
     from googleapiclient.errors import HttpError
@@ -349,12 +427,8 @@ def upload(youtube, video_path: Path, title: str, description: str,
         part="snippet,status", body=body, media_body=media
     )
 
-    response = None
     try:
-        while response is None:
-            status, response = request.next_chunk()
-            if status:
-                print(f"  {int(status.progress() * 100)} % übertragen")
+        response = upload_chunks(request)
     except HttpError as exc:
         if exc.resp.status == 403 and "quota" in str(exc).lower():
             sys.exit(

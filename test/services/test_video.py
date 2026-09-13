@@ -1357,3 +1357,19 @@ class TestMaterialResolutionTolerance(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_the_final_video_starts_with_its_index():
+    """Ohne ``+faststart`` liegt der Index (moov) am Dateiende.
+
+    Der Browser muss dann erst die ganze Datei laden, bevor er abspielen
+    kann — in der Vorschau der Kanalseite sieht das aus, als ginge das Video
+    nicht. Geprueft wird am Aufruf, weil ein echter Rendervorgang Material
+    aus dem Netz braucht.
+    """
+    import inspect
+
+    from app.services import video as video_service
+
+    quelle = inspect.getsource(video_service.generate_video)
+    assert '"-movflags", "+faststart"' in quelle

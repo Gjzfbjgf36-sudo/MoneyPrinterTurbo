@@ -524,6 +524,8 @@
     "Channel Take Over Help": "Hai trovato un look nel modulo grande in alto? Questo copia voce, montaggio, sottotitoli e musica in questo canale: l'automazione legge solo il canale.",
     "Channel Take Over Preview": "Cambierebbero {count} valori",
     "Channel Take Over Same": "Il modulo in alto coincide con questo canale.",
-    "Channel Took Over": "Preso: {count} valori cambiati."
+    "Channel Took Over": "Preso: {count} valori cambiati.",
+    "Channel Download": "Scarica il video",
+    "Channel Video Path": "Su disco: {path}"
   }
 }

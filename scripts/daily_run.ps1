@@ -28,6 +28,14 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Die aufgerufenen Python-Skripte schreiben UTF-8. PowerShell liest die
+# Ausgabe sonst in der OEM-Codepage der Konsole (auf deutschen Systemen
+# cp850) und macht aus "fuer" ein "f?r" — mitten in der Beschreibung, die
+# man vor dem Upload pruefen soll.
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 

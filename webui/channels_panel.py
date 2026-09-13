@@ -309,30 +309,36 @@ def _render_dry_run(channel: ch.Channel, tr) -> None:
     if not st.button(tr("Channel Dry Run"), key=f"channel_dry_{channel.name}"):
         return
 
+    # Die Ausgabe wird zeilenweise gelesen und laufend angezeigt. Vorher lief
+    # der Prozess minutenlang hinter einem Spinner, und niemand konnte sagen,
+    # ob er noch arbeitet, wie weit er ist oder ob er haengt.
+    stand = st.empty()
+    protokoll = st.empty()
+    zeilen: list[str] = []
+    code = 1
+
     with st.spinner(tr("Channel Dry Run Running")):
         try:
-            completed = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                cwd=str(ch.ROOT),
-                timeout=3600,
-            )
-        except subprocess.TimeoutExpired:
-            st.error(tr("Channel Dry Run Timeout"))
-            return
+            for art, wert in ch.stream_command(command):
+                if art == "exit":
+                    code = wert
+                    break
+                zeilen.append(wert)
+                stand.info(wert)
+                # Nur die letzten Zeilen: der ganze Lauf waere eine Wand, und
+                # der Browser wuerde sie bei jeder neuen Zeile neu zeichnen.
+                protokoll.code("\n".join(zeilen[-12:]))
         except OSError as exc:
             st.error(str(exc))
             return
 
-    output = (completed.stdout or "") + (completed.stderr or "")
-    if completed.returncode == 0:
+    stand.empty()
+    ausgabe = "\n".join(zeilen)
+    if code == 0:
         st.success(tr("Channel Dry Run Done"))
     else:
-        st.error(tr("Channel Dry Run Failed").format(code=completed.returncode))
-    st.code(output[-8000:] or tr("Channel Dry Run No Output"))
+        st.error(tr("Channel Dry Run Failed").format(code=code))
+    protokoll.code(ausgabe[-8000:] or tr("Channel Dry Run No Output"))
 
 
 def _run_script(command: list[str], spinner: str, tr) -> tuple[int, str]:
@@ -475,6 +481,17 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
             st.write(video.script or tr("Channel No Script"))
             if video.path.exists():
                 st.video(str(video.path))
+                # Der Browser spielt nicht jedes MP4 ab — je nach Browser
+                # fehlt der H.264-Decoder. Heruntergeladen laesst sich das
+                # Video immer ansehen, im Player des Systems.
+                st.download_button(
+                    tr("Channel Download"),
+                    data=video.path.read_bytes(),
+                    file_name=f"{video.task_id}.mp4",
+                    mime="video/mp4",
+                    key=f"channel_dl_{key}",
+                )
+                st.caption(tr("Channel Video Path").format(path=video.path))
         if checked:
             selected.append(video)
 

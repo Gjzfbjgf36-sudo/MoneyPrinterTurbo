@@ -524,6 +524,8 @@
     "Channel Take Over Help": "Đã tìm được kiểu ưng ý ở biểu mẫu lớn phía trên? Thao tác này chép giọng đọc, cách cắt, phụ đề và nhạc vào kênh này — phần tự động chỉ đọc kênh.",
     "Channel Take Over Preview": "{count} giá trị sẽ thay đổi",
     "Channel Take Over Same": "Biểu mẫu ở trên trùng với kênh này.",
-    "Channel Took Over": "Đã lấy: {count} giá trị thay đổi."
+    "Channel Took Over": "Đã lấy: {count} giá trị thay đổi.",
+    "Channel Download": "Tải video về",
+    "Channel Video Path": "Trên đĩa: {path}"
   }
 }

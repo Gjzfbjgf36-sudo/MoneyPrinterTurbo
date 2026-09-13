@@ -524,6 +524,8 @@
     "Channel Take Over Help": "Menemukan tampilan yang pas di formulir besar di atas? Ini menyalin suara, potongan, subtitel, dan musik ke saluran ini — otomatisasi hanya membaca saluran.",
     "Channel Take Over Preview": "{count} nilai akan berubah",
     "Channel Take Over Same": "Formulir di atas sama dengan saluran ini.",
-    "Channel Took Over": "Diambil: {count} nilai berubah."
+    "Channel Took Over": "Diambil: {count} nilai berubah.",
+    "Channel Download": "Unduh video",
+    "Channel Video Path": "Di disk: {path}"
   }
 }

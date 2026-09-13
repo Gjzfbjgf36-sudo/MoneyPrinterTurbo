@@ -624,6 +624,8 @@
     "Channel Take Over Help": "在页面顶部的表单里调出了满意的效果？这会把配音、剪辑、字幕和音乐复制到该频道——自动流程只读取频道配置。",
     "Channel Take Over Preview": "将改变 {count} 项",
     "Channel Take Over Same": "上方表单与该频道一致。",
-    "Channel Took Over": "已采用：改变了 {count} 项。"
+    "Channel Took Over": "已采用：改变了 {count} 项。",
+    "Channel Download": "下载视频",
+    "Channel Video Path": "本地路径：{path}"
   }
 }

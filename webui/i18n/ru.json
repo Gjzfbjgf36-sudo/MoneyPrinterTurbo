@@ -524,6 +524,8 @@
     "Channel Take Over Help": "Подобрали вид в большой форме наверху? Это скопирует голос, нарезку, субтитры и музыку в этот канал — автоматика читает только канал.",
     "Channel Take Over Preview": "Изменится значений: {count}",
     "Channel Take Over Same": "Форма наверху совпадает с этим каналом.",
-    "Channel Took Over": "Взято: изменено значений — {count}."
+    "Channel Took Over": "Взято: изменено значений — {count}.",
+    "Channel Download": "Скачать видео",
+    "Channel Video Path": "На диске: {path}"
   }
 }

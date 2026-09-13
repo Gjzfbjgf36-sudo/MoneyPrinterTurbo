@@ -524,6 +524,8 @@
     "Channel Take Over Help": "Un rendu vous plaît dans le grand formulaire en haut ? Ceci copie voix, montage, sous-titres et musique dans cette chaîne — l'automatisation ne lit que la chaîne.",
     "Channel Take Over Preview": "{count} valeurs changeraient",
     "Channel Take Over Same": "Le formulaire du haut correspond à cette chaîne.",
-    "Channel Took Over": "Repris : {count} valeurs modifiées."
+    "Channel Took Over": "Repris : {count} valeurs modifiées.",
+    "Channel Download": "Télécharger la vidéo",
+    "Channel Video Path": "Sur le disque : {path}"
   }
 }

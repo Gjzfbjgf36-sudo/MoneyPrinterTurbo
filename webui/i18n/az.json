@@ -524,6 +524,8 @@
     "Channel Take Over Help": "Yuxarıdakı böyük formada bir görünüş tapdınız? Bu, səsi, montajı, altyazıları və musiqini bu kanala köçürür — avtomatika yalnız kanalı oxuyur.",
     "Channel Take Over Preview": "{count} dəyər dəyişəcək",
     "Channel Take Over Same": "Yuxarıdakı forma bu kanalla eynidir.",
-    "Channel Took Over": "Götürüldü: {count} dəyər dəyişdi."
+    "Channel Took Over": "Götürüldü: {count} dəyər dəyişdi.",
+    "Channel Download": "Videonu yüklə",
+    "Channel Video Path": "Diskdə: {path}"
   }
 }

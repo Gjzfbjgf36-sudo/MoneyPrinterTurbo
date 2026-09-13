@@ -162,6 +162,37 @@ def apply_style(config: dict, style: str) -> dict:
     return updated
 
 
+def stream_command(command: list[str], cwd: Path | None = None):
+    """Führt einen Befehl aus und liefert seine Ausgabe Zeile für Zeile.
+
+    Zuletzt ein ``Rückgabewert``-Eintrag: ``("exit", <code>)``. Die Ausgabe
+    wird erst am Ende ausgewertet, aber währenddessen schon angezeigt — der
+    Renderlauf dauert Minuten, und ein Spinner ohne Text lässt offen, ob noch
+    etwas passiert.
+
+    ``encoding`` ist gesetzt, weil die Skripte UTF-8 schreiben und eine
+    deutsche Windows-Konsole sonst cp1252 annimmt.
+    """
+    import subprocess
+
+    prozess = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        bufsize=1,
+        cwd=str(cwd or ROOT),
+    )
+    with prozess:
+        for zeile in prozess.stdout:
+            zeile = zeile.rstrip()
+            if zeile:
+                yield ("line", zeile)
+    yield ("exit", prozess.returncode)
+
+
 def settings_from_params(params) -> dict:
     """Die Werte des großen Formulars, die ein Kanal übernehmen darf.
 

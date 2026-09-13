@@ -624,6 +624,8 @@
     "Channel Take Over Help": "Tried out a look in the big form at the top of the page? This copies voice, cutting, subtitles and music into this channel — the automation only ever reads the channel.",
     "Channel Take Over Preview": "{count} values would change",
     "Channel Take Over Same": "The form above matches this channel.",
-    "Channel Took Over": "Taken over: {count} values changed."
+    "Channel Took Over": "Taken over: {count} values changed.",
+    "Channel Download": "Download video",
+    "Channel Video Path": "On disk: {path}"
   }
 }

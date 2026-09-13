@@ -779,3 +779,54 @@ def test_the_panel_only_takes_over_outside_the_form():
     aufruf = funktion.body[-1]
     assert isinstance(aufruf, ast.Expr)
     assert getattr(aufruf.value.func, "id", "") == "_render_take_over"
+
+
+def test_a_running_command_reports_its_output_line_by_line():
+    """Der Renderlauf dauert Minuten. Ohne laufende Ausgabe ist nicht zu
+    erkennen, ob er arbeitet, wie weit er ist oder ob er haengt."""
+    import sys
+
+    programm = (
+        "import sys\n"
+        "for i in (1, 2, 3):\n"
+        "    print(f'Video {i} von 3 fertig')\n"
+        "    sys.stdout.flush()\n"
+    )
+    ereignisse = list(ch.stream_command([sys.executable, "-c", programm]))
+
+    assert ereignisse[:3] == [
+        ("line", "Video 1 von 3 fertig"),
+        ("line", "Video 2 von 3 fertig"),
+        ("line", "Video 3 von 3 fertig"),
+    ]
+    assert ereignisse[-1] == ("exit", 0)
+
+
+def test_the_output_survives_german_umlauts():
+    """Die Skripte schreiben UTF-8; eine deutsche Windows-Konsole nimmt sonst
+    cp1252 an und macht aus „für“ ein „f?r“."""
+    import sys
+
+    programm = (
+        "import sys\n"
+        "sys.stdout.reconfigure(encoding='utf-8')\n"
+        "print('Für 60 Milliarden übertragen — größer geht nicht')\n"
+    )
+    ereignisse = list(ch.stream_command([sys.executable, "-c", programm]))
+    assert ereignisse[0] == ("line", "Für 60 Milliarden übertragen — größer geht nicht")
+
+
+def test_a_failing_command_reports_its_exit_code():
+    import sys
+
+    ereignisse = list(ch.stream_command([sys.executable, "-c", "raise SystemExit(3)"]))
+    assert ereignisse[-1] == ("exit", 3)
+
+
+def test_stderr_is_not_lost():
+    """Ein Traceback landet auf stderr — genau der Teil, den man sehen will."""
+    import sys
+
+    programm = "import sys; print('kaputt', file=sys.stderr)"
+    ereignisse = list(ch.stream_command([sys.executable, "-c", programm]))
+    assert ("line", "kaputt") in ereignisse

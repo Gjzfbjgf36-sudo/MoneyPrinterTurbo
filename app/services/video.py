@@ -1449,6 +1449,10 @@ def generate_video(
             threads=params.n_threads or 2,
             logger=None,
             fps=fps,
+            # moov 默认写在文件末尾，播放器必须先下载整个文件才能开始播放。
+            # 成片会在浏览器里预览、也会上传到 YouTube，两边都受益于前置。
+            # 仅对成片启用：中间片段不经过播放器，多一次 remux 只是白费时间。
+            ffmpeg_params=["-movflags", "+faststart"],
         )
         return bgm_mix_succeeded
 

@@ -213,3 +213,124 @@ def test_publish_slots_keep_the_wall_clock_across_a_dst_change(monkeypatch):
     finally:
         os.environ.pop("TZ", None)
         time_module.tzset()
+
+
+class FakeStatus:
+    def __init__(self, anteil):
+        self._anteil = anteil
+
+    def progress(self):
+        return self._anteil
+
+
+class FakeRequest:
+    """Ein Upload, der eine vorgegebene Folge von Ereignissen abspielt.
+
+    Jeder Eintrag ist entweder ein Fortschritt (float), eine zu werfende
+    Ausnahme, oder ``"fertig"`` fuer die abschliessende Antwort.
+    """
+
+    def __init__(self, ereignisse):
+        self.ereignisse = list(ereignisse)
+        self.aufrufe = 0
+
+    def next_chunk(self):
+        self.aufrufe += 1
+        ereignis = self.ereignisse.pop(0)
+        if isinstance(ereignis, Exception):
+            raise ereignis
+        if ereignis == "fertig":
+            return None, {"id": "abc123"}
+        return FakeStatus(ereignis), None
+
+
+class FakeResponse:
+    def __init__(self, status):
+        self.status = status
+
+
+def _http_error(status):
+    fehler = Exception(f"HTTP {status}")
+    fehler.resp = FakeResponse(status)
+    return fehler
+
+
+def test_a_dropped_connection_resumes_instead_of_failing():
+    """Der Fall aus dem echten Lauf: bei 88 Prozent bricht die Verbindung ab.
+
+    Vorher endete der Upload mit einem Traceback, und das fertige Video lag
+    unveroeffentlicht auf der Platte.
+    """
+    gewartet = []
+    request = FakeRequest(
+        [0.88, ConnectionAbortedError(10053, "abgebrochen"), 0.95, "fertig"]
+    )
+
+    antwort = uploader.upload_chunks(
+        request, sleep=gewartet.append, out=lambda _: None
+    )
+
+    assert antwort["id"] == "abc123"
+    assert request.aufrufe == 4
+    assert gewartet == [2]
+
+
+def test_the_waiting_time_doubles_between_attempts():
+    """Ein kurzer Aussetzer ist nach Sekunden vorbei; eine echte Stoerung
+    nicht, und dann waeren Neuversuche im Sekundentakt nur Last."""
+    gewartet = []
+    request = FakeRequest(
+        [ConnectionError("weg")] * 3 + [0.5, "fertig"]
+    )
+
+    uploader.upload_chunks(request, sleep=gewartet.append, out=lambda _: None)
+    assert gewartet == [2, 4, 8]
+
+
+def test_giving_up_after_the_last_attempt():
+    """Irgendwann ist die Leitung wirklich weg — dann soll es auffallen."""
+    request = FakeRequest([ConnectionError("weg")] * 10)
+    with pytest.raises(ConnectionError):
+        uploader.upload_chunks(
+            request, retries=3, sleep=lambda _: None, out=lambda _: None
+        )
+    assert request.aufrufe == 4
+
+
+def test_a_rejected_video_is_not_retried():
+    """Ein abgelehntes Video wuerde auch beim zehnten Versuch abgelehnt."""
+    request = FakeRequest([_http_error(400)])
+    with pytest.raises(Exception) as fehler:
+        uploader.upload_chunks(request, sleep=lambda _: None, out=lambda _: None)
+    assert "400" in str(fehler.value)
+    assert request.aufrufe == 1
+
+
+@pytest.mark.parametrize("status", [429, 500, 503])
+def test_a_busy_server_is_retried(status):
+    request = FakeRequest([_http_error(status), 0.9, "fertig"])
+    uploader.upload_chunks(request, sleep=lambda _: None, out=lambda _: None)
+    assert request.aufrufe == 3
+
+
+def test_progress_is_reported_while_uploading():
+    """Ohne Rueckmeldung sieht ein langer Upload aus wie ein haengender."""
+    zeilen = []
+    request = FakeRequest([0.25, 0.5, "fertig"])
+    uploader.upload_chunks(request, sleep=lambda _: None, out=zeilen.append)
+    assert [z.strip() for z in zeilen] == ["25 % uebertragen", "50 % uebertragen"]
+
+
+def test_the_counter_resets_after_a_successful_chunk():
+    """Sonst summieren sich vereinzelte Aussetzer ueber einen langen Upload
+    zum Abbruch, obwohl jeder einzelne ueberstanden wurde."""
+    request = FakeRequest(
+        [ConnectionError("1"), 0.3, ConnectionError("2"), 0.6,
+         ConnectionError("3"), 0.9, "fertig"]
+    )
+    gewartet = []
+    uploader.upload_chunks(
+        request, retries=1, sleep=gewartet.append, out=lambda _: None
+    )
+    # Jeder Aussetzer wird fuer sich gezaehlt, nicht aufaddiert.
+    assert gewartet == [2, 2, 2]
