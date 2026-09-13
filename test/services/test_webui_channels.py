@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+from app.models.schema import VideoParams
 from webui import channels as ch
 
 
@@ -105,7 +106,8 @@ def test_saved_config_is_valid_json_without_bom(sandbox):
 def test_queue_roundtrip_keeps_entries_usable(sandbox):
     ch.create_channel("wissen", {"source": "queue", "topic": "Alltag"})
     ch.save_queue("wissen", [QUEUE_ENTRY])
-    assert ch.load_queue("wissen") == [QUEUE_ENTRY]
+    # Beim Speichern kommt der Kanalname dazu; sonst bleibt der Eintrag gleich.
+    assert ch.load_queue("wissen") == [{**QUEUE_ENTRY, "channel": "wissen"}]
 
 
 def test_queue_rejects_entries_the_pipeline_would_refuse(sandbox):
@@ -603,3 +605,51 @@ def test_the_shown_step_number_matches_the_section_headings():
     nummern = [ch.NextStep(key, i, total).number for i, key in enumerate(ch.SETUP_STEPS)]
     assert nummern == [1, 2, 3, 4, 4]
     assert ch.NextStep("login", 0, 0).number == 0
+
+
+def test_a_video_of_another_channel_is_not_offered(sandbox, monkeypatch):
+    """Bei zwei Kanaelen lagen sonst beide Listen identisch nebeneinander —
+    ein Tech-Video war einen Klick vom falschen Kanal entfernt."""
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    ch.create_channel("wissen", {"source": "news", "topic": "Alltag"})
+
+    for task_id, owner in [("t1", "tech"), ("t2", "wissen"), ("alt", "")]:
+        task = sandbox / "storage" / "tasks" / task_id
+        task.mkdir(parents=True)
+        (task / "final-1.mp4").write_bytes(b"x" * 2048)
+        params = {"video_subject": task_id}
+        if owner:
+            params["channel"] = owner
+        (task / "script.json").write_text(
+            json.dumps({"script": "Text.", "params": params}), encoding="utf-8"
+        )
+
+    assert [v.task_id for v in ch.pending_videos("tech")] == ["t1", "alt"]
+    assert [v.task_id for v in ch.pending_videos("wissen")] == ["t2", "alt"]
+
+    # Das alte Video verschweigt seine Herkunft; still verschwinden waere
+    # schlimmer als die Nachfrage beim Nutzer.
+    alt = [v for v in ch.pending_videos("tech") if v.task_id == "alt"][0]
+    assert alt.is_foreign is True
+    eigen = [v for v in ch.pending_videos("tech") if v.task_id == "t1"][0]
+    assert eigen.is_foreign is False
+
+
+def test_saving_the_queue_stamps_the_channel(sandbox):
+    """Ohne den Stempel steht dem fertigen Video nicht an, wohin es gehoert."""
+    ch.create_channel("tech", {"source": "queue", "topic": "KI"})
+    ch.save_queue("tech", [dict(QUEUE_ENTRY)])
+
+    gespeichert = ch.load_queue("tech")
+    assert gespeichert[0]["channel"] == "tech"
+    # Die uebergebene Liste des Aufrufers bleibt unveraendert.
+    assert "channel" not in QUEUE_ENTRY
+
+
+def test_the_stamped_queue_stays_valid_for_the_pipeline(sandbox):
+    """Ein Feld, das cli.py spaeter ablehnt, liesse den Nachtlauf scheitern."""
+    ch.create_channel("tech", {"source": "queue", "topic": "KI"})
+    ch.save_queue("tech", [dict(QUEUE_ENTRY)])
+    params = VideoParams(**ch.load_queue("tech")[0])
+    assert params.channel == "tech"

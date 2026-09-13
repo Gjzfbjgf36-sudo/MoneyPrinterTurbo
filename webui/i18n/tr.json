@@ -417,12 +417,12 @@
     "Channels": "Kanallar",
     "Channels Help": "Günlük çalışmanın işlediği kanalları yönetir. Otomasyonun kendisi betiklerde kalır; bu sayfa yalnızca onların okuduğu dosyaları düzenler.",
     "Channels Empty": "Henüz kanal yok. Aşağıdan bir tane oluşturun.",
-    "Channel Mode": "Çalışma biçimi",
-    "Channel Queue Size": "Sıradaki konular",
+    "Channel Mode": "Konular",
+    "Channel Queue Size": "Kuyruktaki konular",
     "Channel Uploaded": "Yüklenen",
     "Channel Source": "Konu kaynağı",
-    "Channel Source News": "Araştırılan haberler",
-    "Channel Source Queue": "Konu sırası",
+    "Channel Source News": "Araştırma",
+    "Channel Source Queue": "Kuyruk",
     "Channel Source Help": "Araştırma kipi web'de güncel haberleri arar. Konu sırası ise aşağıdaki listedeki konuları kullanır.",
     "Channel Topic": "Konu",
     "Channel Topic Help": "Araştırma kanalında arama yönergesidir, örneğin «teknoloji ve yapay zekâ».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Kalsın",
     "Channel Deleted": "Silindi: {name}",
     "Channel Login Section": "Adım 1 · YouTube hesabı",
-    "Channel Dry Run Section": "Adım 3 · Video oluştur"
+    "Channel Dry Run Section": "Adım 3 · Video oluştur",
+    "Channel Step Done": "Hazır · her şey kurulu",
+    "Channel No Source Short": "kaynaksız",
+    "Channel Unknown Owner Short": "kanal bilinmiyor",
+    "Channel Unknown Owner": "Bu videoda kanal kaydı yok — bu not eklenmeden önce üretilmiş. Yüklemeden önce buraya ait olduğunu doğrulayın."
   }
 }

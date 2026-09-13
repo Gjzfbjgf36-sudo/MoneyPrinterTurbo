@@ -417,12 +417,12 @@
     "Channels": "Chaînes",
     "Channels Help": "Gère les chaînes traitées par l'exécution quotidienne. L'automatisation reste dans les scripts ; cette page entretient les fichiers qu'ils lisent.",
     "Channels Empty": "Aucune chaîne pour l'instant. Créez-en une ci-dessous.",
-    "Channel Mode": "Mode",
-    "Channel Queue Size": "Sujets en attente",
+    "Channel Mode": "Sujets depuis",
+    "Channel Queue Size": "Sujets en file",
     "Channel Uploaded": "Mis en ligne",
     "Channel Source": "Source des sujets",
-    "Channel Source News": "Actualités recherchées",
-    "Channel Source Queue": "File de sujets",
+    "Channel Source News": "Recherche",
+    "Channel Source Queue": "File",
     "Channel Source Help": "Les actualités recherchées cherchent sur le web des articles récents. La file reprend les sujets de la liste ci-dessous.",
     "Channel Topic": "Sujet",
     "Channel Topic Help": "Pour une chaîne de recherche, c'est la consigne de recherche, par exemple « technologie et intelligence artificielle ».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Conserver",
     "Channel Deleted": "Supprimé : {name}",
     "Channel Login Section": "Étape 1 · Compte YouTube",
-    "Channel Dry Run Section": "Étape 3 · Créer des vidéos"
+    "Channel Dry Run Section": "Étape 3 · Créer des vidéos",
+    "Channel Step Done": "Terminé · tout est prêt",
+    "Channel No Source Short": "sans source",
+    "Channel Unknown Owner Short": "chaîne inconnue",
+    "Channel Unknown Owner": "Aucune chaîne n'est notée pour cette vidéo : elle date d'avant cette note. Vérifiez qu'elle appartient bien ici avant de l'envoyer."
   }
 }

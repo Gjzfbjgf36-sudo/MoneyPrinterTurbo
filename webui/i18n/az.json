@@ -417,12 +417,12 @@
     "Channels": "Kanallar",
     "Channels Help": "Gündəlik icranın emal etdiyi kanalları idarə edir. Avtomatlaşdırma skriptlərdə qalır; bu səhifə yalnız onların oxuduğu faylları saxlayır.",
     "Channels Empty": "Hələ kanal yoxdur. Aşağıda bir dənə yaradın.",
-    "Channel Mode": "Rejim",
+    "Channel Mode": "Mövzular",
     "Channel Queue Size": "Növbədəki mövzular",
     "Channel Uploaded": "Yüklənib",
     "Channel Source": "Mövzu mənbəyi",
-    "Channel Source News": "Araşdırılmış xəbərlər",
-    "Channel Source Queue": "Mövzu növbəsi",
+    "Channel Source News": "Araşdırma",
+    "Channel Source Queue": "Növbə",
     "Channel Source Help": "Xəbər rejimi vebdə son xəbərləri axtarır. Növbə isə aşağıdakı siyahıdakı mövzuları götürür.",
     "Channel Topic": "Mövzu",
     "Channel Topic Help": "Araşdırma kanalında bu, axtarış tapşırığıdır, məsələn «texnologiya və süni intellekt».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Saxla",
     "Channel Deleted": "Silindi: {name}",
     "Channel Login Section": "Addım 1 · YouTube hesabı",
-    "Channel Dry Run Section": "Addım 3 · Video yarat"
+    "Channel Dry Run Section": "Addım 3 · Video yarat",
+    "Channel Step Done": "Hazır · hər şey quruldu",
+    "Channel No Source Short": "mənbəsiz",
+    "Channel Unknown Owner Short": "kanal bilinmir",
+    "Channel Unknown Owner": "Bu video üçün kanal qeyd olunmayıb — o, bu qeyd əlavə edilməzdən əvvəl yaradılıb. Yükləməzdən əvvəl buraya aid olduğunu yoxlayın."
   }
 }

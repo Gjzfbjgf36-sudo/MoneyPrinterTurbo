@@ -166,6 +166,9 @@ class VideoParams(BaseModel):
     # 号召。发布文案由 LLM 每次重新生成，而来源链接必须逐字保留，因此
     # 单独成字段，不混进提示词。
     description_suffix: str = Field(default="", max_length=500)
+    # 生成该视频的频道名。多频道并行时，成片目录本身看不出归属，
+    # 上传界面会把每个频道的成片都列出来，从而可能传错频道。
+    channel: str = Field(default="", max_length=64)
 
 
 class SubtitleRequest(BaseModel):

@@ -360,7 +360,12 @@ def save_queue(name: str, entries: list[dict]) -> None:
     Ein Eintrag, den cli.py später ablehnt, würde den nächtlichen Lauf des
     Kanals scheitern lassen — also hier abfangen, wo jemand zusieht.
     """
+    entries = [dict(entry) for entry in entries]
     for index, entry in enumerate(entries, start=1):
+        # Der Kanalname wandert mit in den fertigen Task. Sonst steht dem
+        # Video später nicht an, wohin es gehört, und es taucht in jedem
+        # Kanal zur Auswahl auf.
+        entry["channel"] = name
         try:
             params = VideoParams(**entry)
         except Exception as exc:
@@ -511,10 +516,16 @@ class PendingVideo:
     script: str
     source: str
     size_mb: float
+    channel: str = ""
 
     @property
     def words(self) -> int:
         return len(self.script.split())
+
+    @property
+    def is_foreign(self) -> bool:
+        """Wahr, wenn nicht feststeht, dass das Video hierher gehört."""
+        return not self.channel
 
 
 def _read_task_metadata(task_dir: Path) -> dict:
@@ -541,10 +552,14 @@ def _uploaded_keys(name: str) -> set[str]:
 def pending_videos(name: str) -> list[PendingVideo]:
     """Fertige Videos, die dieser Kanal noch nicht veröffentlicht hat.
 
-    Bewusst alle Videos unter ``storage/tasks``, nicht nur die dieses Kanals:
-    welcher Kanal ein Video gerendert hat, steht nirgends. Statt zu raten
-    zeigt die Oberfläche alles an und lässt den Nutzer auswählen — damit kann
-    kein Video versehentlich im falschen Kanal landen.
+    Seit jeder Task seinen Kanal notiert, werden fremde Videos hier
+    weggelassen: bei zwei Kanälen lagen sonst beide Listen identisch
+    nebeneinander, und ein Tech-Video war einen Klick von der falschen
+    Veröffentlichung entfernt.
+
+    Videos ohne Notiz — alles, was vor dieser Änderung entstand — bleiben in
+    jedem Kanal sichtbar. Sie verschweigen ihre Herkunft, und stillschweigend
+    verschwinden wäre schlimmer als die Nachfrage beim Nutzer.
     """
     tasks_dir = ROOT / "storage" / "tasks"
     if not tasks_dir.exists():
@@ -564,6 +579,10 @@ def pending_videos(name: str) -> list[PendingVideo]:
 
         metadata = _read_task_metadata(video.parent)
         params = metadata.get("params") or {}
+        owner = str(params.get("channel") or "").strip()
+        if owner and owner != name:
+            continue
+
         videos.append(
             PendingVideo(
                 path=video,
@@ -572,6 +591,7 @@ def pending_videos(name: str) -> list[PendingVideo]:
                 script=str(metadata.get("script") or ""),
                 source=str(params.get("description_suffix") or "").strip(),
                 size_mb=round(video.stat().st_size / 1_048_576, 1),
+                channel=owner,
             )
         )
     return videos

@@ -292,10 +292,13 @@ def _run_script(command: list[str], spinner: str, tr) -> tuple[int, str]:
 def _render_next_step(channel: ch.Channel, tr) -> None:
     """Ein klarer naechster Schritt statt einer Wand aus Einstellungen."""
     step = ch.next_step(channel)
-    st.progress(
-        step.progress,
-        text=tr("Channel Step Progress").format(done=step.number, total=step.total),
-    )
+    # „Schritt 4 von 4“ stand sonst sowohl über dem Hochladen als auch über
+    # dem fertig eingerichteten Kanal — zwei Zustände, eine Beschriftung.
+    if step.key == "ready":
+        label = tr("Channel Step Done")
+    else:
+        label = tr("Channel Step Progress").format(done=step.number, total=step.total)
+    st.progress(step.progress, text=label)
     # Der Kanalname steht im Befehl, den "Step render" zum Abtippen anbietet.
     # Die übrigen Schritte kennen keinen Platzhalter; format() stört das nicht.
     text = tr(f"Step {step.key}").format(name=channel.name)
@@ -350,9 +353,17 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
     selected: list = []
     for video in videos:
         key = f"{channel.name}_{video.task_id}"
+        # Die beiden Warnungen gehören in die Zeile, nicht nur in den
+        # Aufklappbereich: ausgewählt wird hier, und hochgeladen wird, was
+        # ausgewählt ist — ohne dass jemand aufklappen muss.
+        marker = ""
+        if not video.source:
+            marker += f"  ·  ⚠️ {tr('Channel No Source Short')}"
+        if video.is_foreign:
+            marker += f"  ·  ❓ {tr('Channel Unknown Owner Short')}"
         checked = st.checkbox(
             f"{video.subject}  ·  {video.words} "
-            f"{tr('Channel Words')}  ·  {video.size_mb} MB",
+            f"{tr('Channel Words')}  ·  {video.size_mb} MB{marker}",
             key=f"channel_pick_{key}",
         )
         with st.expander(tr("Channel Pending Details"), expanded=False):
@@ -362,6 +373,8 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
                 st.markdown(f"**{tr('Channel Source Link')}:** {video.source}")
             else:
                 st.warning(tr("Channel No Source"))
+            if video.is_foreign:
+                st.warning(tr("Channel Unknown Owner"))
             st.write(video.script or tr("Channel No Script"))
             if video.path.exists():
                 st.video(str(video.path))

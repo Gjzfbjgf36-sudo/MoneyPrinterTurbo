@@ -417,12 +417,12 @@
     "Channels": "Kanal",
     "Channels Help": "Mengelola kanal yang diproses oleh jalannya harian. Otomasi tetap berada di skrip; halaman ini hanya merawat berkas yang mereka baca.",
     "Channels Empty": "Belum ada kanal. Buat satu di bawah.",
-    "Channel Mode": "Mode",
-    "Channel Queue Size": "Topik dalam antrean",
+    "Channel Mode": "Topik dari",
+    "Channel Queue Size": "Topik mengantre",
     "Channel Uploaded": "Terunggah",
     "Channel Source": "Sumber topik",
-    "Channel Source News": "Berita hasil riset",
-    "Channel Source Queue": "Antrean topik",
+    "Channel Source News": "Riset",
+    "Channel Source Queue": "Antrean",
     "Channel Source Help": "Mode berita mencari kabar terbaru di web. Antrean mengambil topik dari daftar di bawah.",
     "Channel Topic": "Topik",
     "Channel Topic Help": "Untuk kanal riset, ini adalah arahan pencarian, misalnya «teknologi dan kecerdasan buatan».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Simpan",
     "Channel Deleted": "Dihapus: {name}",
     "Channel Login Section": "Langkah 1 · Akun YouTube",
-    "Channel Dry Run Section": "Langkah 3 · Buat video"
+    "Channel Dry Run Section": "Langkah 3 · Buat video",
+    "Channel Step Done": "Selesai · semua siap",
+    "Channel No Source Short": "tanpa sumber",
+    "Channel Unknown Owner Short": "saluran tidak diketahui",
+    "Channel Unknown Owner": "Video ini tidak mencatat salurannya — dibuat sebelum catatan itu ada. Pastikan memang milik saluran ini sebelum diunggah."
   }
 }

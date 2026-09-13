@@ -517,12 +517,12 @@
     "Channels": "Channels",
     "Channels Help": "Manage the channels the daily run works through. The automation itself stays with the scripts; this page maintains the files they read.",
     "Channels Empty": "No channels yet. Create one below.",
-    "Channel Mode": "Mode",
+    "Channel Mode": "Topics from",
     "Channel Queue Size": "Topics queued",
     "Channel Uploaded": "Uploaded",
     "Channel Source": "Topic source",
-    "Channel Source News": "Researched news",
-    "Channel Source Queue": "Topic queue",
+    "Channel Source News": "Research",
+    "Channel Source Queue": "Queue",
     "Channel Source Help": "Researched news searches the web for recent stories. A topic queue takes subjects from the list below.",
     "Channel Topic": "Topic",
     "Channel Topic Help": "For a research channel this is the search brief, for example \"technology and artificial intelligence\".",
@@ -611,6 +611,10 @@
     "Channel Delete No": "Keep",
     "Channel Deleted": "Deleted: {name}",
     "Channel Login Section": "Step 1 · YouTube account",
-    "Channel Dry Run Section": "Step 3 · Create videos"
+    "Channel Dry Run Section": "Step 3 · Create videos",
+    "Channel Step Done": "Done · all set up",
+    "Channel No Source Short": "no source",
+    "Channel Unknown Owner Short": "channel unknown",
+    "Channel Unknown Owner": "No channel recorded for this video — it was made before videos carried that note. Check that it belongs here before you upload it."
   }
 }

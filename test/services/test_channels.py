@@ -176,3 +176,24 @@ def test_unknown_channel_fails_loudly(tmp_path, monkeypatch):
     monkeypatch.setattr(nts, "ROOT", tmp_path)
     with pytest.raises(SystemExit):
         nts.preset_for_channel("gibtsnicht")
+
+
+def test_the_manifest_records_the_channel():
+    """Der Kanal muss im fertigen Task stehen, sonst mischt die Oberflaeche
+    die Videos aller Kanaele."""
+    import news_to_shorts as nts
+
+    videos = [{"video_subject": "Thema", "video_script": "Ein Satz.", "quellen": ["https://example.com"]}]
+    manifest, _ = nts.build_manifest(videos, channel="tech")
+    assert manifest[0]["channel"] == "tech"
+    # Der Eintrag muss weiterhin durch die Pruefung von cli.py kommen.
+    assert VideoParams(**manifest[0]).channel == "tech"
+
+
+def test_without_a_channel_the_manifest_stays_unstamped():
+    """Ein Lauf ohne --channel soll kein leeres Feld erfinden."""
+    import news_to_shorts as nts
+
+    videos = [{"video_subject": "Thema", "video_script": "Ein Satz."}]
+    manifest, _ = nts.build_manifest(videos)
+    assert "channel" not in manifest[0]

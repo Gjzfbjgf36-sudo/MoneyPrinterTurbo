@@ -417,12 +417,12 @@
     "Channels": "채널",
     "Channels Help": "매일 실행이 처리하는 채널을 관리합니다. 자동화 자체는 스크립트에 남아 있으며, 이 페이지는 스크립트가 읽는 파일을 관리합니다.",
     "Channels Empty": "아직 채널이 없습니다. 아래에서 만드세요.",
-    "Channel Mode": "동작 방식",
+    "Channel Mode": "주제 출처",
     "Channel Queue Size": "대기 중인 주제",
     "Channel Uploaded": "업로드됨",
     "Channel Source": "주제 출처",
-    "Channel Source News": "검색한 뉴스",
-    "Channel Source Queue": "주제 대기열",
+    "Channel Source News": "조사",
+    "Channel Source Queue": "대기열",
     "Channel Source Help": "뉴스 방식은 웹에서 최신 소식을 검색합니다. 대기열은 아래 목록의 주제를 사용합니다.",
     "Channel Topic": "주제",
     "Channel Topic Help": "검색 채널에서는 검색 지침입니다. 예: 「기술과 인공지능」.",
@@ -511,6 +511,10 @@
     "Channel Delete No": "보관",
     "Channel Deleted": "삭제됨: {name}",
     "Channel Login Section": "1단계 · YouTube 계정",
-    "Channel Dry Run Section": "3단계 · 영상 만들기"
+    "Channel Dry Run Section": "3단계 · 영상 만들기",
+    "Channel Step Done": "완료 · 설정 끝",
+    "Channel No Source Short": "출처 없음",
+    "Channel Unknown Owner Short": "채널 불명",
+    "Channel Unknown Owner": "이 영상에는 채널이 기록되어 있지 않습니다. 기록이 도입되기 전에 만들어진 영상입니다. 업로드 전에 이 채널의 것이 맞는지 확인하세요."
   }
 }

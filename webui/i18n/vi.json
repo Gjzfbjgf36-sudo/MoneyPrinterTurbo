@@ -417,12 +417,12 @@
     "Channels": "Kênh",
     "Channels Help": "Quản lý các kênh mà lượt chạy hằng ngày xử lý. Phần tự động vẫn nằm trong các script; trang này chỉ duy trì các tệp mà chúng đọc.",
     "Channels Empty": "Chưa có kênh nào. Hãy tạo một kênh bên dưới.",
-    "Channel Mode": "Chế độ",
+    "Channel Mode": "Chủ đề từ",
     "Channel Queue Size": "Chủ đề đang chờ",
     "Channel Uploaded": "Đã tải lên",
     "Channel Source": "Nguồn chủ đề",
-    "Channel Source News": "Tin tức đã tra cứu",
-    "Channel Source Queue": "Hàng đợi chủ đề",
+    "Channel Source News": "Tra cứu",
+    "Channel Source Queue": "Hàng đợi",
     "Channel Source Help": "Chế độ tin tức tìm trên web các bản tin mới. Hàng đợi lấy chủ đề từ danh sách bên dưới.",
     "Channel Topic": "Chủ đề",
     "Channel Topic Help": "Với kênh tra cứu, đây là yêu cầu tìm kiếm, ví dụ «công nghệ và trí tuệ nhân tạo».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Giữ lại",
     "Channel Deleted": "Đã xoá: {name}",
     "Channel Login Section": "Bước 1 · Tài khoản YouTube",
-    "Channel Dry Run Section": "Bước 3 · Tạo video"
+    "Channel Dry Run Section": "Bước 3 · Tạo video",
+    "Channel Step Done": "Xong · đã thiết lập đủ",
+    "Channel No Source Short": "không nguồn",
+    "Channel Unknown Owner Short": "chưa rõ kênh",
+    "Channel Unknown Owner": "Video này không ghi kênh — nó được tạo trước khi có ghi chú đó. Hãy kiểm tra xem nó có thuộc về đây không trước khi tải lên."
   }
 }

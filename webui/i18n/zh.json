@@ -517,12 +517,12 @@
     "Channels": "频道",
     "Channels Help": "管理每日任务处理的频道。自动化本身仍由脚本完成；此页面维护脚本读取的文件。",
     "Channels Empty": "还没有频道，请在下方新建。",
-    "Channel Mode": "运行方式",
-    "Channel Queue Size": "待处理选题",
+    "Channel Mode": "选题来自",
+    "Channel Queue Size": "队列中的选题",
     "Channel Uploaded": "已上传",
     "Channel Source": "选题来源",
-    "Channel Source News": "联网检索新闻",
-    "Channel Source Queue": "选题队列",
+    "Channel Source News": "检索",
+    "Channel Source Queue": "队列",
     "Channel Source Help": "联网检索会搜索最新报道；选题队列则使用下方列表中的主题。",
     "Channel Topic": "主题",
     "Channel Topic Help": "检索型频道填写检索范围，例如“科技与人工智能”。",
@@ -611,6 +611,10 @@
     "Channel Delete No": "保留",
     "Channel Deleted": "已删除：{name}",
     "Channel Login Section": "第 1 步 · YouTube 账号",
-    "Channel Dry Run Section": "第 3 步 · 生成视频"
+    "Channel Dry Run Section": "第 3 步 · 生成视频",
+    "Channel Step Done": "完成 · 全部就绪",
+    "Channel No Source Short": "无来源",
+    "Channel Unknown Owner Short": "频道未知",
+    "Channel Unknown Owner": "该视频没有记录所属频道——它是在加入这项记录之前生成的。上传前请确认它确实属于这里。"
   }
 }

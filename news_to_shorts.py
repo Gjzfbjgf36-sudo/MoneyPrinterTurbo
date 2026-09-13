@@ -221,7 +221,7 @@ def run_research(count: int, days: int, topic: str, model: str, timeout: int) ->
 
 
 def build_manifest(
-    videos: list[dict], preset: dict | None = None
+    videos: list[dict], preset: dict | None = None, channel: str = ""
 ) -> tuple[list[dict], list[dict]]:
     """Trennt Render-Manifest und Quellenbeleg.
 
@@ -237,6 +237,11 @@ def build_manifest(
         task = dict(preset)
         task["video_subject"] = item["video_subject"]
         task["video_script"] = item["video_script"]
+        if channel:
+            # Steht spaeter im fertigen Task und sagt der Oberflaeche, in
+            # welchen Kanal dieses Video gehoert. Ohne das liegen die Videos
+            # aller Kanaele ununterscheidbar nebeneinander.
+            task["channel"] = channel
         if quellen:
             # Landet woertlich unter der Beschreibung des Uploads. Die erste
             # Quelle ist die, auf der die Meldung hauptsaechlich beruht.
@@ -301,7 +306,7 @@ def main() -> int:
 
     preset = preset_for_channel(args.channel)
     videos = run_research(args.count, args.days, args.topic, args.model, args.timeout)
-    manifest, sources = build_manifest(videos, preset)
+    manifest, sources = build_manifest(videos, preset, args.channel or "")
 
     Path(args.out).write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"

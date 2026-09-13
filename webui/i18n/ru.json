@@ -417,12 +417,12 @@
     "Channels": "Каналы",
     "Channels Help": "Управление каналами, которые обрабатывает ежедневный запуск. Сама автоматизация остаётся в скриптах; эта страница ведёт файлы, которые они читают.",
     "Channels Empty": "Каналов пока нет. Создайте канал ниже.",
-    "Channel Mode": "Режим",
+    "Channel Mode": "Темы из",
     "Channel Queue Size": "Тем в очереди",
     "Channel Uploaded": "Загружено",
     "Channel Source": "Источник тем",
-    "Channel Source News": "Найденные новости",
-    "Channel Source Queue": "Очередь тем",
+    "Channel Source News": "Поиск",
+    "Channel Source Queue": "Очередь",
     "Channel Source Help": "Режим новостей ищет в интернете свежие сообщения. Очередь берёт темы из списка ниже.",
     "Channel Topic": "Тема",
     "Channel Topic Help": "Для канала с поиском это поисковое задание, например «технологии и искусственный интеллект».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Оставить",
     "Channel Deleted": "Удалено: {name}",
     "Channel Login Section": "Шаг 1 · Аккаунт YouTube",
-    "Channel Dry Run Section": "Шаг 3 · Создать видео"
+    "Channel Dry Run Section": "Шаг 3 · Создать видео",
+    "Channel Step Done": "Готово · всё настроено",
+    "Channel No Source Short": "без источника",
+    "Channel Unknown Owner Short": "канал неизвестен",
+    "Channel Unknown Owner": "У этого видео не записан канал — оно создано до появления такой пометки. Перед загрузкой убедитесь, что оно относится сюда."
   }
 }

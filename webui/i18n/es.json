@@ -417,12 +417,12 @@
     "Channels": "Canales",
     "Channels Help": "Gestiona los canales que procesa la ejecución diaria. La automatización sigue en los scripts; esta página mantiene los archivos que leen.",
     "Channels Empty": "Aún no hay canales. Crea uno abajo.",
-    "Channel Mode": "Modo",
+    "Channel Mode": "Temas de",
     "Channel Queue Size": "Temas en cola",
     "Channel Uploaded": "Subidos",
     "Channel Source": "Origen de los temas",
-    "Channel Source News": "Noticias investigadas",
-    "Channel Source Queue": "Cola de temas",
+    "Channel Source News": "Búsqueda",
+    "Channel Source Queue": "Cola",
     "Channel Source Help": "Las noticias investigadas buscan en la web historias recientes. La cola toma los temas de la lista de abajo.",
     "Channel Topic": "Tema",
     "Channel Topic Help": "En un canal de investigación es el encargo de búsqueda, por ejemplo «tecnología e inteligencia artificial».",
@@ -511,6 +511,10 @@
     "Channel Delete No": "Conservar",
     "Channel Deleted": "Eliminado: {name}",
     "Channel Login Section": "Paso 1 · Cuenta de YouTube",
-    "Channel Dry Run Section": "Paso 3 · Crear vídeos"
+    "Channel Dry Run Section": "Paso 3 · Crear vídeos",
+    "Channel Step Done": "Listo · todo configurado",
+    "Channel No Source Short": "sin fuente",
+    "Channel Unknown Owner Short": "canal desconocido",
+    "Channel Unknown Owner": "Este vídeo no tiene canal registrado: se creó antes de que los vídeos llevaran esa nota. Comprueba que pertenece aquí antes de subirlo."
   }
 }
