@@ -230,6 +230,8 @@ def _render_queue_editor(channel: ch.Channel, tr) -> None:
 
 def _render_dry_run(channel: ch.Channel, tr) -> None:
     command = ch.runner_command(channel.name, dry_run=True)
+    # Ohne Ueberschrift findet niemand den Knopf, auf den der Schritt zeigt.
+    st.subheader(tr("Channel Dry Run Section"))
 
     if not ch.supports_channel_runner():
         # daily_run.sh kennt weder einzelne Kanäle noch einen Probelauf.
@@ -292,7 +294,7 @@ def _render_next_step(channel: ch.Channel, tr) -> None:
     step = ch.next_step(channel)
     st.progress(
         step.progress,
-        text=tr("Channel Step Progress").format(done=step.done, total=step.total),
+        text=tr("Channel Step Progress").format(done=step.number, total=step.total),
     )
     # Der Kanalname steht im Befehl, den "Step render" zum Abtippen anbietet.
     # Die übrigen Schritte kennen keinen Platzhalter; format() stört das nicht.
@@ -304,6 +306,9 @@ def _render_next_step(channel: ch.Channel, tr) -> None:
 
 
 def _render_login(channel: ch.Channel, tr) -> None:
+    # Jeder angesagte Schritt braucht eine sichtbare Überschrift, sonst
+    # zeigt der Text auf einen Abschnitt, den es optisch nicht gibt.
+    st.subheader(tr("Channel Login Section"))
     if ch.is_logged_in(channel.name):
         st.caption(tr("Channel Logged In"))
         return
@@ -517,15 +522,21 @@ def render_channels_panel(tr) -> None:
                     )
                     stats[2].metric(tr("Channel Uploaded"), channel.uploaded)
 
+                    # Die Abschnitte stehen in der Reihenfolge der Schritte,
+                    # die oben angesagt werden: anmelden, Vorlage, erzeugen,
+                    # hochladen. Sonst zeigt der angesagte Schritt an eine
+                    # Stelle, die der Nutzer erst suchen muss.
                     _render_next_step(channel, tr)
                     _render_login(channel, tr)
-                    _render_run_log(channel, tr)
-                    _render_pending_videos(channel, tr)
-                    st.divider()
                     _render_style_picker(channel, tr)
+                    _render_dry_run(channel, tr)
+                    _render_pending_videos(channel, tr)
+                    _render_run_log(channel, tr)
+
+                    # Ab hier nur noch Feinheiten, die kein Schritt verlangt.
+                    st.divider()
                     _render_settings_form(channel, tr)
                     _render_queue_editor(channel, tr)
-                    _render_dry_run(channel, tr)
 
         st.divider()
         st.caption(tr("Channel New"))

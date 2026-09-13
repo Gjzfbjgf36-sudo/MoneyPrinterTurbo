@@ -591,3 +591,15 @@ def test_step_texts_only_use_placeholders_the_panel_fills():
 
         fortschritt = translations.get("Channel Step Progress", "")
         assert set(re.findall(r"\{(\w+)\}", fortschritt)) == {"done", "total"}
+
+
+def test_the_shown_step_number_matches_the_section_headings():
+    """Der Balken nennt den laufenden Schritt, nicht die erledigten.
+
+    Die Abschnitte heissen „Schritt 1“ bis „Schritt 4“. Eine „0 von 4“
+    darueber wuerde auf einen Abschnitt zeigen, den es nicht gibt.
+    """
+    total = len(ch.SETUP_STEPS) - 1
+    nummern = [ch.NextStep(key, i, total).number for i, key in enumerate(ch.SETUP_STEPS)]
+    assert nummern == [1, 2, 3, 4, 4]
+    assert ch.NextStep("login", 0, 0).number == 0

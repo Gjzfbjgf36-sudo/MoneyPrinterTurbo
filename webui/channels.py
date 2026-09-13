@@ -666,6 +666,16 @@ class NextStep:
     def progress(self) -> float:
         return self.done / self.total if self.total else 0.0
 
+    @property
+    def number(self) -> int:
+        """Die Nummer, unter der dieser Schritt in der Oberflaeche steht.
+
+        ``done`` zaehlt die erledigten Schritte und ist beim ersten noch 0 —
+        als Anzeige waere das eine „0 von 4“ ueber einem Abschnitt, der
+        „Schritt 1“ heisst. Gezaehlt wird deshalb der laufende Schritt.
+        """
+        return min(self.done + 1, self.total) if self.total else 0
+
 
 # Die Schritte in der Reihenfolge, in der sie erledigt werden muessen. Der
 # erste unerfuellte ist der naechste.
