@@ -29,7 +29,9 @@ venv/
 .venv
 
 # Debug and test files
-CLAUDE.md
+# CLAUDE.md gehoert in diesem Fork zum Projekt und nicht in die Ignore-Liste:
+# sie traegt den Zusammenhang, den eine neue Sitzung braucht, und muss dafuer
+# auf jedem Rechner ankommen. Im Original ist sie eine lokale Notizdatei.
 debug/
 debug_*.py
 test_*.py
