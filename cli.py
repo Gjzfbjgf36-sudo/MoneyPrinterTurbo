@@ -13,6 +13,13 @@ from uuid import UUID, uuid4
 
 from loguru import logger
 
+for _stream in (sys.stdout, sys.stderr):
+    # Themen und Skripte sind deutsch. Ohne das schreibt Python sie in der
+    # Codepage des Systems, und auf einer deutschen Windows-Konsole wird aus
+    # "Boersengang" ein "B?rsengang" — mitten im Text, den man pruefen soll.
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 if TYPE_CHECKING:
     from app.models.schema import MaterialInfo, VideoParams
 

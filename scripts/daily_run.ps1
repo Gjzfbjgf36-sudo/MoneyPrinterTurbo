@@ -36,6 +36,12 @@ $ErrorActionPreference = 'Stop'
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
+# Und die Gegenseite: ohne das schreibt Python weiter in der Codepage des
+# Systems, waehrend PowerShell oben schon UTF-8 erwartet — aus "verschaerft"
+# wird dann "versch?rft". Die Variable gilt fuer jeden Python-Aufruf dieses
+# Laufs, also auch fuer cli.py und news_to_shorts.py.
+$env:PYTHONIOENCODING = 'utf-8'
+
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 

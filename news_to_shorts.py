@@ -25,6 +25,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    # Die Themenliste am Ende enthaelt Umlaute. Ohne das schreibt Python sie
+    # in der Codepage des Systems, und wer dieses Skript von Hand aufruft,
+    # liest "Boersengang" als "B?rsengang". Im Tageslauf setzt daily_run.ps1
+    # zusaetzlich PYTHONIOENCODING, damit es auch fuer cli.py gilt.
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent
 
 # Die Render-Einstellungen sind fuer 9:16-Shorts (YouTube Shorts / TikTok)

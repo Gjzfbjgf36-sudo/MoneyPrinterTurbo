@@ -74,3 +74,34 @@ def test_script_never_scans_for_videos():
     veröffentlichen.
     """
     assert "--scan" not in code_without_comments()
+
+
+def test_every_entry_point_writes_utf8():
+    """Dreimal einzeln geflickt — hier faellt die naechste Luecke sofort auf.
+
+    Die Skripte geben deutsche Themen und Beschreibungen aus. Schreibt eines
+    davon in der Codepage des Systems, wird auf einer deutschen Konsole aus
+    „Boersengang“ ein „B?rsengang“ — mitten im Text, den man pruefen soll.
+    """
+    from pathlib import Path
+
+    root = Path(__file__).parent.parent.parent
+    for name in ("cli.py", "news_to_shorts.py", "scripts/youtube_upload.py"):
+        quelle = (root / name).read_text(encoding="utf-8")
+        assert 'reconfigure(encoding="utf-8"' in quelle, f"{name} schreibt nicht UTF-8"
+
+
+def test_the_runner_sets_both_sides_of_the_encoding():
+    """PowerShell muss UTF-8 lesen und Python UTF-8 schreiben.
+
+    Nur eine Seite umzustellen ist schlimmer als keine: erwartet die Konsole
+    UTF-8, waehrend Python weiter cp1252 schreibt, wird aus jedem Umlaut ein
+    Fragezeichen.
+    """
+    from pathlib import Path
+
+    quelle = (
+        Path(__file__).parent.parent.parent / "scripts" / "daily_run.ps1"
+    ).read_text(encoding="utf-8")
+    assert "[Console]::OutputEncoding" in quelle
+    assert "PYTHONIOENCODING" in quelle
