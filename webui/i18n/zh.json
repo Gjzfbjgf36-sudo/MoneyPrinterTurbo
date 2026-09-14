@@ -626,6 +626,15 @@
     "Channel Take Over Same": "上方表单与该频道一致。",
     "Channel Took Over": "已采用：改变了 {count} 项。",
     "Channel Download": "下载视频",
-    "Channel Video Path": "本地路径：{path}"
+    "Channel Video Path": "本地路径：{path}",
+    "Channel Dry Run Count": "生成几条",
+    "Channel Dry Run Count Help": "仅本次运行——频道的每日条数保持不变。六条可覆盖你外出的两天。",
+    "Channel Dry Run Covers": "将于 {first} 至 {last} 发布",
+    "Channel Upload Plan": "这些视频将于以下时间上线：",
+    "Channel Schedule": "发布计划",
+    "Channel Schedule Help": "已上传的视频及 YouTube 公开它们的时间。尚未发布的以粗体显示；你的电脑无需开机。",
+    "Channel Schedule Empty": "该频道还没有上传过内容。",
+    "Channel Schedule Immediate": "无定时（{privacy}）",
+    "Channel Schedule Link": "查看"
   }
 }

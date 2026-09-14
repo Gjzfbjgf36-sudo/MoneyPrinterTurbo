@@ -526,6 +526,15 @@
     "Channel Take Over Same": "Formulir di atas sama dengan saluran ini.",
     "Channel Took Over": "Diambil: {count} nilai berubah.",
     "Channel Download": "Unduh video",
-    "Channel Video Path": "Di disk: {path}"
+    "Channel Video Path": "Di disk: {path}",
+    "Channel Dry Run Count": "Berapa video",
+    "Channel Dry Run Count Help": "Hanya untuk proses ini — jumlah harian saluran tetap. Enam video menutup dua hari saat kamu pergi.",
+    "Channel Dry Run Covers": "Akan tayang {first} sampai {last}",
+    "Channel Upload Plan": "Video ini akan tayang pada:",
+    "Channel Schedule": "Rencana tayang",
+    "Channel Schedule Help": "Video yang sudah diunggah dan kapan YouTube menayangkannya. Yang akan datang dicetak tebal; komputermu tidak perlu menyala.",
+    "Channel Schedule Empty": "Belum ada yang diunggah dari saluran ini.",
+    "Channel Schedule Immediate": "tanpa jadwal ({privacy})",
+    "Channel Schedule Link": "lihat"
   }
 }

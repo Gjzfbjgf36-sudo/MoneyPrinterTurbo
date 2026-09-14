@@ -626,6 +626,15 @@
     "Channel Take Over Same": "The form above matches this channel.",
     "Channel Took Over": "Taken over: {count} values changed.",
     "Channel Download": "Download video",
-    "Channel Video Path": "On disk: {path}"
+    "Channel Video Path": "On disk: {path}",
+    "Channel Dry Run Count": "How many videos",
+    "Channel Dry Run Count Help": "Only for this run — the channel keeps its daily number. Six videos cover two days you are away.",
+    "Channel Dry Run Covers": "Would publish {first} through {last}",
+    "Channel Upload Plan": "These videos would go live at:",
+    "Channel Schedule": "Publishing plan",
+    "Channel Schedule Help": "Uploaded videos and when YouTube makes them public. Upcoming ones are in bold; your computer does not need to run.",
+    "Channel Schedule Empty": "Nothing uploaded from this channel yet.",
+    "Channel Schedule Immediate": "no date ({privacy})",
+    "Channel Schedule Link": "open"
   }
 }

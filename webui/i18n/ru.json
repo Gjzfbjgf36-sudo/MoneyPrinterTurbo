@@ -526,6 +526,15 @@
     "Channel Take Over Same": "Форма наверху совпадает с этим каналом.",
     "Channel Took Over": "Взято: изменено значений — {count}.",
     "Channel Download": "Скачать видео",
-    "Channel Video Path": "На диске: {path}"
+    "Channel Video Path": "На диске: {path}",
+    "Channel Dry Run Count": "Сколько видео",
+    "Channel Dry Run Count Help": "Только для этого запуска — ежедневное число канала не меняется. Шесть видео закроют два дня вашего отсутствия.",
+    "Channel Dry Run Covers": "Вышли бы с {first} по {last}",
+    "Channel Upload Plan": "Эти видео вышли бы:",
+    "Channel Schedule": "План публикаций",
+    "Channel Schedule Help": "Загруженные видео и время, когда YouTube их откроет. Предстоящие выделены жирным; компьютер включать не нужно.",
+    "Channel Schedule Empty": "Из этого канала ещё ничего не загружено.",
+    "Channel Schedule Immediate": "без даты ({privacy})",
+    "Channel Schedule Link": "открыть"
   }
 }

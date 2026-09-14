@@ -23,7 +23,7 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, time
 from pathlib import Path
 
 for _stream in (sys.stdout, sys.stderr):
@@ -35,6 +35,13 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# Als Datei gestartet liegt sys.path[0] auf scripts/; das gemeinsame
+# Terminmodul liegt aber im Projektverzeichnis.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+import publish_schedule as schedule  # noqa: E402
+
 TASKS_DIR = ROOT / "storage" / "tasks"
 STATE_FILE = ROOT / "storage" / "youtube-uploads.json"
 TOKEN_FILE = ROOT / "storage" / "youtube-token.json"
@@ -225,57 +232,24 @@ def find_new_videos(state: dict) -> list[Path]:
 
 
 def parse_slot_times(raw: str) -> list[time]:
-    """Wandelt "08:00,13:00,18:00" in sortierte Uhrzeiten der lokalen Zeitzone."""
-    slots = []
-    for part in raw.split(","):
-        part = part.strip()
-        if not part:
-            continue
-        try:
-            hour, minute = (int(value) for value in part.split(":", 1))
-            slots.append(time(hour=hour, minute=minute))
-        except ValueError:
-            sys.exit(f"Ungültige Uhrzeit in --publish-at: {part!r} (erwartet HH:MM)")
-    if not slots:
-        sys.exit("--publish-at braucht mindestens eine Uhrzeit, etwa 08:00,13:00")
-    return sorted(set(slots))
+    """Wie im gemeinsamen Modul, aber mit Abbruch statt Ausnahme.
+
+    Ein Skript im naechtlichen Lauf soll mit einer lesbaren Zeile enden, nicht
+    mit einem Traceback.
+    """
+    try:
+        return schedule.parse_slot_times(raw)
+    except schedule.SlotError as exc:
+        sys.exit(f"--publish-at: {exc}")
 
 
 def publish_slots(raw: str, count: int, now: datetime | None = None) -> list[datetime]:
-    """Die nächsten count Veröffentlichungszeitpunkte ab jetzt.
-
-    Bereits vergangene Uhrzeiten des heutigen Tages werden übersprungen; sind
-    für heute keine mehr frei, geht es am Folgetag weiter. Damit verteilt ein
-    nächtlicher Lauf seine Videos über den kommenden Tag.
-    """
-    if count <= 0:
-        return []
-    now = now or datetime.now().astimezone()
-    times = parse_slot_times(raw)
-    result: list[datetime] = []
-    day = now.date()
-    while len(result) < count:
-        for slot_time in times:
-            # Den Zeitzonen-Versatz je Tag neu bestimmen statt den von heute
-            # weiterzureichen: ueber eine Zeitumstellung hinweg laegen die
-            # Termine der Folgetage sonst eine Stunde daneben.
-            candidate = datetime.combine(day, slot_time).astimezone()
-            if candidate > now:
-                result.append(candidate)
-                if len(result) == count:
-                    break
-        day += timedelta(days=1)
-    return result
+    """Die naechsten count Veroeffentlichungszeitpunkte ab jetzt."""
+    parse_slot_times(raw)  # meldet eine unbrauchbare Angabe sofort
+    return schedule.publish_slots(raw, count, now)
 
 
-def to_youtube_timestamp(moment: datetime) -> str:
-    """RFC-3339 in UTC, wie es die YouTube-API für publishAt erwartet."""
-    return (
-        moment.astimezone(timezone.utc)
-        .replace(microsecond=0)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+to_youtube_timestamp = schedule.to_youtube_timestamp
 
 
 def get_youtube_client():

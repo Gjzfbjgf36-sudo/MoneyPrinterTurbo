@@ -53,6 +53,11 @@ def _select_source(tr, current: str, key: str) -> str:
     return ch.SOURCES[0]
 
 
+def _format_slot(moment) -> str:
+    """Ein Termin, wie ihn ein Mensch liest — in der Zeitzone des Rechners."""
+    return moment.strftime("%a %d.%m. %H:%M")
+
+
 def _render_take_over(channel: ch.Channel, tr, params) -> None:
     """Übernimmt die Werte des großen Formulars in diesen Kanal.
 
@@ -306,8 +311,37 @@ def _render_dry_run(channel: ch.Channel, tr) -> None:
         return
 
     st.caption(tr("Channel Dry Run Help"))
+
+    try:
+        vorgabe = int(channel.config.get("topics_per_run", 3))
+    except (TypeError, ValueError):
+        vorgabe = 3
+    links, rechts = st.columns([1, 2], vertical_alignment="bottom")
+    # Nur fuer diesen einen Lauf. Wer vor zwei Tagen Abwesenheit sechs Videos
+    # auf Vorrat will, soll dafuer nicht die taegliche Zahl des Kanals
+    # verstellen und hinterher zuruecksetzen muessen.
+    anzahl = links.number_input(
+        tr("Channel Dry Run Count"),
+        min_value=1,
+        max_value=20,
+        value=max(1, min(vorgabe, 20)),
+        key=f"channel_drycount_{channel.name}",
+        help=tr("Channel Dry Run Count Help"),
+    )
+    termine = ch.planned_slots(
+        str(channel.config.get("publish_at", "")), int(anzahl)
+    )
+    if termine:
+        rechts.caption(
+            tr("Channel Dry Run Covers").format(
+                first=_format_slot(termine[0]), last=_format_slot(termine[-1])
+            )
+        )
+
     if not st.button(tr("Channel Dry Run"), key=f"channel_dry_{channel.name}"):
         return
+
+    command = ch.runner_command(channel.name, dry_run=True, count=int(anzahl))
 
     # Die Ausgabe wird zeilenweise gelesen und laufend angezeigt. Vorher lief
     # der Prozess minutenlang hinter einem Spinner, und niemand konnte sagen,
@@ -511,6 +545,17 @@ def _render_pending_videos(channel: ch.Channel, tr) -> None:
         key=f"channel_uploadvis_{channel.name}",
     )
 
+    # Welches der ausgewählten Videos wann erscheint — vor dem Hochladen,
+    # nicht erst hinterher in YouTube Studio.
+    if selected and schedule:
+        termine = ch.planned_slots(
+            str(channel.config.get("publish_at", "")), len(selected)
+        )
+        if termine:
+            st.caption(tr("Channel Upload Plan"))
+            for video, termin in zip(selected, termine):
+                st.markdown(f"- **{_format_slot(termin)}** · {video.subject}")
+
     if not st.button(
         tr("Channel Upload"),
         type="primary",
@@ -561,6 +606,29 @@ def _render_style_picker(channel: ch.Channel, tr) -> None:
         else:
             st.success(tr("Channel Style Applied"))
             st.rerun()
+
+
+def _render_schedule(channel: ch.Channel, tr) -> None:
+    """Was hochgeladen ist und wann es erscheint."""
+    videos = ch.scheduled_videos(channel.name)
+    st.subheader(tr("Channel Schedule"))
+    if not videos:
+        st.info(tr("Channel Schedule Empty"))
+        return
+
+    st.caption(tr("Channel Schedule Help"))
+    for video in videos:
+        if video.publish_at is None:
+            # Ohne Termin hochgeladen: sofort veroeffentlicht oder privat.
+            zeit = tr("Channel Schedule Immediate").format(privacy=video.privacy)
+        else:
+            zeit = _format_slot(video.publish_at)
+            if video.is_pending:
+                zeit = f"**{zeit}**"
+        zeile = f"- {zeit} · {video.subject}"
+        if video.url:
+            zeile += f" · [{tr('Channel Schedule Link')}]({video.url})"
+        st.markdown(zeile)
 
 
 def _render_run_log(channel: ch.Channel, tr) -> None:
@@ -641,6 +709,7 @@ def render_channels_panel(tr, params=None) -> None:
                     _render_style_picker(channel, tr)
                     _render_dry_run(channel, tr)
                     _render_pending_videos(channel, tr)
+                    _render_schedule(channel, tr)
                     _render_run_log(channel, tr)
 
                     # Ab hier nur noch Feinheiten, die kein Schritt verlangt.

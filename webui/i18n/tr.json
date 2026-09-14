@@ -526,6 +526,15 @@
     "Channel Take Over Same": "Yukarıdaki form bu kanalla aynı.",
     "Channel Took Over": "Alındı: {count} değer değişti.",
     "Channel Download": "Videoyu indir",
-    "Channel Video Path": "Diskte: {path}"
+    "Channel Video Path": "Diskte: {path}",
+    "Channel Dry Run Count": "Kaç video",
+    "Channel Dry Run Count Help": "Yalnızca bu çalışma için — kanalın günlük sayısı aynı kalır. Altı video, olmadığın iki günü karşılar.",
+    "Channel Dry Run Covers": "{first} ile {last} arasında yayımlanırdı",
+    "Channel Upload Plan": "Bu videolar şu zamanlarda yayına girer:",
+    "Channel Schedule": "Yayın planı",
+    "Channel Schedule Help": "Yüklenen videolar ve YouTube'un onları açtığı zaman. Bekleyenler kalın; bilgisayarının açık olması gerekmez.",
+    "Channel Schedule Empty": "Bu kanaldan henüz bir şey yüklenmedi.",
+    "Channel Schedule Immediate": "zamansız ({privacy})",
+    "Channel Schedule Link": "aç"
   }
 }

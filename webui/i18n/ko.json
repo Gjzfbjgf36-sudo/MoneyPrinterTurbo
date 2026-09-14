@@ -526,6 +526,15 @@
     "Channel Take Over Same": "위 양식이 이 채널과 같습니다.",
     "Channel Took Over": "가져왔습니다: {count}개 값 변경.",
     "Channel Download": "영상 내려받기",
-    "Channel Video Path": "디스크 경로: {path}"
+    "Channel Video Path": "디스크 경로: {path}",
+    "Channel Dry Run Count": "영상 개수",
+    "Channel Dry Run Count Help": "이번 실행에만 적용됩니다 — 채널의 하루 개수는 그대로입니다. 여섯 개면 자리를 비우는 이틀을 채웁니다.",
+    "Channel Dry Run Covers": "{first}부터 {last}까지 공개됩니다",
+    "Channel Upload Plan": "이 영상들이 공개될 시각:",
+    "Channel Schedule": "공개 일정",
+    "Channel Schedule Help": "업로드한 영상과 YouTube가 공개하는 시각입니다. 예정된 것은 굵게 표시되며, 컴퓨터를 켜 둘 필요가 없습니다.",
+    "Channel Schedule Empty": "이 채널에서 아직 업로드한 것이 없습니다.",
+    "Channel Schedule Immediate": "예약 없음 ({privacy})",
+    "Channel Schedule Link": "열기"
   }
 }

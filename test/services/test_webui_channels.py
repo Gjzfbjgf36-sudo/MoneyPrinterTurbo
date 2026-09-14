@@ -830,3 +830,112 @@ def test_stderr_is_not_lost():
     programm = "import sys; print('kaputt', file=sys.stderr)"
     ereignisse = list(ch.stream_command([sys.executable, "-c", programm]))
     assert ("line", "kaputt") in ereignisse
+
+
+def test_the_run_count_is_only_for_this_run(monkeypatch):
+    """Sechs Videos auf Vorrat sollen die taegliche Zahl nicht verstellen."""
+    monkeypatch.setattr(ch.platform, "system", lambda: "Windows")
+    befehl = ch.runner_command("tech", dry_run=True, count=6)
+    assert befehl[-2:] == ["-TopicsPerRun", "6"]
+    # Ohne Angabe bleibt es bei topics_per_run aus der channel.json.
+    assert "-TopicsPerRun" not in ch.runner_command("tech", dry_run=True)
+
+
+def test_the_planned_slots_match_what_the_uploader_will_set(sandbox):
+    """Angezeigter und gesetzter Termin duerfen nicht auseinanderlaufen."""
+    import publish_schedule as schedule
+
+    termine = ch.planned_slots("08:00,13:00,18:00", 4)
+    assert len(termine) == 4
+    assert termine == schedule.publish_slots("08:00,13:00,18:00", 4)
+    # Aufsteigend, keine zwei Videos zur selben Minute.
+    assert termine == sorted(termine)
+    assert len(set(termine)) == 4
+
+
+def test_without_publish_times_nothing_is_predicted(sandbox):
+    assert ch.planned_slots("", 3) == []
+    # Eine unbrauchbare Angabe darf die Seite nicht mitnehmen.
+    assert ch.planned_slots("25:00", 3) == []
+
+
+def test_the_schedule_lists_what_was_uploaded(sandbox, monkeypatch):
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+
+    task = sandbox / "storage" / "tasks" / "abc"
+    task.mkdir(parents=True)
+    (task / "script.json").write_text(
+        json.dumps({"params": {"video_subject": "Amazon kauft Chips"}}),
+        encoding="utf-8",
+    )
+    state = sandbox / "storage" / "channels" / "tech" / "youtube-uploads.json"
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text(
+        json.dumps(
+            {
+                "storage/tasks/abc/final-1.mp4": {
+                    "url": "https://youtu.be/xyz",
+                    "publish_at": "2099-01-01T07:00:00Z",
+                    "privacy": "private",
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    geplant = ch.scheduled_videos("tech")
+    assert len(geplant) == 1
+    assert geplant[0].subject == "Amazon kauft Chips"
+    assert geplant[0].url == "https://youtu.be/xyz"
+    assert geplant[0].is_pending is True
+    # Der Termin wird in der Zeitzone des Rechners angezeigt, nicht in UTC.
+    assert geplant[0].publish_at.tzinfo is not None
+
+
+def test_the_schedule_sorts_by_date_and_keeps_undated_last(sandbox, monkeypatch):
+    """Die Liste beantwortet „was kommt als Naechstes“ — dafuer zaehlt der Termin."""
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    state = sandbox / "storage" / "channels" / "tech" / "youtube-uploads.json"
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text(
+        json.dumps(
+            {
+                "storage/tasks/spaet/final-1.mp4": {"publish_at": "2099-06-01T07:00:00Z"},
+                "storage/tasks/ohne/final-1.mp4": {"publish_at": None, "privacy": "public"},
+                "storage/tasks/frueh/final-1.mp4": {"publish_at": "2099-01-01T07:00:00Z"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert [v.task_id for v in ch.scheduled_videos("tech")] == ["frueh", "spaet", "ohne"]
+
+
+def test_a_past_date_is_no_longer_pending(sandbox, monkeypatch):
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    state = sandbox / "storage" / "channels" / "tech" / "youtube-uploads.json"
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text(
+        json.dumps({"storage/tasks/alt/final-1.mp4": {"publish_at": "2020-01-01T07:00:00Z"}}),
+        encoding="utf-8",
+    )
+    assert ch.scheduled_videos("tech")[0].is_pending is False
+
+
+def test_a_broken_upload_state_does_not_break_the_page(sandbox, monkeypatch):
+    monkeypatch.setattr(ch, "ROOT", sandbox)
+    ch.create_channel("tech", {"source": "news", "topic": "KI"})
+    state = sandbox / "storage" / "channels" / "tech" / "youtube-uploads.json"
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text("{kein json", encoding="utf-8")
+    assert ch.scheduled_videos("tech") == []
+
+    state.write_text(
+        json.dumps({"storage/tasks/x/final-1.mp4": {"publish_at": "keine Zeit"}}),
+        encoding="utf-8",
+    )
+    # Ein unlesbarer Termin kostet den Termin, nicht den Eintrag.
+    assert ch.scheduled_videos("tech")[0].publish_at is None

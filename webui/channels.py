@@ -15,9 +15,15 @@ import platform
 import re
 import shutil
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 from app.models.schema import VideoParams
+
+# Dieselbe Rechnung wie im Uploader. Zwei Implementierungen wuerden
+# auseinanderlaufen, und auffallen wuerde es erst, wenn ein Video zu einer
+# anderen Zeit erscheint als angekündigt.
+from publish_schedule import SlotError, from_youtube_timestamp, publish_slots
 
 # Die Grenzen der Skriptlänge stehen dort, wo das Skript entsteht. Hier nur
 # importiert: zwei Stellen mit denselben Zahlen laufen irgendwann auseinander,
@@ -191,6 +197,85 @@ def stream_command(command: list[str], cwd: Path | None = None):
             if zeile:
                 yield ("line", zeile)
     yield ("exit", prozess.returncode)
+
+
+@dataclass
+class ScheduledVideo:
+    """Ein hochgeladenes Video und sein Veröffentlichungstermin."""
+
+    task_id: str
+    subject: str
+    url: str
+    publish_at: "datetime | None"
+    privacy: str
+
+    @property
+    def is_pending(self) -> bool:
+        """Ob der Termin noch bevorsteht."""
+        if self.publish_at is None:
+            return False
+        return self.publish_at > datetime.now().astimezone()
+
+
+def scheduled_videos(name: str) -> list[ScheduledVideo]:
+    """Was dieser Kanal hochgeladen hat, nach Termin sortiert.
+
+    Ohne diese Liste ist nach dem Hochladen nicht mehr zu sehen, welches
+    Video wann erscheint — die Antwort steckt dann nur noch in YouTube
+    Studio und in einer JSON-Datei.
+    """
+    state_file = CHANNEL_STORAGE_DIR / name / "youtube-uploads.json"
+    if not state_file.exists():
+        return []
+    try:
+        state = json.loads(state_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not isinstance(state, dict):
+        return []
+
+    videos: list[ScheduledVideo] = []
+    for key, eintrag in state.items():
+        if not isinstance(eintrag, dict):
+            continue
+        task_id = Path(str(key)).parent.name
+        metadata = _read_task_metadata(ROOT / Path(str(key)).parent)
+        params = metadata.get("params") or {}
+        videos.append(
+            ScheduledVideo(
+                task_id=task_id,
+                subject=str(params.get("video_subject") or task_id),
+                url=str(eintrag.get("url") or ""),
+                publish_at=from_youtube_timestamp(str(eintrag.get("publish_at") or "")),
+                privacy=str(eintrag.get("privacy") or ""),
+            )
+        )
+
+    # Ohne Termin veroeffentlichte Videos zuletzt: die Liste beantwortet die
+    # Frage „was kommt als Naechstes“, und dafuer zaehlt der Termin.
+    return sorted(
+        videos,
+        key=lambda video: (
+            video.publish_at is None,
+            video.publish_at or datetime.now().astimezone(),
+        ),
+    )
+
+
+def planned_slots(publish_at: str, count: int) -> list["datetime"]:
+    """Die Termine, die count Videos bei diesem Kanal bekämen.
+
+    Damit steht vor dem Hochladen auf dem Bildschirm, welches Video wann
+    erscheint — statt es erst hinterher in YouTube Studio zu sehen.
+    """
+    if not str(publish_at).strip():
+        return []
+    try:
+        return publish_slots(str(publish_at), count)
+    except SlotError:
+        # Die Uhrzeiten pruefte validate_config bereits; hier nicht noch
+        # einmal scheitern, nur nichts vorhersagen.
+        return []
 
 
 def settings_from_params(params) -> dict:
@@ -804,7 +889,9 @@ def next_step(channel: Channel) -> NextStep:
     return NextStep("ready", total, total)
 
 
-def runner_command(channel: str | None = None, dry_run: bool = False) -> list[str]:
+def runner_command(
+    channel: str | None = None, dry_run: bool = False, count: int = 0
+) -> list[str]:
     """Der Befehl für den Tageslauf auf diesem Betriebssystem.
 
     Nur ``daily_run.ps1`` kennt einzelne Kanäle und einen Probelauf. Auf
@@ -826,6 +913,10 @@ def runner_command(channel: str | None = None, dry_run: bool = False) -> list[st
             command += ["-Channel", channel]
         if dry_run:
             command.append("-DryRun")
+        if count > 0:
+            # Fuer einen einzelnen Lauf: sechs Videos vor zwei Tagen Abwesenheit,
+            # ohne dafuer die taegliche Zahl des Kanals dauerhaft zu verstellen.
+            command += ["-TopicsPerRun", str(count)]
         return command
 
     if dry_run:

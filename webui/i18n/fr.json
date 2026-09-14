@@ -526,6 +526,15 @@
     "Channel Take Over Same": "Le formulaire du haut correspond à cette chaîne.",
     "Channel Took Over": "Repris : {count} valeurs modifiées.",
     "Channel Download": "Télécharger la vidéo",
-    "Channel Video Path": "Sur le disque : {path}"
+    "Channel Video Path": "Sur le disque : {path}",
+    "Channel Dry Run Count": "Combien de vidéos",
+    "Channel Dry Run Count Help": "Uniquement pour cette exécution : le nombre quotidien de la chaîne ne change pas. Six vidéos couvrent deux jours d'absence.",
+    "Channel Dry Run Covers": "Elles paraîtraient du {first} au {last}",
+    "Channel Upload Plan": "Ces vidéos paraîtraient le :",
+    "Channel Schedule": "Programme de publication",
+    "Channel Schedule Help": "Vidéos envoyées et moment où YouTube les rend publiques. À venir en gras ; votre ordinateur n'a pas besoin de tourner.",
+    "Channel Schedule Empty": "Rien n'a encore été envoyé depuis cette chaîne.",
+    "Channel Schedule Immediate": "sans date ({privacy})",
+    "Channel Schedule Link": "voir"
   }
 }

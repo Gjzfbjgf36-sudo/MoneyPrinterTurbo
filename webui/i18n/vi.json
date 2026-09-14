@@ -526,6 +526,15 @@
     "Channel Take Over Same": "Biểu mẫu ở trên trùng với kênh này.",
     "Channel Took Over": "Đã lấy: {count} giá trị thay đổi.",
     "Channel Download": "Tải video về",
-    "Channel Video Path": "Trên đĩa: {path}"
+    "Channel Video Path": "Trên đĩa: {path}",
+    "Channel Dry Run Count": "Bao nhiêu video",
+    "Channel Dry Run Count Help": "Chỉ cho lần chạy này — số mỗi ngày của kênh vẫn giữ nguyên. Sáu video đủ cho hai ngày bạn vắng mặt.",
+    "Channel Dry Run Covers": "Sẽ lên từ {first} đến {last}",
+    "Channel Upload Plan": "Các video này sẽ lên vào:",
+    "Channel Schedule": "Lịch đăng",
+    "Channel Schedule Help": "Video đã tải lên và thời điểm YouTube công khai chúng. Sắp tới được in đậm; máy của bạn không cần bật.",
+    "Channel Schedule Empty": "Kênh này chưa tải lên gì.",
+    "Channel Schedule Immediate": "không hẹn giờ ({privacy})",
+    "Channel Schedule Link": "xem"
   }
 }
